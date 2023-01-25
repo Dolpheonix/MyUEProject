@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UMG_Game")
 	void ChangeMenuWidget(UUserWidget* TargetUI);
 
+	UFUNCTION()
+	void SniperMode(bool turnOn);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void StartPlay() override;
@@ -30,11 +33,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
 	TSubclassOf<UUserWidget> ShowroomWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
+	TSubclassOf<UUserWidget> SniperWidgetClass;
+
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* MainUI;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* ShowroomUI;
+
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* SniperUI;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* CurrentUI;

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "../Character_Root.h"
+#include "Components/WidgetComponent.h"
+#include "../../UI/HPBar.h"
 #include "Enemy.generated.h"
 
 /**
@@ -28,5 +30,10 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	UWidgetComponent* HPWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	TSubclassOf<UHPBar> HPWidgetClass;
 };

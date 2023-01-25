@@ -70,9 +70,9 @@ public:
 	UFUNCTION()
 	void Attack();
 	UFUNCTION()
-	void Guard();
+	void SubAttack();
 	UFUNCTION()
-	void unGuard();
+	void unSubAttack();
 	// UI Interaction
 	UFUNCTION()
 	void RollItems();

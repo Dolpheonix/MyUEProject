@@ -16,6 +16,7 @@ ABullet::ABullet()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ABullet::OnHit); // component에 hit event가 발생했을 때, OnHit function을 호출하도록 binding
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnOverlapped);
 	CollisionComponent->InitSphereRadius(3.3f);
 	RootComponent = CollisionComponent;
 
@@ -31,6 +32,7 @@ ABullet::ABullet()
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
 	ProjectileMovementComponent->InitialSpeed = 3000.0f;
 	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true; // velocity의 방향에 따라 발사체가 회전하게 됨
 	ProjectileMovementComponent->bShouldBounce = true; // 발사체에 bounce를 적용
 	ProjectileMovementComponent->Bounciness = 0.3f; // bounce 후에 보존되는 velocity
@@ -64,6 +66,11 @@ void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	}
 
+	Destroy();
+}
+
+void ABullet::OnOverlapped(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
 	auto Hittee = Cast<AEnemy>(OtherActor);
 	if (Hittee)
 	{
@@ -72,6 +79,7 @@ void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 
 	Destroy();
 }
+
 
 // projectile의 velocity를 결정
 void ABullet::FireInDirection(const FVector& ShootDirection)

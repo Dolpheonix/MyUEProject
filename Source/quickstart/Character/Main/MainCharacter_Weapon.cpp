@@ -32,24 +32,18 @@ void AMainCharacter::Fire()
 		{
 			FireAudio->Play();
 		}
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
-		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(Muzzle); // muzzle location을 camera space에서 world space로 변환
-		FRotator MuzzleRotation = CameraRotation;
-
-		MuzzleRotation.Pitch += 10.0f; // 살짝 위쪽을 조준
+		FVector MuzzleLocation = GetActorLocation() + FTransform(GetControlRotation()).TransformVector(Muzzle);
 		UWorld* World = GetWorld();
 		if (World)
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator(); // instigator : spawn을 trigger한 주체
-			ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams); // world에 actor를 스폰
+			ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, FRotator(0,0,0), SpawnParams); // world에 actor를 스폰
 			if (Projectile)
 			{
-				FVector LaunchDirection = MuzzleRotation.Vector(); // 총구 방향
+				FVector LaunchDirection = GetControlRotation().Vector();
 				Projectile->FireInDirection(LaunchDirection); // 발사체 velocity 결정
 			}
 		}
@@ -80,7 +74,6 @@ void AMainCharacter::Wield()
 
 void AMainCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Hit!"));
 }
 
 void AMainCharacter::OnOverlapped(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

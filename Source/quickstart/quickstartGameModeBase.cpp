@@ -18,6 +18,7 @@ void AquickstartGameModeBase::BeginPlay()
     Super::BeginPlay();
     MainUI = CreateWidget(GetWorld(), MainWidgetClass);
     ShowroomUI = CreateWidget(GetWorld(), ShowroomWidgetClass);
+    SniperUI = CreateWidget(GetWorld(), SniperWidgetClass);
     ChangeMenuWidget(MainUI);
 }
 
@@ -39,4 +40,10 @@ void AquickstartGameModeBase::ChangeMenuWidget(UUserWidget* TargetUI)
         CurrentUI = TargetUI;
         CurrentUI->AddToViewport();
     }
+}
+
+void AquickstartGameModeBase::SniperMode(bool turnOn)
+{
+    if (turnOn) SniperUI->AddToViewport();
+    else SniperUI->RemoveFromViewport();
 }

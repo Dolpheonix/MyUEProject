@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 #define MOVABLE !AMainCharacter::bAttacking && !AMainCharacter::bBlocking && !AMainCharacter::bInteracting
@@ -14,6 +15,10 @@ AMainCharacter::AMainCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Capsule Component
+	auto Capsule = Cast<UCapsuleComponent>(RootComponent);
+	Capsule->SetCollisionProfileName("Character");
+
 	// Character Mesh
 	auto MainMesh = GetMesh();
 	MainMesh->SetSkeletalMesh(Helpers::C_LoadObjectFromPath<USkeletalMesh>(TEXT("/Game/ShootingGame/Character/Main/Mesh/SK_Mannequin.SK_Mannequin")));
@@ -21,10 +26,12 @@ AMainCharacter::AMainCharacter()
 	MainMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	MainMesh->SetRenderCustomDepth(true);
 	MainMesh->SetCustomDepthStencilValue(1);
+	MainMesh->SetGenerateOverlapEvents(true);
+	MainMesh->SetCollisionProfileName("CharacterBody");
 
 	// Camera Component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	Helpers::SetComponent(&Camera, RootComponent, FVector(88.0f, 0.0f, -10.0f), FRotator(-20.0f, 0.0f, 0.0f));
+	Helpers::SetComponent(&Camera, RootComponent, FVector(-172.0f, 0.0f, 85.0f), FRotator(-20.0f, 0.0f, 0.0f));
 	Camera->bUsePawnControlRotation = true;
 	Camera->PostProcessSettings.AddBlendable(Helpers::C_LoadObjectFromPath<UMaterial>(TEXT("/Game/ShootingGame/Material/PostProcess/M_Highlight.M_Highlight")), 1);
 
@@ -35,7 +42,7 @@ AMainCharacter::AMainCharacter()
 	FireAudio->bAutoActivate = false;
 
 	// Muzzle Pos
-	Muzzle = FVector(100.0f, 0.0f, 0.0f);
+	Muzzle = FVector(110.0f, 20.0f, 45.0f);
 
 	// Armory & Inventory ÃÊ±âÈ­
 	Weapons.Add(FItemForm("Fist", "Just Fist..."));
@@ -132,8 +139,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("RollWeapons", IE_Pressed, this, &AMainCharacter::RollWeapons);          // T
 	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::Use);                          // Q
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainCharacter::Attack);                    // Mouse Left
-	PlayerInputComponent->BindAction("Guard", IE_Pressed, this, &AMainCharacter::Guard);                      // Mouse Right
-	PlayerInputComponent->BindAction("Guard", IE_Released, this, &AMainCharacter::unGuard);
+	PlayerInputComponent->BindAction("SubAttack", IE_Pressed, this, &AMainCharacter::SubAttack);                      // Mouse Right
+	PlayerInputComponent->BindAction("SubAttack", IE_Released, this, &AMainCharacter::unSubAttack);
 
 	PlayerInputComponent->BindAction("OpenShowroom", IE_Pressed, this, &AMainCharacter::OpenShowroom);        // I
 }
@@ -448,12 +455,41 @@ void AMainCharacter::Attack()
 	}
 }
 
-void AMainCharacter::Guard()
+void AMainCharacter::SubAttack()
 {
-	if(BLOCKABLE) bBlocking = true;
+	switch (WeaponCode)
+	{
+	case 0:
+		if (BLOCKABLE) bBlocking = true;
+		break;
+	case 1:
+	{
+		Camera->SetRelativeLocation(Muzzle, true);
+		GameMode->SniperMode(true);
+		break;
+	}
+	case 2:
+		break;
+	default:
+		break;
+	}
+
 }
 
-void AMainCharacter::unGuard()
+void AMainCharacter::unSubAttack()
 {
-	bBlocking = false;
+	switch (WeaponCode)
+	{
+	case 0:
+		bBlocking = false;
+		break;
+	case 1:
+		Camera->SetRelativeLocationAndRotation(FVector(-172.0f, 0.0f, 85.0f), FRotator(-20.0f, 0.0f, 0.0f), true);
+		GameMode->SniperMode(false);
+		break;
+	case 2:
+		break;
+	default:
+		break;
+	}
 }
