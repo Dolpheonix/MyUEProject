@@ -33,7 +33,7 @@ void AMainCharacter::Fire()
 			FireAudio->Play();
 		}
 
-		FVector MuzzleLocation = GetActorLocation() + FTransform(GetControlRotation()).TransformVector(Muzzle);
+		FVector MuzzleLocation = GetMesh()->GetSocketLocation(TEXT("Rifle_Muzzle"));
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -74,6 +74,22 @@ void AMainCharacter::Wield()
 
 void AMainCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherComponent->GetCollisionObjectType() == ECollisionChannel::ECC_WorldStatic)
+	{
+		if (!bAttacking) // Sword is overlapped in idle/move state
+		{
+			auto Curr = Weapons[Weapon_Now].NameTag;
+			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
+			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
+		}
+		else
+		{
+			auto Curr = Weapons[Weapon_Now].NameTag;
+			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
+			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
+			bAttackBlocked = true;
+		}
+	}
 }
 
 void AMainCharacter::OnOverlapped(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -135,6 +135,8 @@ public:
 	bool bFalling = false;
 	UPROPERTY(BlueprintReadWrite)
 	int AttackPhase = -1;
+	UPROPERTY(BlueprintReadWrite)
+	bool bAttackBlocked = false;
 
 // Rifle ฐüทร
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)

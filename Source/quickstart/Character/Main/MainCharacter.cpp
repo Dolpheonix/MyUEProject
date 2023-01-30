@@ -93,6 +93,10 @@ void AMainCharacter::Tick(float DeltaTime)
 		hurtFrameStep = 0;
 		Camera->PostProcessSettings.bOverride_SceneColorTint = true;
 		DisableInput(UGameplayStatics::GetPlayerController(this, 0));
+		bMoving = false;
+		bAttacking = false;
+		bInteracting = false;
+		bJumping = false;
 	}
 	if (hurtFrameStep >= 0)
 	{
@@ -439,6 +443,11 @@ void AMainCharacter::Use()
 
 void AMainCharacter::Attack()
 {
+	if (WeaponCode != 0 && !Weapons[Weapon_Now].MeshComponent->IsSimulatingPhysics())
+	{
+		Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(true);
+	}
+
 	switch (WeaponCode)
 	{
 	case 0:
@@ -464,11 +473,12 @@ void AMainCharacter::SubAttack()
 		break;
 	case 1:
 	{
-		Camera->SetRelativeLocation(Muzzle, true);
+		Camera->SetRelativeLocation(FVector(-62.0f, -15.0f, 95.0f), true);
 		GameMode->SniperMode(true);
 		break;
 	}
 	case 2:
+		if (BLOCKABLE) bBlocking = true;
 		break;
 	default:
 		break;
@@ -488,6 +498,7 @@ void AMainCharacter::unSubAttack()
 		GameMode->SniperMode(false);
 		break;
 	case 2:
+		bBlocking = false;
 		break;
 	default:
 		break;
