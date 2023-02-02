@@ -136,14 +136,16 @@ void APortal::Connect()
 {
 	//Destination->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	Destination->AttachToComponent(nullptr, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
-	Destination->SetWorldLocation(Pair->GetActorLocation() + FVector(Pair->Volume->GetScaledBoxExtent().X + 100.0f, 0.0f, 0.0f));
+	Destination->SetWorldLocation(Pair->GetActorLocation() + Pair->GetActorForwardVector() * Pair->Volume->GetScaledBoxExtent().Size());
 	Destination->AttachToComponent(Pair->Volume, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	Destination->SetRelativeRotation(FRotator::ZeroRotator);
 }
 
 void APortal::Disconnect()
 {
 	//Destination->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	Destination->AttachToComponent(nullptr, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
-	Destination->SetWorldLocation(GetActorLocation() + FVector(Volume->GetScaledBoxExtent().X + 100.0f, 0.0f, 0.0f));
+	Destination->SetWorldLocation(GetActorLocation() + GetActorForwardVector() * Volume->GetScaledBoxExtent().Size());
 	Destination->AttachToComponent(Volume, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	Destination->SetRelativeRotation(FRotator::ZeroRotator);
 }
