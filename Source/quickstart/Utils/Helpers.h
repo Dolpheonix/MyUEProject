@@ -22,7 +22,7 @@ public:
 	template <typename T>
 	static FORCEINLINE void SetComponent(T** comp, USceneComponent* parent, FVector relLoc, FRotator relRot, FVector relScale = FVector(1.0f, 1.0f, 1.0f))
 	{
-		(*comp)->SetupAttachment(parent);
+		if(parent) (*comp)->SetupAttachment(parent);
 		(*comp)->SetRelativeLocation(relLoc);
 		(*comp)->SetRelativeRotation(relRot);
 		(*comp)->SetRelativeScale3D(relScale);

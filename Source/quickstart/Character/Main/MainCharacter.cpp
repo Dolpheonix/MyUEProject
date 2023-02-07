@@ -160,18 +160,7 @@ void AMainCharacter::MoveForward(float val)
 	else if(MOVABLE)
 	{
 		FVector direction = GetActorForwardVector();
-		if (bRunning)
-		{
-			AddMovementInput(direction, val);
-		}
-		else if (bWalking)
-		{
-			AddMovementInput(direction, val * 0.5f);
-		}
-		else
-		{
-			AddMovementInput(direction, val);
-		}
+		AddMovementInput(direction, val);
 	}
 }
 
@@ -198,11 +187,13 @@ void AMainCharacter::StopRun()
 void AMainCharacter::StartWalk()
 {
 	bWalking = true;
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 }
 
 void AMainCharacter::StopWalk()
 {
 	bWalking = false;
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
 
 
@@ -211,18 +202,7 @@ void AMainCharacter::MoveRight(float val)
 	if (!LadderInfo.onLadder && MOVABLE)
 	{
 		FVector direction = GetActorRightVector();
-		if (bRunning)
-		{
-			AddMovementInput(direction, val);
-		}
-		else if (bWalking)
-		{
-			AddMovementInput(direction, val * 0.5f);
-		}
-		else
-		{
-			AddMovementInput(direction, val);
-		}
+		AddMovementInput(direction, val);
 	}
 }
 

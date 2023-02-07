@@ -4,6 +4,7 @@
 #include "Portal.h"
 #include "../../Utils/Helpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values
 APortal::APortal()
@@ -103,6 +104,7 @@ void APortal::OnOverlapped_Teleport(UPrimitiveComponent* HitComponent, AActor* O
 
 		main->SetActorLocation(destination);
 		main->GetController()->SetControlRotation(Destination->GetComponentRotation());
+		main->GetMovementComponent()->Velocity = FVector::ZeroVector;
 	}
 }
 

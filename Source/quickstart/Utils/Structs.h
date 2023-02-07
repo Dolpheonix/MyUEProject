@@ -45,3 +45,12 @@ struct CapturedSlot_Info
 	int index;
 	FString tag;
 };
+
+UENUM(BlueprintType)
+enum class EShapeCollision : uint8
+{
+	Box,
+	Sphere,
+	Capsule,
+	Convex,
+};
