@@ -42,10 +42,9 @@ void AForceField::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto player = Cast<ACharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-	if (isActivate)
-	{	
-		player->GetCharacterMovement()->AddInputVector(ForceVector * ForceMagnitude);
+	for (int i = 0; i < CharacterEntry.Num(); i++)
+	{
+		CharacterEntry[i].EnteredActor->GetCharacterMovement()->AddInputVector(ForceVector * ForceMagnitude);
 	}
 
 	for (int i = 0; i < ActorEntry.Num(); i++)
@@ -59,12 +58,14 @@ void AForceField::ActorEnteredVolume(AActor* other)
 	APhysicsVolume::ActorEnteredVolume(other);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("ENTER??"));
-	auto player = UGameplayStatics::GetPlayerCharacter(this, 0);
-	if ((AActor*)player == other)
+
+	auto character = Cast<ACharacter_Root>(other);
+	if (character)
 	{
-		isActivate = true;
-		player->GetCharacterMovement()->GravityScale = 0.f;
-		player->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+		character->GetCharacterMovement()->GravityScale = 0.f;
+		character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+		character->bForced = true;
+		CharacterEntry.Add(FEnterForceFieldForm_Character(character, character->GetVelocity()));
 	}
 	else
 	{
@@ -76,7 +77,7 @@ void AForceField::ActorEnteredVolume(AActor* other)
 			FVector angular = object->GetPhysicsComponent()->GetPhysicsAngularVelocityInDegrees() * DampingScale;
 			object->GetPhysicsComponent()->SetPhysicsLinearVelocity(linear);
 			object->GetPhysicsComponent()->SetPhysicsAngularVelocityInDegrees(angular);
-			ActorEntry.Add(FEnterForceFieldForm(object, object->GetVelocity()));
+			ActorEntry.Add(FEnterForceFieldForm_Object(object, object->GetVelocity()));
 		}
 	}
 }
@@ -86,11 +87,20 @@ void AForceField::ActorLeavingVolume(AActor* other)
 	APhysicsVolume::ActorLeavingVolume(other);
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("LEAVE??"));
 
-	auto player = UGameplayStatics::GetPlayerCharacter(this, 0);
-	if ((AActor*)player == other)
+	auto character = Cast<ACharacter_Root>(other);
+	if (character)
 	{
-		player->GetCharacterMovement()->GravityScale = 1.f;
-		isActivate = false;
+		int index;
+		for (index = 0; index < CharacterEntry.Num(); index++)
+		{
+			if (CharacterEntry[index].EnteredActor == character)
+			{
+				CharacterEntry[index].EnteredActor->bForced = false;
+				CharacterEntry[index].EnteredActor->GetCharacterMovement()->GravityScale = 1.f;
+				break;
+			}
+		}
+		CharacterEntry.RemoveAt(index);
 	}
 	else
 	{

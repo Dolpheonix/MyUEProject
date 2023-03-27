@@ -41,7 +41,7 @@ void AInteractable::Tick(float DeltaTime)
 	{
 		bInteractable = true;
 
-		if (Player->bInteracting)
+		if (Player->GetCurrentAction() == ECustomActionMode::INTERACT)
 		{
 			Interact();
 		}

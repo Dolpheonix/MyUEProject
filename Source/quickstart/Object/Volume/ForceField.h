@@ -6,6 +6,7 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "Components/ArrowComponent.h"
 #include "../WorldObject/PhysicsObject.h"
+#include "../../Character/Character_Root.h"
 #include "ForceField.generated.h"
 
 /**
@@ -13,15 +14,27 @@
  */
 
 USTRUCT(Atomic, BlueprintType)
-struct FEnterForceFieldForm
+struct FEnterForceFieldForm_Character
+{
+	GENERATED_USTRUCT_BODY()
+
+	ACharacter_Root* EnteredActor;
+	FVector InitialVelocity;
+
+	FEnterForceFieldForm_Character() : EnteredActor(nullptr), InitialVelocity(FVector::ZeroVector) {}
+	FEnterForceFieldForm_Character(ACharacter_Root* actor, FVector vel) : EnteredActor(actor), InitialVelocity(vel) {}
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FEnterForceFieldForm_Object
 {
 	GENERATED_USTRUCT_BODY()
 
 	APhysicsObject* EnteredActor;
 	FVector InitialVelocity;
 
-	FEnterForceFieldForm() : EnteredActor(nullptr), InitialVelocity(FVector::ZeroVector) {}
-	FEnterForceFieldForm(APhysicsObject* actor, FVector vel) : EnteredActor(actor), InitialVelocity(vel) {}
+	FEnterForceFieldForm_Object() : EnteredActor(nullptr), InitialVelocity(FVector::ZeroVector) {}
+	FEnterForceFieldForm_Object(APhysicsObject* actor, FVector vel) : EnteredActor(actor), InitialVelocity(vel) {}
 };
 
 UCLASS(hidecategories = (CharacterMovement))
@@ -44,12 +57,13 @@ public:
 	virtual void ActorLeavingVolume(class AActor* Other) override;
 
 public:
-	bool isActivate = false;
-
 	UArrowComponent* Arrow;
 
 	UPROPERTY(VisibleAnywhere, Category="Test")
-	TArray<FEnterForceFieldForm> ActorEntry;
+	TArray<FEnterForceFieldForm_Object> ActorEntry;
+
+	UPROPERTY()
+	TArray<FEnterForceFieldForm_Character> CharacterEntry;
 
 	// Direction of Force. Relative to Actor.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Force")

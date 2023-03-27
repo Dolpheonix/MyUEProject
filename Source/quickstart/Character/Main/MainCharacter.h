@@ -16,6 +16,26 @@
 #include <Engine/Classes/Components/AudioComponent.h>
 #include "MainCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class ECustomMovementMode : uint8
+{
+	IDLE,
+	WALK,
+	JUMP,
+	FALL,
+	MAX,
+};
+
+UENUM(BlueprintType)
+enum class ECustomActionMode : uint8
+{
+	IDLE,
+	ATTACK,
+	INTERACT,
+	GUARD,
+	MAX,
+};
+
 UCLASS()
 class QUICKSTART_API AMainCharacter : public ACharacter_Root
 {
@@ -36,13 +56,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 // Binding Functions
-	// Locomotive
+// Locomotive
 	UFUNCTION()
 	void MoveForward(float val);
 	UFUNCTION()
 	void MoveRight(float val);
 	UFUNCTION()
-	void StopClimb();
+	void MoveStart();
+	UFUNCTION()
+	void MoveEnd();
 	UFUNCTION()
 	void StartRun();
 	UFUNCTION()
@@ -55,16 +77,14 @@ public:
 	void StartJump();
 	UFUNCTION()
 	void StopJump();
-	// Rotation
+// Rotation
 	UFUNCTION()
 	void Turn(float val);
 	UFUNCTION()
 	void LookUp(float val);
-	// Actions
+// Actions
 	UFUNCTION()
 	void Interact();
-	UFUNCTION()
-	void unInteract();
 	UFUNCTION()
 	void Use();
 	UFUNCTION()
@@ -73,7 +93,7 @@ public:
 	void SubAttack();
 	UFUNCTION()
 	void unSubAttack();
-	// UI Interaction
+// UI Interaction
 	UFUNCTION()
 	void RollItems();
 	UFUNCTION()
@@ -95,6 +115,12 @@ public:
 	UFUNCTION()
 	void Wield();
 	UFUNCTION()
+	void CheckEndMovement();
+	UFUNCTION()
+	void CheckEndAction();
+	UFUNCTION()
+	void EndAction();
+	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	UFUNCTION()
 	void OnOverlapped(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -111,6 +137,10 @@ public:
 	UFUNCTION()
 	void DeleteItem(ETypeTag type, int index);
 
+// Condition
+	UFUNCTION()
+	bool CanAttack();
+
 public:
 // Third-person Camera
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -121,16 +151,10 @@ public:
 	bool bRunning=false;
 	UPROPERTY(BlueprintReadOnly)
 	bool bWalking=false;
-	UPROPERTY(BlueprintReadWrite)
-	bool bMoving = false;
+	UPROPERTY(BlueprintReadOnly)
+	int32 MoveKeyPressed = 0;
 	UPROPERTY(BlueprintReadWrite)
 	bool bContinueAttack = false;
-	UPROPERTY(BlueprintReadWrite)
-	bool bJumping = false;
-	UPROPERTY(BlueprintReadWrite)
-	bool bBlocking=false;
-	UPROPERTY(BlueprintReadWrite)
-	bool bInteracting = false;
 	UPROPERTY(BlueprintReadWrite)
 	bool bFalling = false;
 	UPROPERTY(BlueprintReadWrite)
@@ -138,6 +162,22 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bAttackBlocked = false;
 
+private:
+	UPROPERTY()
+	ECustomMovementMode CurrentMovement = ECustomMovementMode::IDLE;
+	UPROPERTY()
+	ECustomActionMode CurrentAction = ECustomActionMode::IDLE;
+public:
+	UFUNCTION(BlueprintPure)
+	ECustomMovementMode GetCurrentMovement();
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentMovement(ECustomMovementMode NewMovement);
+	UFUNCTION(BlueprintPure)
+	ECustomActionMode GetCurrentAction();
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentAction(ECustomActionMode NewAction);
+
+public:
 // Rifle ฐüทร
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<ABullet> ProjectileClass;

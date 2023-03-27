@@ -4,13 +4,6 @@
 #include "Components/CapsuleComponent.h"
 #include <Kismet/GameplayStatics.h>
 
-#define MOVABLE !AMainCharacter::bAttacking && !AMainCharacter::bBlocking && !AMainCharacter::bInteracting
-#define JUMPABLE !AMainCharacter::bAttacking && !AMainCharacter::bFalling && !AMainCharacter::bInteracting && !AMainCharacter::bBlocking
-#define ATTACKABLE !AMainCharacter::bBlocking && !AMainCharacter::bInteracting && (!AMainCharacter::bFalling || AMainCharacter::bJumping)
-#define ATTACKABLE_RIFLE !AMainCharacter::bBlocking && !AMainCharacter::bInteracting && !AMainCharacter::bFalling
-#define BLOCKABLE !AMainCharacter::bAttacking && !AMainCharacter::bInteracting && !AMainCharacter::bFalling && !AMainCharacter::bJumping
-#define INTERACTABLE !AMainCharacter::bMoving && !AMainCharacter::bJumping && !AMainCharacter::bFalling && !AMainCharacter::bAttacking && !AMainCharacter::bBlocking
-
 AMainCharacter::AMainCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -84,19 +77,12 @@ void AMainCharacter::Tick(float DeltaTime)
 	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling) bFalling = true;
 	else bFalling = false;
 
-	if (GetVelocity().SizeSquared() == 0.0f) bMoving = false;
-	else bMoving = true;
-	
 	// Hurt 경직 효과
 	if (bHurt && hurtFrameStep < 0)
 	{
 		hurtFrameStep = 0;
 		Camera->PostProcessSettings.bOverride_SceneColorTint = true;
 		DisableInput(UGameplayStatics::GetPlayerController(this, 0));
-		bMoving = false;
-		bAttacking = false;
-		bInteracting = false;
-		bJumping = false;
 	}
 	if (hurtFrameStep >= 0)
 	{
@@ -117,6 +103,10 @@ void AMainCharacter::Tick(float DeltaTime)
 			EnableInput(UGameplayStatics::GetPlayerController(this, 0));
 		}
 	}
+
+	// Attack Phase
+	CheckEndMovement();
+	CheckEndAction();
 }
 
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -124,7 +114,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAxis("Move_Forward", this, &AMainCharacter::MoveForward);                       // W,S
-	PlayerInputComponent->BindAction("Climb_Stop", IE_Released, this, &AMainCharacter::StopClimb);
+	PlayerInputComponent->BindAction("Move_W", IE_Pressed, this, &AMainCharacter::MoveStart);
+	PlayerInputComponent->BindAction("Move_A", IE_Pressed, this, &AMainCharacter::MoveStart);
+	PlayerInputComponent->BindAction("Move_S", IE_Pressed, this, &AMainCharacter::MoveStart);
+	PlayerInputComponent->BindAction("Move_D", IE_Pressed, this, &AMainCharacter::MoveStart);
+	PlayerInputComponent->BindAction("Move_End", IE_Released, this, &AMainCharacter::MoveEnd);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMainCharacter::StartRun);                     // left Alt
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMainCharacter::StopRun);                   
@@ -137,7 +131,6 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);                   // Spacebar press
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJump);                   // Spacebar release
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMainCharacter::Interact);                // E press
-	PlayerInputComponent->BindAction("Interact", IE_Released, this, &AMainCharacter::unInteract);             // E release
 
 	PlayerInputComponent->BindAction("RollItems", IE_Pressed, this, &AMainCharacter::RollItems);			  // R
 	PlayerInputComponent->BindAction("RollWeapons", IE_Pressed, this, &AMainCharacter::RollWeapons);          // T
@@ -157,18 +150,28 @@ void AMainCharacter::MoveForward(float val)
 		FVector direction = GetActorForwardVector().RotateAngleAxis(-LadderInfo.Slope, GetActorRightVector());
 		AddMovementInput(direction, val);
 	}
-	else if(MOVABLE)
+	else if(GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		FVector direction = GetActorForwardVector();
 		AddMovementInput(direction, val);
 	}
 }
 
-void AMainCharacter::StopClimb()
+void AMainCharacter::MoveStart()
+{
+	MoveKeyPressed++;
+}
+
+void AMainCharacter::MoveEnd()
 {
 	if (LadderInfo.onLadder)
 	{
 		GetCharacterMovement()->StopMovementImmediately();
+	}
+	else 
+	{
+		MoveKeyPressed--;
+		if(GetCurrentMovement() == ECustomMovementMode::WALK && MoveKeyPressed == 0) SetCurrentMovement(ECustomMovementMode::IDLE);
 	}
 }
 
@@ -196,10 +199,9 @@ void AMainCharacter::StopWalk()
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
 
-
 void AMainCharacter::MoveRight(float val)
 {
-	if (!LadderInfo.onLadder && MOVABLE)
+	if (!LadderInfo.onLadder && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		FVector direction = GetActorRightVector();
 		AddMovementInput(direction, val);
@@ -208,7 +210,7 @@ void AMainCharacter::MoveRight(float val)
 
 void AMainCharacter::Turn(float val)
 {
-	if (!LadderInfo.onLadder && MOVABLE)
+	if (!LadderInfo.onLadder && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		AddControllerYawInput(val);
 	}
@@ -227,10 +229,10 @@ void AMainCharacter::StartJump()
 		LadderInfo.dirty = true;
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
-	if (JUMPABLE)
+	if (GetCurrentAction() == ECustomActionMode::IDLE && !bFalling && !bForced)
 	{
 		bPressedJump = true;
-		bJumping = true;
+		SetCurrentMovement(ECustomMovementMode::JUMP);
 	}
 }
 
@@ -241,17 +243,15 @@ void AMainCharacter::StopJump()
 
 void AMainCharacter::Interact()
 {
-	if(INTERACTABLE) bInteracting = true;
-}
-
-void AMainCharacter::unInteract()
-{
-	bInteracting = false;
+	if (GetCurrentMovement() == ECustomMovementMode::IDLE && GetCurrentAction() == ECustomActionMode::IDLE)
+	{
+		SetCurrentAction(ECustomActionMode::INTERACT);
+	}
 }
 
 void AMainCharacter::RollItems()
 {
-	if (Items.Num() > 0 && !bAttacking)
+	if (Items.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		Item_Now = Item_Next;
 		Item_Next = MathUtil::CircularPlus(Item_Now, Items.Num());
@@ -261,7 +261,7 @@ void AMainCharacter::RollItems()
 
 void AMainCharacter::RollWeapons()
 {
-	if (Weapons.Num() > 0 && !bAttacking)
+	if (Weapons.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		Weapon_Before = Weapon_Now;
 		Weapon_Now = Weapon_Next;
@@ -406,7 +406,7 @@ void AMainCharacter::Equip()
 
 void AMainCharacter::Use()
 {
-	if (!bAttacking)
+	if (GetCurrentAction() == ECustomActionMode::IDLE)
 	{
 		FString Curr = Items[Item_Now].NameTag;
 
@@ -428,19 +428,22 @@ void AMainCharacter::Attack()
 		Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(true);
 	}
 
-	switch (WeaponCode)
+	if (CanAttack())
 	{
-	case 0:
-		if(ATTACKABLE) Fist();
-		break;
-	case 1:
-		if(ATTACKABLE_RIFLE) Fire();
-		break;
-	case 2:
-		if(ATTACKABLE) Wield();
-		break;
-	default:
-		break;
+		switch (WeaponCode)
+		{
+		case 0:
+			Fist();
+			break;
+		case 1:
+			Fire();
+			break;
+		case 2:
+			Wield();
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -449,7 +452,10 @@ void AMainCharacter::SubAttack()
 	switch (WeaponCode)
 	{
 	case 0:
-		if (BLOCKABLE) bBlocking = true;
+		if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+		{
+			SetCurrentAction(ECustomActionMode::GUARD);
+		}
 		break;
 	case 1:
 	{
@@ -458,7 +464,10 @@ void AMainCharacter::SubAttack()
 		break;
 	}
 	case 2:
-		if (BLOCKABLE) bBlocking = true;
+		if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+		{
+			SetCurrentAction(ECustomActionMode::GUARD);
+		}
 		break;
 	default:
 		break;
@@ -471,16 +480,41 @@ void AMainCharacter::unSubAttack()
 	switch (WeaponCode)
 	{
 	case 0:
-		bBlocking = false;
+		SetCurrentAction(ECustomActionMode::IDLE);
 		break;
 	case 1:
 		Camera->SetRelativeLocationAndRotation(FVector(-172.0f, 0.0f, 85.0f), FRotator(-20.0f, 0.0f, 0.0f), true);
 		GameMode->SniperMode(false);
 		break;
 	case 2:
-		bBlocking = false;
+		SetCurrentAction(ECustomActionMode::IDLE);
 		break;
 	default:
 		break;
 	}
+}
+
+ECustomMovementMode AMainCharacter::GetCurrentMovement()
+{
+	return CurrentMovement;
+}
+
+void AMainCharacter::SetCurrentMovement(ECustomMovementMode NewMovement)
+{
+	CurrentMovement = NewMovement;
+}
+
+ECustomActionMode AMainCharacter::GetCurrentAction()
+{
+	return CurrentAction;
+}
+
+void AMainCharacter::SetCurrentAction(ECustomActionMode NewAction)
+{
+	CurrentAction = NewAction;
+}
+
+bool AMainCharacter::CanAttack()
+{
+	return (GetCurrentAction() == ECustomActionMode::IDLE || GetCurrentAction() == ECustomActionMode::ATTACK) && (!bFalling || GetCurrentMovement() == ECustomMovementMode::JUMP);
 }
