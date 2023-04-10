@@ -21,6 +21,11 @@ AEnemy::AEnemy()
 
 	HPWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP Bar"));
 	Helpers::SetComponent<UWidgetComponent>(&HPWidget, RootComponent, FVector(0.0f, 0.0f, 110.0f), FRotator(0.0f, 0.0f, 0.0f));
+
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rifle"));
+	WeaponMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName("Rifle")));
+	WeaponMesh->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName("Rifle_Equip"));
+	WeaponMesh->SetCollisionProfileName("Weapon");
 }
 
 void AEnemy::BeginPlay()
@@ -38,9 +43,22 @@ void AEnemy::Tick(float DeltaTime)
 	if(HPComp) HPComp->HP_ProgressBar->SetPercent(HP / 100.0f);
 }
 
-void AEnemy::Attack(int elapsedFrame)
+void AEnemy::Fire()
 {
-
+	FVector MuzzleLocation = GetMesh()->GetSocketLocation(TEXT("Rifle_Muzzle"));
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator(); // instigator : spawn을 trigger한 주체
+		ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, FRotator(0, 0, 0), SpawnParams); // world에 actor를 스폰
+		if (Projectile)
+		{
+			FVector LaunchDirection = GetControlRotation().Vector();
+			Projectile->FireInDirection(LaunchDirection); // 발사체 velocity 결정
+		}
+	}
 }
 
 float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)

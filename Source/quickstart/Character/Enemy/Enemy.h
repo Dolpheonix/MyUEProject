@@ -6,6 +6,7 @@
 #include "../Character_Root.h"
 #include "Components/WidgetComponent.h"
 #include "../../UI/HPBar.h"
+#include "../../Object/Item/Bullet.h"
 #include "Enemy.generated.h"
 
 /**
@@ -26,7 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void Attack(int elpasedFrame);
+	void Fire();
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -36,4 +37,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UHPBar> HPWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	TSubclassOf<ABullet> ProjectileClass;
+
+	UPROPERTY(BlueprintReadWrite)
+	UStaticMeshComponent* WeaponMesh;
 };
