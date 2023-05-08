@@ -3,26 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BTTask_Move.h"
-#include "BTTask_Return.generated.h"
+#include "BehaviorTree/Tasks/BTTask_Wait.h"
+#include "BTTask_Surveillance_Wait.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class QUICKSTART_API UBTTask_Return : public UBTTask_Move
+class QUICKSTART_API UBTTask_Surveillance_Wait : public UBTTask_Wait
 {
 	GENERATED_BODY()
+	UBTTask_Surveillance_Wait(const FObjectInitializer& ObjectInitializer);
 
-	UBTTask_Return();
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 public:
-	// When Path between MoniterTarget ~ SelfActor exist, Task will be failed
-	UPROPERTY(EditAnywhere, Category = "Target")
-	FBlackboardKeySelector MoniterTarget;
 
-	AActor* MoniterTargetActor;
+	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
+	FBlackboardKeySelector DetectionModeKey;
 };

@@ -4,6 +4,7 @@
 #include "Bullet.h"
 #include "../../Utils/Helpers.h"
 #include "../../Character/Enemy/Enemy.h"
+#include "../../Character/Character_Root.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -71,10 +72,10 @@ void ABullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 
 void ABullet::OnOverlapped(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	auto Hittee = Cast<AEnemy>(OtherActor);
+	auto Hittee = Cast<ACharacter_Root>(OtherActor);
 	if (Hittee)
 	{
-		UGameplayStatics::ApplyDamage(Hittee, 30.0f, nullptr, this, NULL);
+		UGameplayStatics::ApplyDamage(Hittee, BulletDamage, nullptr, this, NULL);
 	}
 
 	Destroy();

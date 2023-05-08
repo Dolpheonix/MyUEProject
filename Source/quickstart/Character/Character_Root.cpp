@@ -23,6 +23,12 @@ void ACharacter_Root::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (HP < 0 && !bDead)
+	{
+		bDead = true;
+		OnDead();
+	}
+
 }
 
 // Called to bind functionality to input
@@ -31,3 +37,23 @@ void ACharacter_Root::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+float ACharacter_Root::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+
+	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	HP -= damage;
+
+	OnHurt();
+
+	return damage;
+}
+
+void ACharacter_Root::OnHurt()
+{
+}
+
+void ACharacter_Root::OnDead()
+{
+}
+

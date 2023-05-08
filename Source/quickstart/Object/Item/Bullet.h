@@ -41,5 +41,8 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Movement)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float BulletDamage = 30.0f;
+
 	void FireInDirection(const FVector& ShootDirection);
 };

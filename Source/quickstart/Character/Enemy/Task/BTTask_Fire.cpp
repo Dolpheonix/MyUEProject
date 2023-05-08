@@ -3,14 +3,18 @@
 
 #include "BTTask_Fire.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AIController.h"
 #include "Animation/AnimSingleNodeInstance.h"
+#include "../EnemyController.h"
+#include "AIController.h"
 #include "GameFramework/Character.h"
 
 UBTTask_Fire::UBTTask_Fire()
 {
 	bNotifyTick = true;
-	bCreateNodeInstance = false;
+	bCreateNodeInstance = true;
+
+	DetectionModeKey.AddEnumFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_Fire, DetectionModeKey), FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyDetectionMode")));
+	Target.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_Fire, Target), AActor::StaticClass());
 }
 
 EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -21,6 +25,14 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	auto Blackboard = Controller->GetBlackboardComponent();
 	TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(Target.SelectedKeyName));
 
+	EEnemyDetectionMode Mode = EEnemyDetectionMode(Blackboard->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
+	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;
+
+	FVector dir = (TargetActor->GetActorLocation() - OwnerEnemy->GetActorLocation()).GetSafeNormal();
+	FRotator rot = FRotationMatrix::MakeFromX(dir).Rotator();
+
+	OwnerEnemy->SetActorRotation(rot);
+
 	OwnerEnemy->Fire();
 
 	return EBTNodeResult::InProgress;
@@ -29,5 +41,9 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 void UBTTask_Fire::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	auto isEnded = !OwnerEnemy->GetMesh()->GetSingleNodeInstance()->IsPlaying();
-	if (isEnded) FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	EEnemyDetectionMode Mode = EEnemyDetectionMode(Controller->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
+	if (isEnded || Mode != EEnemyDetectionMode::DETECTED)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
 }

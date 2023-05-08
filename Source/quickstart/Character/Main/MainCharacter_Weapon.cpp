@@ -78,6 +78,9 @@ void AMainCharacter::CheckEndMovement()
 				if (MoveKeyPressed > 0)
 				{
 					SetCurrentMovement(ECustomMovementMode::WALK);
+					FootstepAudioComponent->SetSound(WalkingSound);
+					FootstepAudioComponent->SetPitchMultiplier(1.5f);
+					FootstepAudioComponent->Play();
 				}
 				else SetCurrentMovement(ECustomMovementMode::IDLE);
 			}
@@ -91,6 +94,9 @@ void AMainCharacter::CheckEndMovement()
 			if (MoveKeyPressed > 0)
 			{
 				SetCurrentMovement(ECustomMovementMode::WALK);
+				FootstepAudioComponent->SetSound(WalkingSound);
+				FootstepAudioComponent->SetPitchMultiplier(1.5f);
+				FootstepAudioComponent->Play();
 			}
 			if (bFalling)
 			{
@@ -109,14 +115,25 @@ void AMainCharacter::CheckEndMovement()
 			if (MoveKeyPressed > 0)
 			{
 				SetCurrentMovement(ECustomMovementMode::WALK);
+				FootstepAudioComponent->SetSound(WalkingSound);
+				FootstepAudioComponent->SetPitchMultiplier(1.5f);
+				FootstepAudioComponent->Play();
 			}
 			else SetCurrentMovement(ECustomMovementMode::IDLE);
 		}
 	}
 	else if (GetCurrentMovement() == ECustomMovementMode::WALK)
 	{
-		if (bForced) SetCurrentMovement(ECustomMovementMode::IDLE);
-		else if (bFalling) SetCurrentMovement(ECustomMovementMode::FALL);
+		if (bForced || MoveKeyPressed == 0)
+		{
+			SetCurrentMovement(ECustomMovementMode::IDLE);
+			FootstepAudioComponent->Stop();
+		}
+		else if (bFalling)
+		{
+			SetCurrentMovement(ECustomMovementMode::FALL);
+			FootstepAudioComponent->Stop();
+		}
 	}
 }
 

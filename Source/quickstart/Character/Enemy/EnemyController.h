@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionTypes.h"
+#include "Enemy.h"
 #include "EnemyController.generated.h"
 
 /**
  * 
  */
+
+
 UCLASS()
 class QUICKSTART_API AEnemyController : public AAIController
 {
@@ -23,14 +27,32 @@ protected:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BlackBoardKey")
-	FName PlayerKey;
+	FName PlayerKeyName;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BlackBoardKey")
-	FName OriginLocationKey;
+	FName OriginLocationKeyName;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BlackBoardKey")
-	FName HurtKey;
+	FName HurtKeyName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTree")
 	UBehaviorTree* BT;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTree")
 	UBlackboardData* BB;
+
+	AEnemy* OwnerEnemy;
+	APawn* MainPlayer;
+
+	class UAISenseConfig_Sight* SightSense;
+
+	FTimerHandle CautionToDetectedTimer;
+	FTimerHandle TargetHoldTimer;
+
+
+	UFUNCTION()
+	void OnTargetPerceptionUpdate(AActor* SourceActor, FAIStimulus Stimulus);
+	UFUNCTION()
+	void CautionToDetected();
+	UFUNCTION()
+	void IsTargetValid();
+
+	TArray<AActor*> PerceivedList;
 };

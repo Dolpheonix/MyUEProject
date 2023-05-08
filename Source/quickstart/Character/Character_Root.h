@@ -26,13 +26,22 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION()
+	virtual void OnHurt();
+
+	UFUNCTION()
+	virtual void OnDead();
+
 public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Status")
 	float HP = 100.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
-	bool bHurt = false;
+	bool bDead = false;
 
 	// hurt event가 발생하면 경직시간이 필요하므로, hurt animation의 지속시간만큼 경직을 준다.
 	int hurtFrameStep = -1;

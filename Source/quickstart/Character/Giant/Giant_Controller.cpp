@@ -33,6 +33,5 @@ void AGiant_Controller::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	auto ControlledPawn = (ACharacter_Root*) GetPawn();
-	GetBlackboardComponent()->SetValueAsBool(HurtKey, ControlledPawn->bHurt);
 }
 

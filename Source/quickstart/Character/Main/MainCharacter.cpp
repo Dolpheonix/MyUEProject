@@ -57,6 +57,12 @@ AMainCharacter::AMainCharacter()
 	WeaponJoint->SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0.0f);
 	WeaponJoint->SetupAttachment(RootComponent);
 	WeaponJoint->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
+
+	// Footstep Sound
+	RunningSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Sounds/Cue/Footstep_Run.Footstep_Run"));
+	WalkingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Sounds/Cue/Footstep_Walk.Footstep_Walk"));
+	FootstepAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Footstep Audio"));
+	FootstepAudioComponent->SetupAttachment(RootComponent);
 }
 
 void AMainCharacter::BeginPlay()
@@ -65,6 +71,8 @@ void AMainCharacter::BeginPlay()
 
 	// Inventory와 Armory를 화면에 그려야 함
 	bQuickslotDirty = true;
+
+	StartPos = GetActorLocation();
 
 	// Get Game Mode
 	GameMode = (AquickstartGameModeBase*)UGameplayStatics::GetGameMode(this);
@@ -107,6 +115,11 @@ void AMainCharacter::Tick(float DeltaTime)
 	// Attack Phase
 	CheckEndMovement();
 	CheckEndAction();
+}
+
+FGenericTeamId AMainCharacter::GetGenericTeamId() const
+{
+	return FGenericTeamId(1);
 }
 
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -171,7 +184,6 @@ void AMainCharacter::MoveEnd()
 	else 
 	{
 		MoveKeyPressed--;
-		if(GetCurrentMovement() == ECustomMovementMode::WALK && MoveKeyPressed == 0) SetCurrentMovement(ECustomMovementMode::IDLE);
 	}
 }
 
@@ -179,24 +191,28 @@ void AMainCharacter::StartRun()
 {
 	bRunning = true;
 	GetCharacterMovement()->MaxWalkSpeed = 1200.0f;
+	FootstepAudioComponent->SetPitchMultiplier(1.7f);
 }
 
 void AMainCharacter::StopRun()
 {
 	bRunning = false;
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	FootstepAudioComponent->SetPitchMultiplier(1.5f);
 }
 
 void AMainCharacter::StartWalk()
 {
 	bWalking = true;
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	FootstepAudioComponent->SetPitchMultiplier(0.7f);
 }
 
 void AMainCharacter::StopWalk()
 {
 	bWalking = false;
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	FootstepAudioComponent->SetPitchMultiplier(1.5f);
 }
 
 void AMainCharacter::MoveRight(float val)
@@ -229,10 +245,11 @@ void AMainCharacter::StartJump()
 		LadderInfo.dirty = true;
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
-	if (GetCurrentAction() == ECustomActionMode::IDLE && !bFalling && !bForced)
+	else if (GetCurrentAction() == ECustomActionMode::IDLE && !bFalling && !bForced)
 	{
 		bPressedJump = true;
 		SetCurrentMovement(ECustomMovementMode::JUMP);
+		FootstepAudioComponent->Stop();
 	}
 }
 
@@ -517,4 +534,23 @@ void AMainCharacter::SetCurrentAction(ECustomActionMode NewAction)
 bool AMainCharacter::CanAttack()
 {
 	return (GetCurrentAction() == ECustomActionMode::IDLE || GetCurrentAction() == ECustomActionMode::ATTACK) && (!bFalling || GetCurrentMovement() == ECustomMovementMode::JUMP);
+}
+
+void AMainCharacter::OnHurt()
+{
+	bHurt = true;
+}
+
+void AMainCharacter::OnDead()
+{
+	GetMesh()->PlayAnimation(Helpers::LoadObjectFromPath<UAnimSequence>("/Game/ShootingGame/Character/Main/Animations/FistAnim/Anim_Fist_Death.Anim_Fist_Death"), false);
+
+	FTimerHandle destroyhandle;
+	GetWorld()->GetTimerManager().SetTimer(destroyhandle, [this]() { 
+		this->SetActorLocation(StartPos);
+		this->GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		this->GetMesh()->SetAnimClass(Helpers::LoadObjectFromPath<UAnimBlueprintGeneratedClass>("/Game/ShootingGame/Character/Main/Animations/BP_Animation.BP_Animation_C"));
+		this->HP = 100.0f;
+		this->bDead = false;
+		}, 0.5f, false, 2.0f);
 }

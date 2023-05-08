@@ -4,34 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType.h"
-#include "../Enemy.h"
-#include "BTTask_Fire.generated.h"
+#include "BTTask_StareAt.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class QUICKSTART_API UBTTask_Fire : public UBTTaskNode
+class QUICKSTART_API UBTTask_StareAt : public UBTTaskNode
 {
 	GENERATED_BODY()
-
-	UBTTask_Fire();
+	
+	UBTTask_StareAt(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 public:
-
-	// 타겟 오브젝트
-	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
-	FBlackboardKeySelector Target;
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector DetectionModeKey;
-
-	float MuzzlePoint;
-	AActor* TargetActor;
-	AEnemy* OwnerEnemy;
-	AAIController* Controller;
 };

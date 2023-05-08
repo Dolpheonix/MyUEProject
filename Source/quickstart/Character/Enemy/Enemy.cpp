@@ -3,6 +3,8 @@
 
 #include "Enemy.h"
 #include "Components/CapsuleComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "../../Utils/Helpers.h"
 
 AEnemy::AEnemy()
@@ -22,6 +24,33 @@ AEnemy::AEnemy()
 	HPWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP Bar"));
 	Helpers::SetComponent<UWidgetComponent>(&HPWidget, RootComponent, FVector(0.0f, 0.0f, 110.0f), FRotator(0.0f, 0.0f, 0.0f));
 
+	QuestionMarkComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Question Mark"));
+	Helpers::SetComponent<UBillboardComponent>(&QuestionMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f ,0.04f, 0.04f));
+	UTexture2D* QuestionMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/QuestionMark.QuestionMark"));
+	QuestionMarkComponent->SetSprite(QuestionMark);
+	QuestionMarkComponent->SetHiddenInGame(false);
+	QuestionMarkComponent->SetVisibility(false);
+
+	ExclamationMarkComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Exclamation Mark"));
+	Helpers::SetComponent<UBillboardComponent>(&ExclamationMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f, 0.04f, 0.04f));
+	UTexture2D* ExclamationMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/ExclamationMark.ExclamationMark"));
+	ExclamationMarkComponent->SetSprite(ExclamationMark);
+	ExclamationMarkComponent->SetHiddenInGame(false);
+	ExclamationMarkComponent->SetVisibility(false);
+
+	FireSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/StarterContent/Audio/Explosion_Cue.Explosion_Cue"));
+	DoubtingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/HumanVocalizations/HumanMaleA/Cues/voice_male_effort_grunt_02_Cue.voice_male_effort_grunt_02_Cue"));
+	DetectingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/HumanVocalizations/HumanMaleC/Cues/voice_male_c_attack_01_Cue.voice_male_c_attack_01_Cue"));
+	
+	FireAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Fire Audio"));
+	FireAudioComponent->SetupAttachment(RootComponent);
+	FireAudioComponent->SetSound(FireSound);
+
+	DetectionAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Detection Audio"));
+	DetectionAudioComponent->SetupAttachment(RootComponent);
+
+
+
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rifle"));
 	WeaponMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName("Rifle")));
 	WeaponMesh->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName("Rifle_Equip"));
@@ -31,6 +60,13 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AIController = Cast<AAIController>(GetController());
+
+	if (!HPWidgetClass)
+	{
+		HPWidgetClass = UHPBar::StaticClass();
+	}
 	HPWidget->SetWidgetClass(HPWidgetClass);
 	HPWidget->SetDrawSize(FVector2D(100.0f, 10.0f));
 }
@@ -57,15 +93,34 @@ void AEnemy::Fire()
 		{
 			FVector LaunchDirection = GetControlRotation().Vector();
 			Projectile->FireInDirection(LaunchDirection); // 발사체 velocity 결정
+
+			FireAudioComponent->Play();
 		}
 	}
 }
 
-float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+void AEnemy::PlayDetectSound(bool isDoubt)
 {
-	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	HP -= Damage;
+	isDoubt ? DetectionAudioComponent->SetSound(DoubtingSound) : DetectionAudioComponent->SetSound(DetectingSound);
+	DetectionAudioComponent->Play();
+}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, ("HP : " + FString::FromInt(HP)));
-	return Damage;
+void AEnemy::OnHurt()
+{
+	AIController->GetBlackboardComponent()->SetValueAsEnum("CacheMode", AIController->GetBlackboardComponent()->GetValueAsEnum("DetectionMode"));
+	AIController->GetBlackboardComponent()->SetValueAsEnum("DetectionMode", uint8(EEnemyDetectionMode::HURT));
+}
+
+void AEnemy::OnDead()
+{
+	UBehaviorTreeComponent* bt = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
+	if (bt)
+	{
+		bt->StopTree();
+	}
+
+	GetMesh()->PlayAnimation(Helpers::LoadObjectFromPath<UAnimSequence>("/Game/ShootingGame/Character/Main/Animations/FistAnim/Anim_Fist_Death.Anim_Fist_Death"), false);
+
+	FTimerHandle destroyhandle;
+	GetWorld()->GetTimerManager().SetTimer(destroyhandle, [this]() { this->Destroy(); }, 0.5f, false, 2.0f);
 }

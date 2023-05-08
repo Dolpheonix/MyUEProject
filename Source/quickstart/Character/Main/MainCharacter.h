@@ -12,8 +12,10 @@
 #include "../../Utils/Helpers.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "LadderInfo.h"
-#include <Engine/Classes/Camera/CameraComponent.h>
-#include <Engine/Classes/Components/AudioComponent.h>
+#include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "GenericTeamAgentInterface.h"
 #include "MainCharacter.generated.h"
 
 UENUM(BlueprintType)
@@ -37,7 +39,7 @@ enum class ECustomActionMode : uint8
 };
 
 UCLASS()
-class QUICKSTART_API AMainCharacter : public ACharacter_Root
+class QUICKSTART_API AMainCharacter : public ACharacter_Root, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -52,6 +54,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	// Get Team Id
+	virtual FGenericTeamId GetGenericTeamId() const override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -141,6 +145,9 @@ public:
 	UFUNCTION()
 	bool CanAttack();
 
+// Dead function
+	virtual void OnHurt() override;
+	virtual void OnDead() override;
 public:
 // Third-person Camera
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -161,6 +168,8 @@ public:
 	int AttackPhase = -1;
 	UPROPERTY(BlueprintReadWrite)
 	bool bAttackBlocked = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bHurt = false;
 
 private:
 	UPROPERTY()
@@ -220,9 +229,18 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int Cloth_Next=0;
 
+// Respawn
+	FVector StartPos;
+
 // Helper Structure for Ladder Climbing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FLadderInfo LadderInfo;
+
+// Sound
+	USoundCue* RunningSound;
+	USoundCue* WalkingSound;
+	UAudioComponent* FootstepAudioComponent;
+	
 
 // Game Mode
 	UPROPERTY(BlueprintReadWrite)
