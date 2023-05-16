@@ -86,4 +86,6 @@ public:
 	bool isCaptured = false;
 
 	CapturedSlot_Info CapturedInfo;
+
+	bool Bounded = false;
 };

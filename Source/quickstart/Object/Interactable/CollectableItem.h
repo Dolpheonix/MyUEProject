@@ -18,10 +18,13 @@ class QUICKSTART_API ACollectableItem : public AInteractable
 public:
 	ACollectableItem();
 
+protected:
 	virtual void BeginPlay() override;
 	virtual void Interact() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mesh")
 	UStaticMeshComponent* MeshComponent;
 
@@ -31,12 +34,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* AuraComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tag")
-	ETypeTag TypeTag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
+	FItemShortForm ItemInfo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tag")
-	FString NameTag;
+	class UDataTable* ItemTable;
+	class UDataTable* WeaponTable;
+	class UDataTable* ClothTable;
 
-	FString InfoTag;
 	int32 WeaponCode;
 };

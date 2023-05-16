@@ -19,6 +19,10 @@ ACollectableItem::ACollectableItem()
 	AuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/FXVarietyPack/Particles/P_ky_healAura.P_ky_healAura")));
 	AuraComponent->SetRelativeScale3D(FVector(0.6f, 0.6f, 0.6f));
 	AuraComponent->Deactivate();
+
+	ClothTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"));
+	WeaponTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"));
+	ItemTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Item_Sheet.Item_Sheet"));
 }
 
 void ACollectableItem::BeginPlay()
@@ -27,59 +31,6 @@ void ACollectableItem::BeginPlay()
 
 	Forward = GetActorForwardVector();
 	InteractPoint += MeshComponent->GetRelativeLocation();
-
-	auto gameMode = Cast<AquickstartGameModeBase>(UGameplayStatics::GetGameMode(this));
-	
-	switch (TypeTag)
-	{
-	case ETypeTag::Cloth:
-	{
-		auto table = gameMode->ClothTable;
-		FItemTableRow* row = table->FindRow<FItemTableRow>(*NameTag, "");
-		if (row)
-		{
-			InfoTag = row->Info;
-		}
-		else
-		{
-			UE_LOG(ErrDataTable, Error, TEXT("%s | Invalid Row : %s"), *GetName(), *NameTag);
-		}
-		break;
-	}
-	case ETypeTag::Weapon:
-	{
-		auto table = gameMode->WeaponTable;
-		FWeaponTableRow* row = table->FindRow<FWeaponTableRow>(*NameTag, "");
-		if (row)
-		{
-			InfoTag = row->Info;
-			WeaponCode = row->Code;
-		}
-		else
-		{
-			UE_LOG(ErrDataTable, Error, TEXT("%s | Invalid Row : %s"), *GetName(), *NameTag);
-		}
-		break;
-	}
-	case ETypeTag::Item:
-	{
-		auto table = gameMode->ItemTable;
-		FItemTableRow* row = table->FindRow<FItemTableRow>(*NameTag, "");
-		if (row)
-		{
-			InfoTag = row->Info;
-		}
-		else
-		{
-			UE_LOG(ErrDataTable, Error, TEXT("%s | Invalid Row : %s"), *GetName(), *NameTag);
-		}
-		break;
-	}
-	default:
-		break;
-	}
-
-	if (ItemMesh) MeshComponent->SetStaticMesh(ItemMesh);
 }
 
 void ACollectableItem::Tick(float DeltaTime)
@@ -98,8 +49,70 @@ void ACollectableItem::Tick(float DeltaTime)
 	MeshComponent->AddRelativeRotation(FRotator(0.0f, 0.5f, 0.0f));
 }
 
+void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FString Name = PropertyChangedEvent.Property->GetName();
+	if (Name == TEXT("ItemMesh"))
+	{
+		MeshComponent->SetStaticMesh(ItemMesh);
+	}
+	else if (Name == TEXT("TypeTag") || Name == TEXT("NameTag"))
+	{
+		switch (ItemInfo.TypeTag)
+		{
+		case ETypeTag::Cloth:
+		{
+			auto table = ClothTable;
+			FItemTableRow* row = table->FindRow<FItemTableRow>(*ItemInfo.NameTag, "");
+			if (row)
+			{
+				ItemInfo.InfoTag = row->Info;
+			}
+			else
+			{
+				ItemInfo.InfoTag = "Invalid Item, Check data table";
+			}
+			break;
+		}
+		case ETypeTag::Weapon:
+		{
+			auto table = WeaponTable;
+			FWeaponTableRow* row = table->FindRow<FWeaponTableRow>(*ItemInfo.NameTag, "");
+			if (row)
+			{
+				ItemInfo.InfoTag = row->Info;
+				WeaponCode = row->Code;
+			}
+			else
+			{
+				ItemInfo.InfoTag = "Invalid Item, Check data table";
+			}
+			break;
+		}
+		case ETypeTag::Item:
+		{
+			auto table = ItemTable;
+			FItemTableRow* row = table->FindRow<FItemTableRow>(*ItemInfo.NameTag, "");
+			if (row)
+			{
+				ItemInfo.InfoTag = row->Info;
+			}
+			else
+			{
+				ItemInfo.InfoTag = "Invalid Item, Check data table";
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+}
+
 void ACollectableItem::Interact()
 {
-	Player->Register(TypeTag, NameTag, InfoTag, WeaponCode);
+	Player->Register(ItemInfo.TypeTag, ItemInfo.NameTag, ItemInfo.InfoTag, WeaponCode);
 	Destroy();
 }

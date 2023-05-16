@@ -10,7 +10,6 @@
 void UInventory::NativePreConstruct()
 {
 	UUserWidget::NativePreConstruct();
-
 	bIsFocusable = true;
 	InitializeSlots();
 	SetTexts();
@@ -19,7 +18,6 @@ void UInventory::NativePreConstruct()
 void UInventory::NativeConstruct()
 {
 	UUserWidget::NativeConstruct();
-
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
 	Controller = Cast<APlayerController>(Player->GetController());
 
@@ -31,7 +29,12 @@ void UInventory::NativeConstruct()
 	Controller->SetInputMode(FInputModeUIOnly());
 
 	RefreshSlots();
-	SetEvents();
+
+	if (!Bounded)
+	{
+		SetEvents();
+		Bounded = true;
+	}
 
 	TArray<AActor*> temp;
 	UGameplayStatics::GetAllActorsOfClass(this, APreviewActor::StaticClass(), temp);

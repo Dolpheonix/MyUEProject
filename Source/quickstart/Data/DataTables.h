@@ -25,11 +25,11 @@ struct FWeaponTableRow : public FTableRowBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-		ETypeTag Type;
+	ETypeTag Type;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-		FString Info;
+	FString Info;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-		int32 Code;
+	int32 Code;
 };

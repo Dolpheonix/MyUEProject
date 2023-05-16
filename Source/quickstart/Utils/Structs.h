@@ -5,6 +5,14 @@
 #include "Engine/DataTable.h"
 #include "Structs.generated.h"
 
+UENUM(BlueprintType)
+enum class ETypeTag : uint8
+{
+	Weapon,
+	Item,
+	Cloth,
+};
+
 USTRUCT(Atomic, BlueprintType)
 struct FItemForm
 {
@@ -31,12 +39,22 @@ struct FItemForm
 	FItemForm(FString name, FString info) : MeshComponent(nullptr), Thumbnail_N(nullptr), Thumbnail_H(nullptr), Thumbnail_S(nullptr), NameTag(name), ItemInfo(info), Code(0) {}
 };
 
-UENUM(BlueprintType)
-enum class ETypeTag : uint8
+USTRUCT(Atomic, BlueprintType)
+struct FItemShortForm
 {
-	Weapon,
-	Item,
-	Cloth,
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ETypeTag TypeTag;
+	UPROPERTY(EditAnywhere)
+	FString NameTag = "";
+	UPROPERTY(VisibleAnywhere)
+	FString InfoTag = "";
+	UPROPERTY(BlueprintReadOnly)
+	int32 Code = 0;
+
+	FItemShortForm() : TypeTag(ETypeTag::Cloth), NameTag(""), InfoTag(""),  Code(0) {}
+	FItemShortForm(ETypeTag type, FString name) : TypeTag(type), NameTag(name), InfoTag(""), Code(0) {}
 };
 
 struct CapturedSlot_Info

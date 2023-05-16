@@ -63,7 +63,7 @@ void AChain::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	FString Name = PropertyChangedEvent.Property->GetName();
+	auto Name = PropertyChangedEvent.Property->GetName();
 	if (Name == TEXT("Segments"))
 	{
 		UpdateSegments();

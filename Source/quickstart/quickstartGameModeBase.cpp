@@ -19,6 +19,8 @@ void AquickstartGameModeBase::BeginPlay()
     MainUI = CreateWidget(GetWorld(), MainWidgetClass);
     ShowroomUI = CreateWidget(GetWorld(), ShowroomWidgetClass);
     SniperUI = CreateWidget(GetWorld(), SniperWidgetClass);
+    DialogueBoxUI = CreateWidget(GetWorld(), DialogueBoxWidgetClass);
+    ShopUI = CreateWidget(GetWorld(), ShopWidgetClass);
     ChangeMenuWidget(MainUI);
 }
 
