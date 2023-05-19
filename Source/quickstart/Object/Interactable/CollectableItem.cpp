@@ -83,7 +83,7 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 			if (row)
 			{
 				ItemInfo.InfoTag = row->Info;
-				WeaponCode = row->Code;
+				ItemInfo.Code = row->Code;
 			}
 			else
 			{
@@ -113,6 +113,6 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 
 void ACollectableItem::Interact()
 {
-	Player->Register(ItemInfo.TypeTag, ItemInfo.NameTag, ItemInfo.InfoTag, WeaponCode);
+	Player->Register(ItemInfo);
 	Destroy();
 }

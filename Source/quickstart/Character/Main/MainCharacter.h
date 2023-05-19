@@ -137,7 +137,7 @@ public:
 	UFUNCTION()
 	void Equip();
 	UFUNCTION()
-	void Register(ETypeTag type, FString name, FString info, int32 code);
+	void Register(FItemShortForm iteminfo);
 	UFUNCTION()
 	void DeleteItem(ETypeTag type, int index);
 

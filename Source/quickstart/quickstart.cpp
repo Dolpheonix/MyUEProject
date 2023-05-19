@@ -7,3 +7,4 @@ IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, quickstart, "quickstart" 
 
 DEFINE_LOG_CATEGORY(ERROR_LOG);
 DEFINE_LOG_CATEGORY(ErrDataTable);
+DEFINE_LOG_CATEGORY(ErrAsset);

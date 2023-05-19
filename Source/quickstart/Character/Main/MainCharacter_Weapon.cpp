@@ -204,13 +204,13 @@ void AMainCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 	{
 		if (GetCurrentAction() != ECustomActionMode::ATTACK) // Sword is overlapped in idle/move state
 		{
-			auto Curr = Weapons[Weapon_Now].NameTag;
+			auto Curr = Weapons[Weapon_Now].ShortForm.NameTag;
 			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
 			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
 		}
 		else
 		{
-			auto Curr = Weapons[Weapon_Now].NameTag;
+			auto Curr = Weapons[Weapon_Now].ShortForm.NameTag;
 			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
 			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
 			bAttackBlocked = true;

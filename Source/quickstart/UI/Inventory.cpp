@@ -11,8 +11,11 @@ void UInventory::NativePreConstruct()
 {
 	UUserWidget::NativePreConstruct();
 	bIsFocusable = true;
-	InitializeSlots();
-	SetTexts();
+	if (!Bounded)
+	{
+		InitializeSlots();
+		SetTexts();
+	}
 }
 
 void UInventory::NativeConstruct()
@@ -282,15 +285,15 @@ void UInventory::OnHovered_GetInfo(int index, ETypeTag type)
 {
 	if (type == ETypeTag::Cloth && index < Player->Clothes.Num())
 	{
-		InfoTextBlock->SetText(FText::FromString(Player->Clothes[index].ItemInfo));
+		InfoTextBlock->SetText(FText::FromString(Player->Clothes[index].ShortForm.InfoTag));
 	}
 	else if (type == ETypeTag::Weapon && index < Player->Weapons.Num())
 	{
-		InfoTextBlock->SetText(FText::FromString(Player->Weapons[index].ItemInfo));
+		InfoTextBlock->SetText(FText::FromString(Player->Weapons[index].ShortForm.InfoTag));
 	}
 	else if (index < Player->Items.Num())
 	{
-		InfoTextBlock->SetText(FText::FromString(Player->Items[index].ItemInfo));
+		InfoTextBlock->SetText(FText::FromString(Player->Items[index].ShortForm.InfoTag));
 	}
 }
 
@@ -336,7 +339,7 @@ void UInventory::OnPressed_Catch(int index, ETypeTag type)
 		isCaptured = true;
 		CapturedInfo.index = index;
 		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Clothes[index].NameTag;
+		CapturedInfo.tag = Player->Clothes[index].ShortForm.NameTag;
 		CapturedImage->SetOpacity(0.7f);
 		CapturedImage->SetBrushFromTexture(Player->Clothes[index].Thumbnail_N);
 		CapturedImage->SetRenderTranslation(Pos);
@@ -346,7 +349,7 @@ void UInventory::OnPressed_Catch(int index, ETypeTag type)
 		isCaptured = true;
 		CapturedInfo.index = index;
 		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Weapons[index].NameTag;
+		CapturedInfo.tag = Player->Weapons[index].ShortForm.NameTag;
 		CapturedImage->SetOpacity(0.7f);
 		CapturedImage->SetBrushFromTexture(Player->Weapons[index].Thumbnail_N);
 		CapturedImage->SetRenderTranslation(Pos);
@@ -356,7 +359,7 @@ void UInventory::OnPressed_Catch(int index, ETypeTag type)
 		isCaptured = true;
 		CapturedInfo.index = index;
 		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Items[index].NameTag;
+		CapturedInfo.tag = Player->Items[index].ShortForm.NameTag;
 		CapturedImage->SetOpacity(0.7f);
 		CapturedImage->SetBrushFromTexture(Player->Items[index].Thumbnail_N);
 		CapturedImage->SetRenderTranslation(Pos);

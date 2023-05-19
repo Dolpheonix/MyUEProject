@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Structs.h"
+#include "../Data/DataTables.h"
 #include "UObject/Object.h"
 
 
@@ -66,5 +68,29 @@ public:
 	{
 		FString path = "/Game/ShootingGame/Image/WidgetImage/Selected/" + name + "_Selected." + name + "_Selected";
 		return path;
+	}
+
+	static FString FindInfo(UDataTable* data, ETypeTag type, FString name, int& out_code)
+	{
+		if (type == ETypeTag::Cloth || type == ETypeTag::Item)
+		{
+			FItemTableRow* row = data->FindRow<FItemTableRow>(*name, "");
+			if (row)
+			{
+				return row->Info;
+			}
+			else return "Invalid Item, Check data table";
+		}
+		else if (type == ETypeTag::Weapon)
+		{
+			FWeaponTableRow* row = data->FindRow<FWeaponTableRow>(*name, "");
+			if (row)
+			{
+				out_code = row->Code;
+				return row->Info;
+			}
+			else return "Invalid Item, Check data table";
+		}
+		else return "Invaild Type";
 	}
 };

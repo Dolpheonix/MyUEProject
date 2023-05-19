@@ -8,6 +8,7 @@
 #include "../../UI/DialogueBox.h"
 #include "../../UI/Shop.h"
 #include "../../Utils/Helpers.h"
+#include "../../quickstart.h"
 
 ANPC::ANPC()
 {
@@ -25,6 +26,10 @@ ANPC::ANPC()
 
 	SelfCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("SelfCam"));
 	Helpers::SetComponent(&SelfCamera, RootComponent, FVector(0, 0, 0), FRotator(0, 0, 0));
+
+	ClothTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"));
+	WeaponTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"));
+	ItemTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Item_Sheet.Item_Sheet"));
 }
 
 void ANPC::BeginPlay()
@@ -32,6 +37,23 @@ void ANPC::BeginPlay()
 	Super::BeginPlay();
 
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	for (int i = 0; i < ShopItemsInfo.Num(); i++)
+	{
+		FItemShortForm iteminfo = ShopItemsInfo[i];
+
+		if (iteminfo.InfoTag == "Invalid Item, Check data table")
+		{
+			UE_LOG(ErrAsset, Error, TEXT("%s : No such item exist"), *iteminfo.NameTag);
+		}
+
+		FItemForm registerform(iteminfo);
+
+		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+		ShopItems.Add(registerform);
+	}
 }
 
 void ANPC::Tick(float DeltaTime)
@@ -49,6 +71,57 @@ void ANPC::Tick(float DeltaTime)
 	else
 	{
 		bInteractable = false;
+	}
+}
+
+void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
+{
+	Super::PostEditChangeChainProperty(e);
+
+	FString prop = e.MemberProperty->GetName();
+
+	if (prop == "NameTag" || prop == "TypeTag")
+	{
+		FString name = e.Property->GetName();
+		int32 index = e.GetArrayIndex(TEXT("ShopItemsInfo"));
+		int code = -1;
+		if (index >= 0)
+		{
+			switch (ShopItemsInfo[index].TypeTag)
+			{
+			case ETypeTag::Cloth:
+				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, ShopItemsInfo[index].NameTag, code);
+				break;
+			case ETypeTag::Item:
+				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, ShopItemsInfo[index].NameTag, code);
+				break;
+			case ETypeTag::Weapon:
+				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, ShopItemsInfo[index].NameTag, code);
+				ShopItemsInfo[index].Code = code;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			index = e.GetArrayIndex(TEXT("AcquireItemsInfo"));
+			switch (AcquireItemsInfo[index].TypeTag)
+			{
+			case ETypeTag::Cloth:
+				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, AcquireItemsInfo[index].NameTag, code);
+				break;
+			case ETypeTag::Item:
+				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, AcquireItemsInfo[index].NameTag, code);
+				break;
+			case ETypeTag::Weapon:
+				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, AcquireItemsInfo[index].NameTag, code);
+				AcquireItemsInfo[index].Code = code;
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
 

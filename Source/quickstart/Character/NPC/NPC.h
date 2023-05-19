@@ -56,6 +56,7 @@ protected:
 	virtual void BeginPlay() override;
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e) override;
 
 	virtual void OnHurt() override;
 	virtual void OnDead() override;
@@ -91,4 +92,8 @@ public:
 
 	bool bInteractable = false;
 	bool bInteracted = false;
+
+	class UDataTable* ItemTable;
+	class UDataTable* WeaponTable;
+	class UDataTable* ClothTable;
 };

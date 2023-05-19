@@ -40,6 +40,4 @@ public:
 	class UDataTable* ItemTable;
 	class UDataTable* WeaponTable;
 	class UDataTable* ClothTable;
-
-	int32 WeaponCode;
 };

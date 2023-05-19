@@ -38,8 +38,13 @@ AMainCharacter::AMainCharacter()
 	Muzzle = FVector(110.0f, 20.0f, 45.0f);
 
 	// Armory & Inventory √ ±‚»≠
-	Weapons.Add(FItemForm("Fist", "Just Fist..."));
-	Items.Add(FItemForm("No Item", "No Item"));
+	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
+	FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
+	fist.ShortForm.InfoTag = "Fist";
+	fist.ShortForm.Code = 0;
+	noitem.ShortForm.InfoTag = " NoItem";
+	Weapons.Add(fist);
+	Items.Add(noitem);
 	Weapons[0].Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
 	Weapons[0].Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
 	Weapons[0].Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
@@ -307,50 +312,49 @@ void AMainCharacter::RefreshInventory(ETypeTag type)
 	}
 }
 
-void AMainCharacter::Register(ETypeTag type, FString name, FString info, int32 code)
+void AMainCharacter::Register(FItemShortForm iteminfo)
 {
-	FItemForm registerform(name, info);
+	FItemForm registerform(iteminfo);
 
-	switch (type)
+	switch (registerform.ShortForm.TypeTag)
 	{
 	case ETypeTag::Weapon:
 	{
-		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(name + "Mesh"));
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(name));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(name));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(name));
-		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(name)));
+		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
 		FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
-		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(name + "_unEquip"));
+		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
 		registerform.MeshComponent->RegisterComponent();
-		registerform.Code = code;
 		Weapons.Add(registerform);
 		Weapons[Weapons.Num() - 1].MeshComponent->OnComponentHit.AddDynamic(this, &AMainCharacter::OnHit);
 		Weapons[Weapons.Num() - 1].MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapped);
-		RefreshInventory(type);
+		RefreshInventory(iteminfo.TypeTag);
 		break;
 	}
 	case ETypeTag::Item:
 	{
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(name));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(name));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(name));
+		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
 		Items.Add(registerform);
-		RefreshInventory(type);
+		RefreshInventory(iteminfo.TypeTag);
 		break;
 	}
 	case ETypeTag::Cloth:
 	{
-		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(name + "Mesh"));
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(name));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(name));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(name));
-		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(name)));
+		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
 		FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
-		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(name + "_unEquip"));
+		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
 		registerform.MeshComponent->RegisterComponent();
 		Weapons.Add(registerform);
-		RefreshInventory(type);
+		RefreshInventory(iteminfo.TypeTag);
 		break;
 	}
 	default:
@@ -384,7 +388,7 @@ void AMainCharacter::DeleteItem(ETypeTag type, int index)
 
 void AMainCharacter::unEquip()
 {
-	FString Before = Weapons[Weapon_Before].NameTag;
+	FString Before = Weapons[Weapon_Before].ShortForm.NameTag;
 	if (Before == "Fist")
 	{
 
@@ -401,7 +405,7 @@ void AMainCharacter::unEquip()
 
 void AMainCharacter::Equip()
 {
-	FString Curr = Weapons[Weapon_Now].NameTag;
+	FString Curr = Weapons[Weapon_Now].ShortForm.NameTag;
 	if (Curr == "Fist")
 	{
 
@@ -418,14 +422,14 @@ void AMainCharacter::Equip()
 		Weapons[Weapon_Now].MeshComponent->SetGenerateOverlapEvents(true);
 		Weapons[Weapon_Now].MeshComponent->SetNotifyRigidBodyCollision(true);
 	}
-	WeaponCode = Weapons[Weapon_Now].Code;
+	WeaponCode = Weapons[Weapon_Now].ShortForm.Code;
 }
 
 void AMainCharacter::Use()
 {
 	if (GetCurrentAction() == ECustomActionMode::IDLE)
 	{
-		FString Curr = Items[Item_Now].NameTag;
+		FString Curr = Items[Item_Now].ShortForm.NameTag;
 
 		if (Curr == "No Item")
 		{

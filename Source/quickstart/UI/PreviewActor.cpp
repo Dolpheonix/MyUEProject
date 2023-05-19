@@ -72,7 +72,7 @@ void APreviewActor::Sync_to_Character()
 	{
 		if (i == Weapon_Now)
 		{
-			auto tag = Player->Weapons[i].NameTag;
+			auto tag = Player->Weapons[i].ShortForm.NameTag;
 			if (tag != "Fist")
 			{
 				auto weapon = PreviewWeapons[tag];
@@ -83,7 +83,7 @@ void APreviewActor::Sync_to_Character()
 		}
 		else
 		{
-			auto tag = Player->Weapons[i].NameTag;
+			auto tag = Player->Weapons[i].ShortForm.NameTag;
 			if (tag != "Fist")
 			{
 				auto weapon = PreviewWeapons[tag];
