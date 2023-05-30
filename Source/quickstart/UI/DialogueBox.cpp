@@ -62,6 +62,28 @@ void UDialogueBox::InitDialogue(TArray<FDialogueLine> dialogues, ANPC* Interacte
 	RefreshDialogue();
 }
 
+void UDialogueBox::InitQuestDialogue(int index)
+{
+	TriggeredQuest = &InteractedNPC->Quests[index];
+	QuestIndex = index;
+	switch (TriggeredQuest->Progress)
+	{
+	case EQuestProgress::Available:
+		DialogueTree = TriggeredQuest->CommitDialogue;
+		break;
+	case EQuestProgress::InProgress:
+		DialogueTree = TriggeredQuest->InProgressDialogue;
+		break;
+	case EQuestProgress::Finished:
+		DialogueTree = TriggeredQuest->FinishDialogue;
+		break;
+	default:
+		break;
+	}
+	currIndex = 0;
+	RefreshDialogue();
+}
+
 void UDialogueBox::GetNextDialogue(int index)
 {
 	if (DialogueTree[currIndex].isEnd)
@@ -78,20 +100,28 @@ void UDialogueBox::GetNextDialogue(int index)
 
 void UDialogueBox::EndDialogue(int index)
 {
-	Controller->SetShowMouseCursor(false);
-	Controller->SetInputMode(FInputModeGameOnly());
 	// TODO //
 	switch (DialogueTree[index].EndContext)
 	{
 	case EDialogueEndType::DEFAULT:
+		Controller->SetShowMouseCursor(false);
+		Controller->SetInputMode(FInputModeGameOnly());
 		InteractedNPC->UnInteract();
 		break;
 	case EDialogueEndType::SHOP:
 		InteractedNPC->OpenShop();
 		break;
-	case EDialogueEndType::QUEST:
+	case EDialogueEndType::OPENQUEST:
+		InteractedNPC->OpenQuestDialogue(DialogueTree[index].QuestIndex);
 		break;
-	case EDialogueEndType::ITEM:
+	case EDialogueEndType::REWARD:
+		break;
+	case EDialogueEndType::GIVEQUEST:
+		TriggeredQuest->Progress = EQuestProgress::InProgress;
+		InteractedNPC->GiveQuest(QuestIndex);
+		Controller->SetShowMouseCursor(false);
+		Controller->SetInputMode(FInputModeGameOnly());
+		InteractedNPC->UnInteract();
 		break;
 	}
 }

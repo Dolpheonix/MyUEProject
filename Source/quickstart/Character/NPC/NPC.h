@@ -7,43 +7,12 @@
 #include "../Main/MainCharacter.h"
 #include "../../Interface/InteractionInterface.h"
 #include "../../Utils/Structs.h"
+#include "../../Utils/NPCUtil.h"
 #include "AIController.h"
 #include "NPC.generated.h"
 /**
  * 
  */
-UENUM(BlueprintType)
-enum class EDialogueEndType : uint8
-{
-	SHOP,
-	QUEST,
-	ITEM,
-	DEFAULT,
-	MAX,
-};
-
-USTRUCT(BlueprintType)
-struct FDialogueLine
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FString Speaker;
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FString TextLine;
-
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<FString> Responses;
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<int> NextLines;
-
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	bool isEnd;
-	UPROPERTY(EditAnywhere, Category = "Dialogue", meta = (EditCondition = "isEnd"))
-	EDialogueEndType EndContext;
-};
-
 UCLASS()
 class QUICKSTART_API ANPC : public ACharacter_Root, public IInteractionInterface
 {
@@ -65,6 +34,8 @@ public:
 	virtual void UnInteract() override;
 
 	void OpenShop();
+	void OpenQuestDialogue(int index);
+	void GiveQuest(int index);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -82,8 +53,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
 	TArray<FItemShortForm> ShopItemsInfo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
+	TArray<int32> Prices;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Acquisition")
 	TArray<FItemShortForm> AcquireItemsInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
+	TArray<FQuest> Quests;
 
 	TArray<FItemForm> ShopItems;
 	TArray<FItemForm> AcquireItems;

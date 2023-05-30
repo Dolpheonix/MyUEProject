@@ -80,7 +80,34 @@ void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
 
 	FString prop = e.MemberProperty->GetName();
 
-	if (prop == "NameTag" || prop == "TypeTag")
+	if (prop == "ShopItemsInfo")
+	{
+		int32 index = e.GetArrayIndex(TEXT("ShopItemsInfo"));
+		
+		if (e.ChangeType == EPropertyChangeType::ArrayAdd)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Added"));
+			if (ShopItemsInfo.Num() - 1 == index) // Added in tail
+			{
+				Prices.Add(0);
+			}
+			else // Added in Midline
+			{
+				Prices.EmplaceAt(index);
+			}
+		}
+		else if (e.ChangeType == EPropertyChangeType::ArrayRemove)
+		{
+			Prices.RemoveAt(index);
+		}
+		else if (e.ChangeType == EPropertyChangeType::ArrayClear)
+		{
+			Prices.Empty();
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("%d"), index);
+	}
+	else if (prop == "NameTag" || prop == "TypeTag")
 	{
 		FString name = e.Property->GetName();
 		int32 index = e.GetArrayIndex(TEXT("ShopItemsInfo"));
@@ -162,4 +189,23 @@ void ANPC::OpenShop()
 	gamemode->ChangeMenuWidget(gamemode->ShopUI);
 
 	Cast<UShop>(gamemode->ShopUI)->InitShop(this);
+}
+
+void ANPC::OpenQuestDialogue(int index)
+{
+	if (index >= Quests.Num())
+	{
+		UE_LOG(ErrNPC, Log, TEXT("Index >= Array.Num()"));
+	}
+	else
+	{
+		AquickstartGameModeBase* gamemode = Cast<AquickstartGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		Cast<UDialogueBox>(gamemode->DialogueBoxUI)->InitQuestDialogue(index);
+	}
+}
+
+void ANPC::GiveQuest(int index)
+{
+	//////////////////////////////////////////////////////////////////////////
+	Player->RegisterQuest(Quests[index]);
 }

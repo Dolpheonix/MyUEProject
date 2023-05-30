@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "../Main/MainCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "../../Utils/Helpers.h"
 
 AEnemy::AEnemy()
@@ -120,6 +122,13 @@ void AEnemy::OnDead()
 	}
 
 	GetMesh()->PlayAnimation(Helpers::LoadObjectFromPath<UAnimSequence>("/Game/ShootingGame/Character/Main/Animations/FistAnim/Anim_Fist_Death.Anim_Fist_Death"), false);
+
+	AMainCharacter* player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	if (player)
+	{
+		player->ReportKill(StaticClass());
+	}
 
 	FTimerHandle destroyhandle;
 	GetWorld()->GetTimerManager().SetTimer(destroyhandle, [this]() { this->Destroy(); }, 0.5f, false, 2.0f);

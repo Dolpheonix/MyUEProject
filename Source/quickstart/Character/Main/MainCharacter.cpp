@@ -2,6 +2,7 @@
 #include "MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "../../UI/QuestStatus.h"
 #include <Kismet/GameplayStatics.h>
 
 AMainCharacter::AMainCharacter()
@@ -38,19 +39,30 @@ AMainCharacter::AMainCharacter()
 	Muzzle = FVector(110.0f, 20.0f, 45.0f);
 
 	// Armory & Inventory 초기화
+	Inventory.Add(FWrappedItemForm()); // Weapons
+	Inventory.Add(FWrappedItemForm()); // Items
+	Inventory.Add(FWrappedItemForm()); // Clothes
+
+	Quickslots_Before = TArray<int>({ 0,0,0 });
+	Quickslots_Now = TArray<int>({ 0,0,0 });
+	Quickslots_Next = TArray<int>({ 0,0,0 });
+
 	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
 	FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
 	fist.ShortForm.InfoTag = "Fist";
 	fist.ShortForm.Code = 0;
+	fist.ShortForm.bIsSellable = false;
 	noitem.ShortForm.InfoTag = " NoItem";
-	Weapons.Add(fist);
-	Items.Add(noitem);
-	Weapons[0].Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
-	Weapons[0].Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
-	Weapons[0].Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
-	Items[0].Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
-	Items[0].Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
-	Items[0].Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
+	noitem.ShortForm.bIsSellable = false;
+
+	fist.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
+	fist.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
+	fist.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
+	noitem.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
+	noitem.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
+	noitem.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
+	Inventory[uint8(ETypeTag::Weapon)].ItemForms.Add(fist);
+	Inventory[uint8(ETypeTag::Item)].ItemForms.Add(noitem);
 
 	// Weapon's Physics Constraint
 	WeaponJoint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("WeaponJoint"));
@@ -158,6 +170,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("SubAttack", IE_Released, this, &AMainCharacter::unSubAttack);
 
 	PlayerInputComponent->BindAction("OpenShowroom", IE_Pressed, this, &AMainCharacter::OpenShowroom);        // I
+	PlayerInputComponent->BindAction("OpenQuestUI", IE_Pressed, this, &AMainCharacter::OpenQuestUI);
 }
 
 void AMainCharacter::MoveForward(float val)
@@ -273,21 +286,21 @@ void AMainCharacter::Interact()
 
 void AMainCharacter::RollItems()
 {
-	if (Items.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
+	if (Inventory[(uint8)(ETypeTag::Item)].ItemForms.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
-		Item_Now = Item_Next;
-		Item_Next = MathUtil::CircularPlus(Item_Now, Items.Num());
+		Quickslots_Now[(uint8)(ETypeTag::Item)] = Quickslots_Next[(uint8)(ETypeTag::Item)];
+		Quickslots_Next[(uint8)(ETypeTag::Item)] = MathUtil::CircularPlus(Quickslots_Now[(uint8)(ETypeTag::Item)], Inventory[(uint8)(ETypeTag::Item)].ItemForms.Num());
 		bQuickslotDirty = true;
 	}
 }
 
 void AMainCharacter::RollWeapons()
 {
-	if (Weapons.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
+	if (Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Num() > 0 && GetCurrentAction() == ECustomActionMode::IDLE)
 	{
-		Weapon_Before = Weapon_Now;
-		Weapon_Now = Weapon_Next;
-		Weapon_Next = MathUtil::CircularPlus(Weapon_Now, Weapons.Num());
+		Quickslots_Before[(uint8)(ETypeTag::Weapon)] = Quickslots_Now[(uint8)(ETypeTag::Weapon)];
+		Quickslots_Now[(uint8)(ETypeTag::Weapon)] = Quickslots_Next[(uint8)(ETypeTag::Weapon)];
+		Quickslots_Next[(uint8)(ETypeTag::Weapon)] = MathUtil::CircularPlus(Quickslots_Now[(uint8)(ETypeTag::Weapon)], Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Num());
 		unEquip();
 		Equip();
 		bQuickslotDirty = true;
@@ -296,90 +309,59 @@ void AMainCharacter::RollWeapons()
 
 void AMainCharacter::RefreshInventory(ETypeTag type)
 {
-	if (type == ETypeTag::Item)
-	{
-		Item_Next = MathUtil::CircularPlus(Item_Now, Items.Num());
-		bQuickslotDirty = true;
-	}
-	else if (type == ETypeTag::Weapon)
-	{
-		Weapon_Next = MathUtil::CircularPlus(Weapon_Now, Weapons.Num());
-		bQuickslotDirty = true;
-	}
-	else
-	{
-		Cloth_Next = MathUtil::CircularPlus(Cloth_Now, Clothes.Num());
-	}
+	Quickslots_Next[(uint8)type] = MathUtil::CircularPlus(Quickslots_Now[(uint8)type], Inventory[(uint8)type].ItemForms.Num());
+	bQuickslotDirty = true;
 }
 
 void AMainCharacter::Register(FItemShortForm iteminfo)
 {
-	FItemForm registerform(iteminfo);
+	FString name = iteminfo.NameTag;
+	int index = Inventory[(uint8)iteminfo.TypeTag].ItemForms.IndexOfByPredicate([name](const FItemForm& itemform) {return itemform.ShortForm.NameTag == name; });
 
-	switch (registerform.ShortForm.TypeTag)
+	if (index >= 0)
 	{
-	case ETypeTag::Weapon:
+		Inventory[(uint8)iteminfo.TypeTag].ItemForms[index].ShortForm.Num += iteminfo.Num;
+	}
+	else
 	{
-		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+		FItemForm registerform(iteminfo);
+
 		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
 		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
 		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
-		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
-		FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
-		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
-		registerform.MeshComponent->RegisterComponent();
-		Weapons.Add(registerform);
-		Weapons[Weapons.Num() - 1].MeshComponent->OnComponentHit.AddDynamic(this, &AMainCharacter::OnHit);
-		Weapons[Weapons.Num() - 1].MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapped);
-		RefreshInventory(iteminfo.TypeTag);
-		break;
+		if (iteminfo.TypeTag != ETypeTag::Item)
+		{
+			registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+			registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
+			FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
+			registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
+			registerform.MeshComponent->RegisterComponent();
+		}
+		Inventory[(uint8)(iteminfo.TypeTag)].ItemForms.Add(registerform);
+		if (iteminfo.TypeTag == ETypeTag::Weapon)
+		{
+			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Last().MeshComponent->OnComponentHit.AddDynamic(this, &AMainCharacter::OnHit);
+			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Last().MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapped);
+		}
 	}
-	case ETypeTag::Item:
-	{
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
-		Items.Add(registerform);
-		RefreshInventory(iteminfo.TypeTag);
-		break;
-	}
-	case ETypeTag::Cloth:
-	{
-		registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
-		registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
-		FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
-		registerform.MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
-		registerform.MeshComponent->RegisterComponent();
-		Weapons.Add(registerform);
-		RefreshInventory(iteminfo.TypeTag);
-		break;
-	}
-	default:
-		break;
-	}
+	ReportItem(name, iteminfo.Num);
+	RefreshInventory(iteminfo.TypeTag);
 }
 
 void AMainCharacter::DeleteItem(ETypeTag type, int index)
 {
-	if (type == ETypeTag::Cloth && index > 0)
+	if (index > 0)
 	{
-		Clothes.RemoveAt(index);
-		Cloth_Now = Cloth_Now >= Clothes.Num() ? Clothes.Num() - 1 : Cloth_Now;
-	}
-	else if (type == ETypeTag::Weapon && index > 0)
-	{
-		Weapons[index].MeshComponent->DestroyComponent();
-		Weapons.RemoveAt(index);
-		Weapon_Now = Weapon_Now >= Weapons.Num() ? Weapons.Num() - 1 : Weapon_Now;
-		Equip();
-	}
-	else if(index > 0)
-	{
-		Items.RemoveAt(index);
-		Item_Now = Item_Now >= Items.Num() ? Items.Num() - 1 : Item_Now;
+		if (type == ETypeTag::Weapon)
+		{
+			Inventory[(uint8)type].ItemForms[index].MeshComponent->DestroyComponent();
+		}
+		Inventory[(uint8)type].ItemForms.RemoveAt(index);
+		Quickslots_Now[(uint8)type] = Quickslots_Now[(uint8)type] >= Inventory[(uint8)type].ItemForms.Num() ? Inventory[(uint8)type].ItemForms.Num() - 1 : Quickslots_Now[(uint8)type];
+		if (type == ETypeTag::Weapon)
+		{
+			Equip();
+		}
 	}
 
 	RefreshInventory(type);
@@ -388,7 +370,8 @@ void AMainCharacter::DeleteItem(ETypeTag type, int index)
 
 void AMainCharacter::unEquip()
 {
-	FString Before = Weapons[Weapon_Before].ShortForm.NameTag;
+	FItemForm* toTakeOff = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Before[(uint8)ETypeTag::Weapon]];
+	FString Before = toTakeOff->ShortForm.NameTag;
 	if (Before == "Fist")
 	{
 
@@ -396,16 +379,17 @@ void AMainCharacter::unEquip()
 	else
 	{
 		// Constraint between back & weapon + physics & Collision settings off
-		Weapons[Weapon_Before].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Before + "_unEquip"));
-		Weapons[Weapon_Before].MeshComponent->SetSimulatePhysics(false);
-		Weapons[Weapon_Before].MeshComponent->SetGenerateOverlapEvents(false);
-		Weapons[Weapon_Before].MeshComponent->SetNotifyRigidBodyCollision(false);
+		toTakeOff->MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Before + "_unEquip"));
+		toTakeOff->MeshComponent->SetSimulatePhysics(false);
+		toTakeOff->MeshComponent->SetGenerateOverlapEvents(false);
+		toTakeOff->MeshComponent->SetNotifyRigidBodyCollision(false);
 	}
 }
 
 void AMainCharacter::Equip()
 {
-	FString Curr = Weapons[Weapon_Now].ShortForm.NameTag;
+	FItemForm* toTakeOn = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Now[(uint8)ETypeTag::Weapon]];
+	FString Curr = toTakeOn->ShortForm.NameTag;
 	if (Curr == "Fist")
 	{
 
@@ -413,23 +397,24 @@ void AMainCharacter::Equip()
 	else
 	{
 		// Constraint between hand & weapon + physics & Collision Settings ON
-		Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
-		WeaponJoint->SetConstrainedComponents(GetMesh(), FName("hand_r"), Weapons[Weapon_Now].MeshComponent, FName(""));
-		Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(true);
-		Weapons[Weapon_Now].MeshComponent->SetEnableGravity(false);
-		Weapons[Weapon_Now].MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Weapons[Weapon_Now].MeshComponent->SetCollisionProfileName("Weapon");
-		Weapons[Weapon_Now].MeshComponent->SetGenerateOverlapEvents(true);
-		Weapons[Weapon_Now].MeshComponent->SetNotifyRigidBodyCollision(true);
+		toTakeOn->MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
+		WeaponJoint->SetConstrainedComponents(GetMesh(), FName("hand_r"), toTakeOn->MeshComponent, FName(""));
+		toTakeOn->MeshComponent->SetSimulatePhysics(true);
+		toTakeOn->MeshComponent->SetEnableGravity(false);
+		toTakeOn->MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		toTakeOn->MeshComponent->SetCollisionProfileName("Weapon");
+		toTakeOn->MeshComponent->SetGenerateOverlapEvents(true);
+		toTakeOn->MeshComponent->SetNotifyRigidBodyCollision(true);
 	}
-	WeaponCode = Weapons[Weapon_Now].ShortForm.Code;
+	WeaponCode = toTakeOn->ShortForm.Code;
 }
 
 void AMainCharacter::Use()
 {
+	FItemForm* toUse = &Inventory[(uint8)ETypeTag::Item].ItemForms[Quickslots_Now[(uint8)ETypeTag::Item]];
 	if (GetCurrentAction() == ECustomActionMode::IDLE)
 	{
-		FString Curr = Items[Item_Now].ShortForm.NameTag;
+		FString Curr = toUse->ShortForm.NameTag;
 
 		if (Curr == "No Item")
 		{
@@ -444,9 +429,10 @@ void AMainCharacter::Use()
 
 void AMainCharacter::Attack()
 {
-	if (WeaponCode != 0 && !Weapons[Weapon_Now].MeshComponent->IsSimulatingPhysics())
+	FItemForm* toUse = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Now[(uint8)ETypeTag::Weapon]];
+	if (WeaponCode != 0 && !toUse->MeshComponent->IsSimulatingPhysics())
 	{
-		Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(true);
+		toUse->MeshComponent->SetSimulatePhysics(true);
 	}
 
 	if (CanAttack())
@@ -515,6 +501,60 @@ void AMainCharacter::unSubAttack()
 	}
 }
 
+void AMainCharacter::RegisterQuest(FQuest& quest)
+{
+	WorkingQuests.Add(&quest);
+	for (int i = 0; i < quest.SubQuests.Num(); i++)
+	{
+		quest.SubQuests[i].Owner = &quest;
+	}
+
+	if (quest.Type == EQuestType::Serial)
+	{
+		quest.currPhase = 0;
+		RegisterSubQuest(quest.SubQuests[quest.currPhase]);
+
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, HuntingQuests[0]->Name);
+	}
+	else
+	{
+		quest.Remains = quest.SubQuests.Num();
+		for (int i = 0; i < quest.SubQuests.Num(); i++)
+		{
+			RegisterSubQuest(quest.SubQuests[i]);
+		}
+	}
+}
+
+void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
+{
+	switch (subquest.Type)
+	{
+	case ESingleQuestType::Arrival:
+		ArrivalQuests.Add(&subquest);
+		break;
+	case ESingleQuestType::Hunt:
+		subquest.currAmounts.SetNum(subquest.HuntAmounts.Num());
+		HuntingQuests.Add(&subquest);
+		break;
+	case ESingleQuestType::Item:
+		subquest.currAmounts.SetNum(subquest.ItemAmounts.Num());
+		ItemQuests.Add(&subquest);
+		break;
+	case ESingleQuestType::Action:
+		ActionQuests.Add(&subquest);
+		break;
+	default:
+		break;
+	}
+}
+
+void AMainCharacter::OpenQuestUI()
+{
+	GameMode->ChangeMenuWidget(GameMode->QuestUI);
+	Cast<UQuestStatus>(GameMode->QuestUI)->InitQuestUI(this);
+}
+
 ECustomMovementMode AMainCharacter::GetCurrentMovement()
 {
 	return CurrentMovement;
@@ -558,3 +598,96 @@ void AMainCharacter::OnDead()
 		this->bDead = false;
 		}, 0.5f, false, 2.0f);
 }
+
+void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
+{
+	TArray<int> DeleteList;
+
+	for (int i = 0; i < HuntingQuests.Num(); i++)
+	{
+		for (int j = 0; j < HuntingQuests[i]->Huntees.Num(); j++)
+		{
+			if (HuntingQuests[i]->Huntees[j] == killclass)
+			{
+				HuntingQuests[i]->currAmounts[j]++;
+				if (HuntingQuests[i]->CheckCompletion())
+				{
+					FQuest* Ownerquest = HuntingQuests[i]->Owner;
+					if (Ownerquest->Type == EQuestType::Serial)
+					{
+						DeleteList.Add(i);
+						Ownerquest->currPhase++;
+						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
+						{
+							Ownerquest->Progress = EQuestProgress::Finished;
+						}
+						else
+						{
+							RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+						}
+					}
+					else
+					{
+						Ownerquest->Remains--;
+						if (Ownerquest->Remains <= 0)
+						{
+							Ownerquest->Progress = EQuestProgress::Finished;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	HuntingQuests.Sort();
+	for (int i = 0; i < DeleteList.Num(); i++)
+	{
+		HuntingQuests.RemoveAt(i, false);
+	}
+}
+
+void AMainCharacter::ReportItem(FString name, int num)
+{
+	for (int i = 0; i < ItemQuests.Num(); i++)
+	{
+		for (int j = 0; j < ItemQuests[i]->ItemNames.Num(); j++)
+		{
+			if (ItemQuests[i]->ItemNames[j] == name)
+			{
+				ItemQuests[i]->currAmounts[j] += num;
+				if (ItemQuests[i]->CheckCompletion())
+				{
+					FQuest* Ownerquest = ItemQuests[i]->Owner;
+
+					if (Ownerquest->Type == EQuestType::Serial)
+					{
+						ItemQuests.RemoveAt(i);
+						Ownerquest->currPhase++;
+						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
+						{
+							Ownerquest->Progress = EQuestProgress::Finished;
+						}
+						else
+						{
+							RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+						}
+					}
+					else
+					{
+						Ownerquest->Remains--;
+						if (Ownerquest->Remains <= 0)
+						{
+							Ownerquest->Progress = EQuestProgress::Finished;
+						}
+					}
+				}
+				else
+				{
+					///// 아이템을 잃었을 때 ===> 완료된 퀘스트를 취소해야 함 (따라서, serial quest에는 아이템 획득 퀘스트는 중간에 배치하지 않도록 함)
+				}
+			}
+		}
+	}
+}
+
+////////// kill, Item, Arrival, Action에 대해 event(Or tick)을 통해 퀘스트 완료 여부를 검사 --> 서브 퀘스트 완료시 퀘스트 업데이트

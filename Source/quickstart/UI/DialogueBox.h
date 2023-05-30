@@ -27,6 +27,7 @@ public:
 	//virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	void InitDialogue(TArray<FDialogueLine> dialogues, ANPC* Interacted);
+	void InitQuestDialogue(int index);
 	void RefreshDialogue();
 
 	UFUNCTION()
@@ -43,6 +44,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	ANPC* InteractedNPC;
+
+	FQuest* TriggeredQuest;
+
+	UPROPERTY(BlueprintReadWrite)
+	int QuestIndex;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	TArray<FDialogueLine> DialogueTree;

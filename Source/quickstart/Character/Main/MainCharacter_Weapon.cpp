@@ -202,17 +202,18 @@ void AMainCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 {
 	if (OtherComponent->GetCollisionObjectType() == ECollisionChannel::ECC_WorldStatic)
 	{
+		FItemForm* CurrWeapon = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Now[(uint8)ETypeTag::Weapon]];
 		if (GetCurrentAction() != ECustomActionMode::ATTACK) // Sword is overlapped in idle/move state
 		{
-			auto Curr = Weapons[Weapon_Now].ShortForm.NameTag;
-			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
-			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
+			auto Curr = CurrWeapon->ShortForm.NameTag;
+			CurrWeapon->MeshComponent->SetSimulatePhysics(false);
+			CurrWeapon->MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
 		}
 		else
 		{
-			auto Curr = Weapons[Weapon_Now].ShortForm.NameTag;
-			Weapons[Weapon_Now].MeshComponent->SetSimulatePhysics(false);
-			Weapons[Weapon_Now].MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
+			auto Curr = CurrWeapon->ShortForm.NameTag;
+			CurrWeapon->MeshComponent->SetSimulatePhysics(false);
+			CurrWeapon->MeshComponent->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName(Curr + "_Equip"));
 			bAttackBlocked = true;
 		}
 	}

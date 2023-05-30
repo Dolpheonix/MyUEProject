@@ -203,12 +203,12 @@ void UInventory::RefreshSlots()
 
 	for (int i = 0; i < 16; i++)
 	{
-		if (i < Player->Clothes.Num())
+		if (i < Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms.Num())
 		{
 			FSlateBrush brush_N, brush_H;
-			if (i == Player->Cloth_Now) brush_N.SetResourceObject(Player->Clothes[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Clothes[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Clothes[i].Thumbnail_H);
+			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Cloth]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_S);
+			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_N);
+			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_H);
 			ClothSlots[i]->WidgetStyle.SetNormal(brush_N);
 			ClothSlots[i]->WidgetStyle.SetHovered(brush_H);
 		}
@@ -217,12 +217,12 @@ void UInventory::RefreshSlots()
 			ClothSlots[i]->SetStyle(DefaultStyle);
 		}
 
-		if (i < Player->Weapons.Num())
+		if (i < Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num())
 		{
 			FSlateBrush brush_N, brush_H;
-			if (i == Player->Weapon_Now) brush_N.SetResourceObject(Player->Weapons[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Weapons[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Weapons[i].Thumbnail_H);
+			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Weapon]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_S);
+			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_N);
+			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_H);
 			WeaponSlots[i]->WidgetStyle.SetNormal(brush_N);
 			WeaponSlots[i]->WidgetStyle.SetHovered(brush_H);
 		}
@@ -231,12 +231,12 @@ void UInventory::RefreshSlots()
 			WeaponSlots[i]->SetStyle(DefaultStyle);
 		}
 		
-		if (i < Player->Items.Num())
+		if (i < Player->Inventory[(uint8)ETypeTag::Item].ItemForms.Num())
 		{
 			FSlateBrush brush_N, brush_H;
-			if (i == Player->Item_Now) brush_N.SetResourceObject(Player->Items[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Items[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Items[i].Thumbnail_H);
+			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Item]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_S);
+			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_N);
+			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_H);
 			ItemSlots[i]->WidgetStyle.SetNormal(brush_N);
 			ItemSlots[i]->WidgetStyle.SetHovered(brush_H);
 		}
@@ -283,17 +283,10 @@ void UInventory::SetEvents()
 
 void UInventory::OnHovered_GetInfo(int index, ETypeTag type)
 {
-	if (type == ETypeTag::Cloth && index < Player->Clothes.Num())
+	TArray<FItemForm>* Currslot = &Player->Inventory[(uint8)type].ItemForms;
+	if (index < Currslot->Num())
 	{
-		InfoTextBlock->SetText(FText::FromString(Player->Clothes[index].ShortForm.InfoTag));
-	}
-	else if (type == ETypeTag::Weapon && index < Player->Weapons.Num())
-	{
-		InfoTextBlock->SetText(FText::FromString(Player->Weapons[index].ShortForm.InfoTag));
-	}
-	else if (index < Player->Items.Num())
-	{
-		InfoTextBlock->SetText(FText::FromString(Player->Items[index].ShortForm.InfoTag));
+		InfoTextBlock->SetText(FText::FromString((*Currslot)[index].ShortForm.InfoTag));
 	}
 }
 
@@ -304,28 +297,23 @@ void UInventory::OnUnhovered_DelInfo()
 
 void UInventory::OnClicked_Select(int index, ETypeTag type)
 {
-	if (type == ETypeTag::Cloth && index < Player->Clothes.Num())
+	TArray<FItemForm>* Currslot = &Player->Inventory[(uint8)type].ItemForms;
+	if (index < Currslot->Num())
 	{
-		Player->Cloth_Now = index;
-		Player->RefreshInventory(ETypeTag::Cloth);
+		Player->Quickslots_Before[(uint8)type] = Player->Quickslots_Now[(uint8)type];
+		Player->Quickslots_Now[(uint8)type] = index;
+		Player->RefreshInventory(type);
 		RefreshSlots();
-		Preview->Sync_to_Character();
-	}
-	else if (type == ETypeTag::Weapon && index < Player->Weapons.Num())
-	{
-		Player->Weapon_Before = Player->Weapon_Now;
-		Player->Weapon_Now = index;
-		Player->RefreshInventory(ETypeTag::Weapon);
-		Player->unEquip();
-		Player->Equip();
-		RefreshSlots();
-		Preview->Sync_to_Character();
-	}
-	else if (index < Player->Items.Num())
-	{
-		Player->Item_Now = index;
-		Player->RefreshInventory(ETypeTag::Item);
-		RefreshSlots();
+
+		if (type == ETypeTag::Weapon)
+		{
+			Player->unEquip();
+			Player->Equip();
+		}
+		if (type != ETypeTag::Item)
+		{
+			Preview->Sync_to_Character();
+		}
 	}
 }
 
@@ -334,34 +322,16 @@ void UInventory::OnPressed_Catch(int index, ETypeTag type)
 	FVector2D Pos = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
 	Pos.X -= 50.0f;
 	Pos.Y -= 50.0f;
-	if (type == ETypeTag::Cloth && index < Player->Clothes.Num())
+
+	TArray<FItemForm>* Currslot = &Player->Inventory[(uint8)type].ItemForms;
+	if (index < Currslot->Num())
 	{
 		isCaptured = true;
 		CapturedInfo.index = index;
 		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Clothes[index].ShortForm.NameTag;
+		CapturedInfo.tag = (*Currslot)[index].ShortForm.NameTag;
 		CapturedImage->SetOpacity(0.7f);
-		CapturedImage->SetBrushFromTexture(Player->Clothes[index].Thumbnail_N);
-		CapturedImage->SetRenderTranslation(Pos);
-	}
-	else if (type == ETypeTag::Weapon && index < Player->Weapons.Num())
-	{
-		isCaptured = true;
-		CapturedInfo.index = index;
-		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Weapons[index].ShortForm.NameTag;
-		CapturedImage->SetOpacity(0.7f);
-		CapturedImage->SetBrushFromTexture(Player->Weapons[index].Thumbnail_N);
-		CapturedImage->SetRenderTranslation(Pos);
-	}
-	else if (index < Player->Items.Num())
-	{
-		isCaptured = true;
-		CapturedInfo.index = index;
-		CapturedInfo.ItemType = type;
-		CapturedInfo.tag = Player->Items[index].ShortForm.NameTag;
-		CapturedImage->SetOpacity(0.7f);
-		CapturedImage->SetBrushFromTexture(Player->Items[index].Thumbnail_N);
+		CapturedImage->SetBrushFromTexture((*Currslot)[index].Thumbnail_N);
 		CapturedImage->SetRenderTranslation(Pos);
 	}
 }

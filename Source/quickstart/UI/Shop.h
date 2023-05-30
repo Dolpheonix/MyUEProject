@@ -8,6 +8,7 @@
 #include "Components/Textblock.h"
 #include "ItemButton.h"
 #include "../Character/NPC/NPC.h"
+#include "Sound/SoundCue.h"
 #include "GameFramework/PlayerController.h"
 #include "Shop.generated.h"
 
@@ -32,16 +33,25 @@ public:
 
 	UFUNCTION()
 	void TabCharacterSlot(int index, ETypeTag type);
-	//UFUNCTION() // 아이템 갯수 increase
-	//void Increase();
-	//UFUNCTION() // 아이템 갯수 decrease
-	//void Decrease();
-	//UFUNCTION() // 살 아이템을 선택(Click)
-	//void SelectBuyItem(int index, ETypeTag type);
-	//UFUNCTION() // 팔 아이템을 선택(Click)
-	//void SelectSellItem(int index, ETypeTag type);
+	UFUNCTION() // 아이템 갯수 increase
+	void Increase();
+	UFUNCTION() // 아이템 갯수 decrease
+	void Decrease();
+	UFUNCTION() // 살 아이템을 선택(Click)
+	void SelectBuyItem(int index, ETypeTag type);
+	UFUNCTION() // 팔 아이템을 선택(Click)
+	void SelectSellItem(int index, ETypeTag type);
+	UFUNCTION()
+	void Deal();
 	UFUNCTION()
 	void EndShop();
+	UFUNCTION()
+	void PlaySelectSound();
+
+	void Unselect();
+	void RefreshIncDec();
+	void RefreshShopSlots(int changed);
+	void RefreshCharacterSlots(ETypeTag type, int changed);
 
 public:
 	TArray<UItemButton*> ShopSlots;
@@ -50,19 +60,32 @@ public:
 
 	UButton* DecreaseButton;
 	UButton* IncreaseButton;
+	UButton* ConfirmationButton;
+	UButton* EndButton;
+
 	UTextBlock* NumText;
 	UTextBlock* BuySellText;
+	UTextBlock* PriceText;
+	UTextBlock* WalletText;
 
-	UButton* EndButton;
+	USoundCue* BuySellSound;
+	USoundCue* SelectSound;
+	USoundCue* IncreaseSound;
+	USoundCue* DecreaseSound;
+	USoundCue* ExitSound;
 
 	ANPC* InteractedNPC;
 
 	AMainCharacter* MainCharacter;
 	APlayerController* Controller;
 
+	// Current State
 	ETypeTag CurrTab;
-	FItemForm SelectedItem;
+	FItemForm* SelectedItem;
+	int CurrNum;
 	bool bIsBuying;
+	int CurrIndex;
+	int CurrPrice;
 
 	bool Bounded = false;
 };

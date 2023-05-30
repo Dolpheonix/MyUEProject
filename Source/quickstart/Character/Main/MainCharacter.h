@@ -7,6 +7,7 @@
 #include "../Character_Root.h"
 #include "../../Object/Item/Bullet.h"
 #include "../../Object/Item/Throwable.h"
+#include "../../Utils/NPCUtil.h"
 #include "../../Utils/MathUtil.h"
 #include "../../Utils/Structs.h"
 #include "../../Utils/Helpers.h"
@@ -36,6 +37,16 @@ enum class ECustomActionMode : uint8
 	INTERACT,
 	GUARD,
 	MAX,
+};
+
+USTRUCT(BlueprintType)
+struct FWrappedItemForm
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FItemForm> ItemForms;
 };
 
 UCLASS()
@@ -104,6 +115,8 @@ public:
 	void RollWeapons();
 	UFUNCTION(BlueprintImplementableEvent, Category="test")
 	void OpenShowroom();
+	UFUNCTION()
+	void OpenQuestUI();
 
 // Item Functions
 	UFUNCTION()
@@ -141,6 +154,12 @@ public:
 	UFUNCTION()
 	void DeleteItem(ETypeTag type, int index);
 
+// Register Quest
+	UFUNCTION()
+	void RegisterQuest(FQuest& quest);
+	UFUNCTION()
+	void RegisterSubQuest(FSingleQuest& subquest);
+
 // Condition
 	UFUNCTION()
 	bool CanAttack();
@@ -148,6 +167,10 @@ public:
 // Dead function
 	virtual void OnHurt() override;
 	virtual void OnDead() override;
+
+// Quest checker
+	void ReportKill(TSubclassOf<AActor> killclass);
+	void ReportItem(FString itemname, int num);
 public:
 // Third-person Camera
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -197,37 +220,34 @@ public:
 
 // Weapon 관련
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapons")
-	TArray<FItemForm> Weapons;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapons")
 	UPhysicsConstraintComponent* WeaponJoint;
 	UPROPERTY(BlueprintReadOnly)
-	int Weapon_Before = 0;
-	UPROPERTY(BlueprintReadOnly)
-	int Weapon_Now=0;
-	UPROPERTY(BlueprintReadOnly)
 	int32 WeaponCode=0;
-	UPROPERTY(BlueprintReadOnly)
-	int Weapon_Next=0;
 
 // Item 관련
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FItemForm> Items;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<bool> Usable;
-	UPROPERTY(BlueprintReadOnly)
-	int Item_Now=0;
-	UPROPERTY(BlueprintReadOnly)
-	int Item_Next=0;
 	UPROPERTY(BlueprintReadWrite)
 	bool bQuickslotDirty=false;
 
 // Cloth 관련
+
+// Inventory
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FItemForm> Clothes;
+	TArray<FWrappedItemForm> Inventory;
 	UPROPERTY(BlueprintReadOnly)
-	int Cloth_Now=0;
+	TArray<int> Quickslots_Before;
 	UPROPERTY(BlueprintReadOnly)
-	int Cloth_Next=0;
+	TArray<int> Quickslots_Now;
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int> Quickslots_Next;
+
+// Quest
+	TArray<FQuest*> WorkingQuests;
+	TArray<FSingleQuest*> HuntingQuests;
+	TArray<FSingleQuest*> ArrivalQuests;
+	TArray<FSingleQuest*> ItemQuests;
+	TArray<FSingleQuest*> ActionQuests;
 
 // Respawn
 	FVector StartPos;
@@ -241,6 +261,8 @@ public:
 	USoundCue* WalkingSound;
 	UAudioComponent* FootstepAudioComponent;
 	
+// Money
+	int32 CurrMoney = 10000;
 
 // Game Mode
 	UPROPERTY(BlueprintReadWrite)

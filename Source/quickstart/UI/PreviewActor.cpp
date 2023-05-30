@@ -67,12 +67,12 @@ void APreviewActor::Tick(float DeltaTime)
 
 void APreviewActor::Sync_to_Character()
 {
-	Weapon_Now = Player->Weapon_Now;
-	for (int i = 0; i < Player->Weapons.Num(); i++)
+	Weapon_Now = Player->Quickslots_Now[(uint8)ETypeTag::Weapon];
+	for (int i = 0; i < Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num(); i++)
 	{
 		if (i == Weapon_Now)
 		{
-			auto tag = Player->Weapons[i].ShortForm.NameTag;
+			auto tag = Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].ShortForm.NameTag;
 			if (tag != "Fist")
 			{
 				auto weapon = PreviewWeapons[tag];
@@ -83,7 +83,7 @@ void APreviewActor::Sync_to_Character()
 		}
 		else
 		{
-			auto tag = Player->Weapons[i].ShortForm.NameTag;
+			auto tag = Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].ShortForm.NameTag;
 			if (tag != "Fist")
 			{
 				auto weapon = PreviewWeapons[tag];
@@ -91,11 +91,6 @@ void APreviewActor::Sync_to_Character()
 				weapon->SetVisibility(true);
 			}
 		}
-	}
-
-	Cloth_Now = Player->Cloth_Now;
-	for (int i = 0; i < Player->Clothes.Num(); i++)
-	{
 	}
 }
 

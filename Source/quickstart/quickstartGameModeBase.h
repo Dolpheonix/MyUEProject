@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
 	TSubclassOf<UUserWidget> ShopWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
+	TSubclassOf<UUserWidget> QuestWidgetClass;
+
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* MainUI;
 
@@ -56,6 +59,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* ShopUI;
+
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* QuestUI;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* CurrentUI;
