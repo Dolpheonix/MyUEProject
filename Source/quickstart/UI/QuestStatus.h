@@ -6,11 +6,23 @@
 #include "Blueprint/UserWidget.h"
 #include "../Character/Main/MainCharacter.h"
 #include "Components/TextBlock.h"
+#include "Components/CanvasPanel.h"
 #include "QuestStatus.generated.h"
 
 /**
  * 
  */
+USTRUCT(Atomic, BlueprintType)
+struct FQuestTextBlock
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	UTextBlock* MainBlock;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<UTextBlock*> SubBlocks;
+};
+
 UCLASS()
 class QUICKSTART_API UQuestStatus : public UUserWidget
 {
@@ -21,6 +33,8 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
 	void InitQuestUI(AActor* Instigator);
 
 public:
@@ -28,5 +42,6 @@ public:
 	APlayerController* Controller;
 	bool Bounded = false;
 
-	TArray<UTextBlock*> QuestTexts;
+	TArray<FQuestTextBlock> QuestBlocks;
+	UCanvasPanel* RootCanvas;
 };

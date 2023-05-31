@@ -159,6 +159,8 @@ public:
 	void RegisterQuest(FQuest& quest);
 	UFUNCTION()
 	void RegisterSubQuest(FSingleQuest& subquest);
+	UFUNCTION()
+	void EndQuest(FQuest& quest);
 
 // Condition
 	UFUNCTION()

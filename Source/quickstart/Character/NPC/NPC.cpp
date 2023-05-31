@@ -206,6 +206,12 @@ void ANPC::OpenQuestDialogue(int index)
 
 void ANPC::GiveQuest(int index)
 {
-	//////////////////////////////////////////////////////////////////////////
+	Quests[index].Progress = EQuestProgress::InProgress;
 	Player->RegisterQuest(Quests[index]);
+}
+
+void ANPC::EndQuest(int index)
+{
+	Quests[index].Progress = EQuestProgress::AlreadyDone;
+	Player->EndQuest(Quests[index]);
 }

@@ -92,7 +92,7 @@ void UDialogueBox::GetNextDialogue(int index)
 	}
 	else
 	{
-		currIndex = DialogueTree[currIndex].NextLines[index];
+		currIndex = DialogueTree[currIndex].Responses[index].nextIndex;
 
 		RefreshDialogue();
 	}
@@ -111,17 +111,22 @@ void UDialogueBox::EndDialogue(int index)
 	case EDialogueEndType::SHOP:
 		InteractedNPC->OpenShop();
 		break;
-	case EDialogueEndType::OPENQUEST:
+	case EDialogueEndType::QUEST_START:
 		InteractedNPC->OpenQuestDialogue(DialogueTree[index].QuestIndex);
 		break;
-	case EDialogueEndType::REWARD:
-		break;
-	case EDialogueEndType::GIVEQUEST:
-		TriggeredQuest->Progress = EQuestProgress::InProgress;
+	case EDialogueEndType::QUEST_COMMIT:
 		InteractedNPC->GiveQuest(QuestIndex);
 		Controller->SetShowMouseCursor(false);
 		Controller->SetInputMode(FInputModeGameOnly());
 		InteractedNPC->UnInteract();
+		break;
+	case EDialogueEndType::QUEST_END:
+		InteractedNPC->EndQuest(QuestIndex);
+		Controller->SetShowMouseCursor(false);
+		Controller->SetInputMode(FInputModeGameOnly());
+		InteractedNPC->UnInteract();
+		break;
+	default:
 		break;
 	}
 }
@@ -136,7 +141,7 @@ void UDialogueBox::RefreshDialogue()
 		int i;
 		for (i = 0; i < DialogueTree[currIndex].Responses.Num(); i++)
 		{
-			ResponseTexts[i]->SetText(FText::FromString(DialogueTree[currIndex].Responses[i]));
+			ResponseTexts[i]->SetText(FText::FromString(DialogueTree[currIndex].Responses[i].Response));
 			ResponseButtons[i]->SetIsEnabled(true);
 		}
 		for (int j = i; j < ResponseTexts.Num(); j++)

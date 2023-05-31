@@ -2,27 +2,27 @@
 
 bool FSingleQuest::CheckCompletion()
 {
-	bool completed = true;
+	Completed = true;
 	switch (Type)
 	{
 	case ESingleQuestType::Arrival:
 		break;
 	case ESingleQuestType::Hunt:
-		for (int i = 0; i < Huntees.Num(); i++)
+		for (int i = 0; i < HuntingLists.Num(); i++)
 		{
-			if (currAmounts[i] < HuntAmounts[i])
+			if (currAmounts[i] < HuntingLists[i].HuntAmount)
 			{
-				completed = false;
+				Completed = false;
 				break;
 			}
 		}
 		break;
 	case ESingleQuestType::Item:
-		for (int i = 0; i < ItemNames.Num(); i++)
+		for (int i = 0; i < ItemLists.Num(); i++)
 		{
-			if (currAmounts[i] < ItemAmounts[i])
+			if (currAmounts[i] < ItemLists[i].ItemAmount)
 			{
-				completed = false;
+				Completed = false;
 				break;
 			}
 		}
@@ -32,5 +32,5 @@ bool FSingleQuest::CheckCompletion()
 	default:
 		break;
 	}
-	return completed;
+	return Completed;
 }

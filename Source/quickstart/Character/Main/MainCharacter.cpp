@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "MainCharacter.h"
+#include "../../quickstart.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../../UI/QuestStatus.h"
@@ -534,11 +535,20 @@ void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
 		ArrivalQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Hunt:
-		subquest.currAmounts.SetNum(subquest.HuntAmounts.Num());
+		subquest.currAmounts.SetNum(subquest.HuntingLists.Num());
 		HuntingQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Item:
-		subquest.currAmounts.SetNum(subquest.ItemAmounts.Num());
+		subquest.currAmounts.SetNum(subquest.ItemLists.Num());
+		for (int i = 0; i < subquest.ItemLists.Num(); i++)
+		{
+			FString itemname = subquest.ItemLists[i].ItemName;
+			auto preexist = Inventory[(uint8)subquest.ItemLists[i].ItemType].ItemForms.FindByPredicate([itemname](const FItemForm& item) {return itemname == item.ShortForm.NameTag; });
+			if (preexist)
+			{
+				subquest.currAmounts[i] = preexist->ShortForm.Num;
+			}
+		}
 		ItemQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Action:
@@ -546,6 +556,59 @@ void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
 		break;
 	default:
 		break;
+	}
+}
+
+void AMainCharacter::EndQuest(FQuest& quest)
+{
+	FQuest* qptr = &quest;
+	int questindex = WorkingQuests.IndexOfByPredicate([qptr](const FQuest* ptr) {return qptr == ptr; });
+
+	if (questindex < 0)
+	{
+		UE_LOG(ErrQuest, Log, TEXT("Quest that want to remove does not exist"));
+	}
+	else
+	{
+		for (int i = 0; i < qptr->SubQuests.Num(); i++)
+		{
+			FSingleQuest* sptr = &qptr->SubQuests[i];
+			TArray<FSingleQuest*>* arr = nullptr;
+			switch (sptr->Type)
+			{
+			case ESingleQuestType::Arrival:
+				arr = &ArrivalQuests;
+				break;
+			case ESingleQuestType::Item:
+				arr = &ItemQuests;
+				break;
+			case ESingleQuestType::Hunt:
+				arr = &HuntingQuests;
+				break;
+			case ESingleQuestType::Action:
+				arr = &ActionQuests;
+				break;
+			}
+
+			if (!arr)
+			{
+				UE_LOG(ErrQuest, Log, TEXT("Quest type error"));
+			}
+			else
+			{
+				int subquestindex = arr->IndexOfByPredicate([sptr](const FSingleQuest* ptr) {return sptr == ptr; });
+				if (subquestindex < 0)
+				{
+					UE_LOG(ErrQuest, Log, TEXT("Single Quest that want to remove does not exist"));
+				}
+				else
+				{
+					arr->RemoveAt(subquestindex);
+				}
+			}
+		}
+
+		WorkingQuests.RemoveAt(questindex);
 	}
 }
 
@@ -601,21 +664,22 @@ void AMainCharacter::OnDead()
 
 void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
 {
-	TArray<int> DeleteList;
-
 	for (int i = 0; i < HuntingQuests.Num(); i++)
 	{
-		for (int j = 0; j < HuntingQuests[i]->Huntees.Num(); j++)
+		int idx = HuntingQuests[i]->HuntingLists.IndexOfByPredicate([killclass](const FHuntingQuestForm& item) {return killclass == item.Huntee; });
+
+		if (idx >= 0)
 		{
-			if (HuntingQuests[i]->Huntees[j] == killclass)
+			HuntingQuests[i]->currAmounts[idx]++;
+
+			if (!HuntingQuests[i]->Completed)
 			{
-				HuntingQuests[i]->currAmounts[j]++;
 				if (HuntingQuests[i]->CheckCompletion())
 				{
 					FQuest* Ownerquest = HuntingQuests[i]->Owner;
+
 					if (Ownerquest->Type == EQuestType::Serial)
 					{
-						DeleteList.Add(i);
 						Ownerquest->currPhase++;
 						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
 						{
@@ -638,30 +702,25 @@ void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
 			}
 		}
 	}
-
-	HuntingQuests.Sort();
-	for (int i = 0; i < DeleteList.Num(); i++)
-	{
-		HuntingQuests.RemoveAt(i, false);
-	}
 }
 
 void AMainCharacter::ReportItem(FString name, int num)
 {
 	for (int i = 0; i < ItemQuests.Num(); i++)
 	{
-		for (int j = 0; j < ItemQuests[i]->ItemNames.Num(); j++)
+		int idx = ItemQuests[i]->ItemLists.IndexOfByPredicate([name](const FItemQuestForm& item) {return name == item.ItemName; });
+		if (idx >= 0)
 		{
-			if (ItemQuests[i]->ItemNames[j] == name)
+			ItemQuests[i]->currAmounts[idx] += num;
+
+			if (num > 0 && !ItemQuests[i]->Completed)	// item을 얻은 경우이므로, 이전에 다 모았던 item quest는 건드릴 필요 없음
 			{
-				ItemQuests[i]->currAmounts[j] += num;
 				if (ItemQuests[i]->CheckCompletion())
 				{
 					FQuest* Ownerquest = ItemQuests[i]->Owner;
 
 					if (Ownerquest->Type == EQuestType::Serial)
 					{
-						ItemQuests.RemoveAt(i);
 						Ownerquest->currPhase++;
 						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
 						{
@@ -680,10 +739,6 @@ void AMainCharacter::ReportItem(FString name, int num)
 							Ownerquest->Progress = EQuestProgress::Finished;
 						}
 					}
-				}
-				else
-				{
-					///// 아이템을 잃었을 때 ===> 완료된 퀘스트를 취소해야 함 (따라서, serial quest에는 아이템 획득 퀘스트는 중간에 배치하지 않도록 함)
 				}
 			}
 		}

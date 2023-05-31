@@ -9,12 +9,23 @@
 UENUM(BlueprintType)
 enum class EDialogueEndType : uint8
 {
-	SHOP,
-	OPENQUEST,
-	REWARD,
-	GIVEQUEST,
 	DEFAULT,
+	SHOP,
+	QUEST_START,
+	QUEST_COMMIT,
+	QUEST_END,
 	MAX,
+};
+
+USTRUCT(BlueprintType)
+struct FDialogueResponse
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FString Response;
+	UPROPERTY(EditAnywhere)
+	int nextIndex;
 };
 
 USTRUCT(BlueprintType)
@@ -29,15 +40,13 @@ public:
 	FString TextLine;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<FString> Responses;
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<int> NextLines;
+	TArray<FDialogueResponse> Responses;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	bool isEnd;
 	UPROPERTY(EditAnywhere, Category = "Dialogue", meta = (EditCondition = "isEnd"))
 	EDialogueEndType EndContext;
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::OPENQUEST"))
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::QUEST_START"))
 	int QuestIndex;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::REWARD"))
 	int ItemIndex;
@@ -68,6 +77,7 @@ enum class EQuestProgress : uint8
 	Available,
 	InProgress,
 	Finished,
+	AlreadyDone,
 	Max,
 };
 
@@ -78,6 +88,30 @@ enum class ERewardType : uint8
 	ITEM,
 	MONEY,
 	MAX,
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FHuntingQuestForm
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> Huntee;
+	UPROPERTY(EditAnywhere)
+	int HuntAmount;
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FItemQuestForm
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ETypeTag ItemType;
+	UPROPERTY(EditAnywhere)
+	FString ItemName;
+	UPROPERTY(EditAnywhere)
+	int ItemAmount;
 };
 
 USTRUCT(Atomic, BlueprintType)
@@ -103,26 +137,22 @@ struct FSingleQuest
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category="Quest")
+	UPROPERTY(EditAnywhere)
 	ESingleQuestType Type;
 
-	UPROPERTY(EditAnywhere, Category = "Quest")
+	UPROPERTY(EditAnywhere)
 	FString Name;
 
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Arrival"))
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Arrival"))
 	FVector Destination;
 
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Hunt"))
-	TArray<TSubclassOf<AActor>> Huntees;
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Hunt"))
-	TArray<int> HuntAmounts;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Hunt"))
+	TArray<FHuntingQuestForm> HuntingLists;
 
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Item"))
-	TArray<FString> ItemNames;
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Item"))
-	TArray<int> ItemAmounts;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Item"))
+	TArray<FItemQuestForm> ItemLists;
 
-	UPROPERTY(EditAnywhere, Category = "Quest", meta = (EditCondition = "Type == ESingleQuestType::Action"))
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Action"))
 	int ActionCode;
 
 	FQuest* Owner;

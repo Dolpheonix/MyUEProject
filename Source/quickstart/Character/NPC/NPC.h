@@ -36,6 +36,7 @@ public:
 	void OpenShop();
 	void OpenQuestDialogue(int index);
 	void GiveQuest(int index);
+	void EndQuest(int index);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
