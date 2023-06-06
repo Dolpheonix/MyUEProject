@@ -86,9 +86,9 @@ void UDialogueBox::InitQuestDialogue(int index)
 
 void UDialogueBox::GetNextDialogue(int index)
 {
-	if (DialogueTree[currIndex].isEnd)
+	if (DialogueTree[currIndex].Responses[index].isEnd)
 	{
-		EndDialogue(currIndex);
+		EndDialogue(currIndex, index);
 	}
 	else
 	{
@@ -98,10 +98,10 @@ void UDialogueBox::GetNextDialogue(int index)
 	}
 }
 
-void UDialogueBox::EndDialogue(int index)
+void UDialogueBox::EndDialogue(int index, int responseIndex)
 {
 	// TODO //
-	switch (DialogueTree[index].EndContext)
+	switch (DialogueTree[index].Responses[responseIndex].EndContext)
 	{
 	case EDialogueEndType::DEFAULT:
 		Controller->SetShowMouseCursor(false);
@@ -112,7 +112,7 @@ void UDialogueBox::EndDialogue(int index)
 		InteractedNPC->OpenShop();
 		break;
 	case EDialogueEndType::QUEST_START:
-		InteractedNPC->OpenQuestDialogue(DialogueTree[index].QuestIndex);
+		InteractedNPC->OpenQuestDialogue(DialogueTree[index].Responses[responseIndex].QuestIndex);
 		break;
 	case EDialogueEndType::QUEST_COMMIT:
 		InteractedNPC->GiveQuest(QuestIndex);

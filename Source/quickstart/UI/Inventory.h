@@ -10,7 +10,9 @@
 #include "Components/Image.h"
 #include "ItemButton.h"
 #include "../Character/Main/MainCharacter.h"
+#include "PopUp.h"
 #include "PreviewActor.h"
+#include "Sound/SoundCue.h"
 #include "Inventory.generated.h"
 
 /**
@@ -31,6 +33,12 @@ public:
 	void SetTexts();
 	void RefreshSlots();
 	void SetEvents();
+	void OpenPopup();
+
+	UFUNCTION()
+	void DisableButtonsTemporarily();
+	UFUNCTION()
+	void RestoreButtons();
 
 	UFUNCTION()
 	void OnHovered_GetInfo(int index, ETypeTag type);
@@ -43,33 +51,57 @@ public:
 	UFUNCTION()
 	void OnReleased_Delete();
 
+	UFUNCTION()
+	void ThrowAway();
+
+	void ChangeNumber(int index, ETypeTag type);
+
 public:
 	UPROPERTY(BlueprintReadWrite)
-	UCanvasPanel* MainPanel = nullptr;
+	UCanvasPanel* RootCanvas = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<UTextBlock*> TextBlocks;
+	UTextBlock* InfoText;
 
 	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* InfoTextBlock;
-
+	UTextBlock* WeaponText;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<UItemButton*> WeaponSlots;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<UTextBlock*> WeaponSlotNumbers;
 
+	UPROPERTY(BlueprintReadWrite)
+	UTextBlock* ItemText;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<UItemButton*> ItemSlots;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<UTextBlock*> ItemSlotNumbers;
 
 	UPROPERTY(BlueprintReadWrite)
+	UTextBlock* ClothText;
+	UPROPERTY(BlueprintReadWrite)
 	TArray<UItemButton*> ClothSlots;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<UTextBlock*> ClothSlotNumbers;
 
 	UPROPERTY(BlueprintReadWrite)
 	UButton* TrashCan;
 
-	UPROPERTY(BlueprintReadWrite)
-	UTexture2D* defaultSlotTex;
+	UClass* PopupClass;
 
-	UPROPERTY(BlueprintReadWrite)
-	UObject* TextFont;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PopUp")
+	UPopUp* DeletePopup;
+
+	USoundCue* SelectSound;
+	USoundCue* CatchSound;
+	USoundCue* PopupSound;
+	USoundCue* ExitSound;
+
+	UTexture2D* DefaultTex;
+	FSlateBrush DefaultBrush;
+	FButtonStyle DefaultStyle;
+
+	FSlateFontInfo DefaultFont;
 
 	UPROPERTY(BlueprintReadOnly)
 	AMainCharacter* Player;
@@ -86,6 +118,7 @@ public:
 	bool isCaptured = false;
 
 	CapturedSlot_Info CapturedInfo;
+	TArray<int> ShutdownList;
 
 	bool Bounded = false;
 };

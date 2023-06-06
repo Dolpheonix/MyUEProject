@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "../Character/Main/MainCharacter.h"
+#include "Components/RichTextBlock.h"
 #include "Components/TextBlock.h"
 #include "Components/CanvasPanel.h"
 #include "QuestStatus.generated.h"
@@ -18,9 +19,9 @@ struct FQuestTextBlock
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* MainBlock;
+	URichTextBlock* MainBlock;
 	UPROPERTY(BlueprintReadWrite)
-	TArray<UTextBlock*> SubBlocks;
+	TArray<URichTextBlock*> SubBlocks;
 };
 
 UCLASS()
@@ -37,6 +38,9 @@ public:
 
 	void InitQuestUI(AActor* Instigator);
 
+	FString GetMainQuestText(FString origin, int maxperline, bool isStriked);
+	FString GetSubQuestText(FString origin, int maxperline, bool isStriked);
+
 public:
 	AMainCharacter* Player;
 	APlayerController* Controller;
@@ -44,4 +48,6 @@ public:
 
 	TArray<FQuestTextBlock> QuestBlocks;
 	UCanvasPanel* RootCanvas;
+	
+	UDataTable* RichTextSet;
 };

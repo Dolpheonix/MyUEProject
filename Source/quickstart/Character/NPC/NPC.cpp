@@ -40,18 +40,23 @@ void ANPC::BeginPlay()
 
 	for (int i = 0; i < ShopItemsInfo.Num(); i++)
 	{
-		FItemShortForm iteminfo = ShopItemsInfo[i];
+		FItemShortForm iteminfo = ShopItemsInfo[i].ItemInfo;
 
 		if (iteminfo.InfoTag == "Invalid Item, Check data table")
 		{
 			UE_LOG(ErrAsset, Error, TEXT("%s : No such item exist"), *iteminfo.NameTag);
 		}
 
-		FItemForm registerform(iteminfo);
+		FItemForm itemform(iteminfo);
 
-		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
-		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+		itemform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		itemform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		itemform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+
+		FShopItemForm registerform;
+		registerform.ItemForm = itemform;
+		registerform.Price = ShopItemsInfo[i].Price;
+
 		ShopItems.Add(registerform);
 	}
 }
@@ -80,51 +85,24 @@ void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
 
 	FString prop = e.MemberProperty->GetName();
 
-	if (prop == "ShopItemsInfo")
-	{
-		int32 index = e.GetArrayIndex(TEXT("ShopItemsInfo"));
-		
-		if (e.ChangeType == EPropertyChangeType::ArrayAdd)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Added"));
-			if (ShopItemsInfo.Num() - 1 == index) // Added in tail
-			{
-				Prices.Add(0);
-			}
-			else // Added in Midline
-			{
-				Prices.EmplaceAt(index);
-			}
-		}
-		else if (e.ChangeType == EPropertyChangeType::ArrayRemove)
-		{
-			Prices.RemoveAt(index);
-		}
-		else if (e.ChangeType == EPropertyChangeType::ArrayClear)
-		{
-			Prices.Empty();
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("%d"), index);
-	}
-	else if (prop == "NameTag" || prop == "TypeTag")
+	if (prop == "NameTag" || prop == "TypeTag")
 	{
 		FString name = e.Property->GetName();
 		int32 index = e.GetArrayIndex(TEXT("ShopItemsInfo"));
 		int code = -1;
 		if (index >= 0)
 		{
-			switch (ShopItemsInfo[index].TypeTag)
+			switch (ShopItemsInfo[index].ItemInfo.TypeTag)
 			{
 			case ETypeTag::Cloth:
-				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, ShopItemsInfo[index].NameTag, code);
+				ShopItemsInfo[index].ItemInfo.InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, ShopItemsInfo[index].ItemInfo.NameTag, code);
 				break;
 			case ETypeTag::Item:
-				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, ShopItemsInfo[index].NameTag, code);
+				ShopItemsInfo[index].ItemInfo.InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, ShopItemsInfo[index].ItemInfo.NameTag, code);
 				break;
 			case ETypeTag::Weapon:
-				ShopItemsInfo[index].InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, ShopItemsInfo[index].NameTag, code);
-				ShopItemsInfo[index].Code = code;
+				ShopItemsInfo[index].ItemInfo.InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, ShopItemsInfo[index].ItemInfo.NameTag, code);
+				ShopItemsInfo[index].ItemInfo.Code = code;
 				break;
 			default:
 				break;

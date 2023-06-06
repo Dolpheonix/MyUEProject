@@ -50,11 +50,14 @@ AMainCharacter::AMainCharacter()
 
 	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
 	FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
+	FItemForm nocloth = FItemForm(FItemShortForm(ETypeTag::Cloth, "NoCloth"));
 	fist.ShortForm.InfoTag = "Fist";
 	fist.ShortForm.Code = 0;
 	fist.ShortForm.bIsSellable = false;
 	noitem.ShortForm.InfoTag = " NoItem";
 	noitem.ShortForm.bIsSellable = false;
+	nocloth.ShortForm.InfoTag = "NoCloth";
+	nocloth.ShortForm.bIsSellable = false;
 
 	fist.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
 	fist.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
@@ -62,8 +65,13 @@ AMainCharacter::AMainCharacter()
 	noitem.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
 	noitem.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
 	noitem.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
+	nocloth.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
+	nocloth.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
+	nocloth.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
+
 	Inventory[uint8(ETypeTag::Weapon)].ItemForms.Add(fist);
 	Inventory[uint8(ETypeTag::Item)].ItemForms.Add(noitem);
+	Inventory[uint8(ETypeTag::Cloth)].ItemForms.Add(nocloth);
 
 	// Weapon's Physics Constraint
 	WeaponJoint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("WeaponJoint"));
@@ -738,6 +746,24 @@ void AMainCharacter::ReportItem(FString name, int num)
 						{
 							Ownerquest->Progress = EQuestProgress::Finished;
 						}
+					}
+				}
+			}
+			else if (num < 0 && ItemQuests[i]->Completed) // item을 잃은 경우 ==> 기존에 Complete 처리한 SubQuest를 다시 검사
+			{
+				if (!ItemQuests[i]->CheckCompletion())
+				{
+					FQuest* Ownerquest = ItemQuests[i]->Owner;
+
+					if (Ownerquest->Type == EQuestType::Serial)
+					{
+						Ownerquest->currPhase--;
+						Ownerquest->Progress = EQuestProgress::InProgress;
+					}
+					else
+					{
+						Ownerquest->Remains++;
+						Ownerquest->Progress = EQuestProgress::InProgress;
 					}
 				}
 			}

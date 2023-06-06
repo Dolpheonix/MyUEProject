@@ -33,7 +33,7 @@ public:
 	UFUNCTION()
 	void GetNextDialogue(int index);
 
-	void EndDialogue(int index);
+	void EndDialogue(int index, int responseIndex);
 
 	AMainCharacter* Player;
 

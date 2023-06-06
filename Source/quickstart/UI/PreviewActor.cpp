@@ -23,7 +23,7 @@ APreviewActor::APreviewActor()
 	auto ClothNames = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"))->GetRowNames();
 	auto WeaponNames = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"))->GetRowNames();
 
-	for (int i = 0; i < ClothNames.Num(); i++)
+	for (int i = 1; i < ClothNames.Num(); i++)
 	{
 		UStaticMeshComponent* cloth = CreateDefaultSubobject<UStaticMeshComponent>(ClothNames[i]);
 		FString name = ClothNames[i].ToString();

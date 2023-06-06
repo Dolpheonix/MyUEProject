@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/Textblock.h"
+#include "Components/CanvasPanel.h"
 #include "ItemButton.h"
 #include "../Character/NPC/NPC.h"
 #include "Sound/SoundCue.h"
@@ -52,11 +53,17 @@ public:
 	void RefreshIncDec();
 	void RefreshShopSlots(int changed);
 	void RefreshCharacterSlots(ETypeTag type, int changed);
+	void ChangeNumber(bool isShopslot, int index);
 
 public:
+	UCanvasPanel* RootCanvas;
+
 	TArray<UItemButton*> ShopSlots;
 	TArray<UItemButton*> CharacterSlots;
 	TArray<UItemButton*> TabSlots;
+
+	TArray<UTextBlock*> ShopSlotNumbers;
+	TArray<UTextBlock*> CharacterSlotNumbers;
 
 	UButton* DecreaseButton;
 	UButton* IncreaseButton;
@@ -73,6 +80,12 @@ public:
 	USoundCue* IncreaseSound;
 	USoundCue* DecreaseSound;
 	USoundCue* ExitSound;
+
+	UTexture2D* DefaultTex;
+	FSlateBrush DefaultBrush;
+	FButtonStyle DefaultStyle;
+
+	FSlateFontInfo DefaultFont;
 
 	ANPC* InteractedNPC;
 

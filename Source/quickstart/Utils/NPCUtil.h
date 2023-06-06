@@ -25,7 +25,15 @@ struct FDialogueResponse
 	UPROPERTY(EditAnywhere)
 	FString Response;
 	UPROPERTY(EditAnywhere)
+	bool isEnd;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!isEnd"))
 	int nextIndex;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "isEnd"))
+	EDialogueEndType EndContext;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::QUEST_START"))
+	int QuestIndex;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::REWARD"))
+	int ItemIndex;
 };
 
 USTRUCT(BlueprintType)
@@ -38,18 +46,8 @@ public:
 	FString Speaker;
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	FString TextLine;
-
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	TArray<FDialogueResponse> Responses;
-
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	bool isEnd;
-	UPROPERTY(EditAnywhere, Category = "Dialogue", meta = (EditCondition = "isEnd"))
-	EDialogueEndType EndContext;
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::QUEST_START"))
-	int QuestIndex;
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "EndContext == EDialogueEndType::REWARD"))
-	int ItemIndex;
 };
 
 UENUM(BlueprintType)
@@ -199,4 +197,24 @@ struct FQuest
 	int currPhase = 0;
 
 	int Remains = -1;
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FShopItemShortForm
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FItemShortForm ItemInfo;
+	UPROPERTY(EditAnywhere)
+	int Price;
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FShopItemForm
+{
+	GENERATED_USTRUCT_BODY()
+
+	FItemForm ItemForm;
+	int Price;
 };

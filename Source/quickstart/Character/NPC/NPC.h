@@ -52,10 +52,7 @@ public:
 	AMainCharacter* Player;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
-	TArray<FItemShortForm> ShopItemsInfo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
-	TArray<int32> Prices;
+	TArray<FShopItemShortForm> ShopItemsInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Acquisition")
 	TArray<FItemShortForm> AcquireItemsInfo;
@@ -63,7 +60,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
 	TArray<FQuest> Quests;
 
-	TArray<FItemForm> ShopItems;
+	TArray<FShopItemForm> ShopItems;
 	TArray<FItemForm> AcquireItems;
 
 	FVector InteractionPoint;
