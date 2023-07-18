@@ -1,19 +1,21 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
+#define MAXACTIONCODE 100
 
-
-#include "quickstartGameModeBase.h"
+#include "MainGameMode.h"
 #include <Blueprint/UserWidget.h>
-#include "Data/DataTables.h"
-#include "Utils/Helpers.h"
+#include "../../Data/DataTables.h"
+#include "../../Utils/Helpers.h"
 
-AquickstartGameModeBase::AquickstartGameModeBase()
+AMainGameMode::AMainGameMode()
 {
     ClothTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"));
     WeaponTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"));
     ItemTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Item_Sheet.Item_Sheet"));
+
+    ActionCodeTable.SetNum(MAXACTIONCODE);
 }
 
-void AquickstartGameModeBase::BeginPlay()
+void AMainGameMode::BeginPlay()
 {
     Super::BeginPlay();
     MainUI = CreateWidget(GetWorld(), MainWidgetClass);
@@ -22,15 +24,16 @@ void AquickstartGameModeBase::BeginPlay()
     DialogueBoxUI = CreateWidget(GetWorld(), DialogueBoxWidgetClass);
     ShopUI = CreateWidget(GetWorld(), ShopWidgetClass);
     QuestUI = CreateWidget(GetWorld(), QuestWidgetClass);
+
     ChangeMenuWidget(MainUI);
 }
 
-void AquickstartGameModeBase::StartPlay()
+void AMainGameMode::StartPlay()
 {
     Super::StartPlay();
 }
 
-void AquickstartGameModeBase::ChangeMenuWidget(UUserWidget* TargetUI)
+void AMainGameMode::ChangeMenuWidget(UUserWidget* TargetUI)
 {
     if (CurrentUI != nullptr)
     {
@@ -45,7 +48,7 @@ void AquickstartGameModeBase::ChangeMenuWidget(UUserWidget* TargetUI)
     }
 }
 
-void AquickstartGameModeBase::SniperMode(bool turnOn)
+void AMainGameMode::SniperMode(bool turnOn)
 {
     if (turnOn) SniperUI->AddToViewport();
     else SniperUI->RemoveFromViewport();

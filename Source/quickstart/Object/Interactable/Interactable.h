@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../../Character/Main/MainCharacter.h"
+#include "../../Interface/InteractionInterface.h"
 #include "Interactable.generated.h"
 
 UCLASS(Abstract)
-class QUICKSTART_API AInteractable : public AActor
+class QUICKSTART_API AInteractable : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
 	
@@ -19,9 +20,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void Interact();
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

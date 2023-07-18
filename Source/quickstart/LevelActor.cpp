@@ -20,7 +20,7 @@ void ALevelActor::BeginPlay()
 	startLocation = Player->GetActorLocation();
 	startRotation = Player->GetController()->GetControlRotation();
 
-	auto BP_PreviewClass = Helpers::LoadObjectFromPath<UBlueprint>(TEXT("/Game/ShootingGame/UI/PreviewActor/BP_PreiviewActor.BP_PreiviewActor"));
+	auto BP_PreviewClass = Helpers::LoadObjectFromPath<UBlueprint>(TEXT("/Game/ShootingGame/Blueprint/UI/PreviewActor/BP_PreiviewActor.BP_PreiviewActor"));
 	FActorSpawnParameters params;
 	params.Owner = this;
 	params.Instigator = GetInstigator();

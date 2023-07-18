@@ -5,23 +5,42 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "../Character/Main/MainCharacter.h"
+#include "Components/Button.h"
 #include "Components/RichTextBlock.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Components/CanvasPanel.h"
+#include "Components/ScrollBox.h"
+#include "Components/VerticalBox.h"
+#include "Components/Overlay.h"
 #include "QuestStatus.generated.h"
 
-/**
- * 
- */
-USTRUCT(Atomic, BlueprintType)
-struct FQuestTextBlock
-{
-	GENERATED_USTRUCT_BODY()
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FQuestButtonEvent, int, index);
 
-	UPROPERTY(BlueprintReadWrite)
-	URichTextBlock* MainBlock;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<URichTextBlock*> SubBlocks;
+UCLASS()
+class QUICKSTART_API UQuestButton : public UCanvasPanel
+{
+	GENERATED_BODY()
+
+public:
+	UQuestButton();
+
+	void SetQuest(FQuest* quest);
+	void InitText(UDataTable* font);
+	void SetQsText(FString str);
+	UFUNCTION()
+	void OnPressed_Broadcast();
+	FString GetDisplayName(FString name);
+
+	FQuestButtonEvent PressedEvent;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UButton* SlotButton;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	URichTextBlock* SlotText;
+
+	int QuestIndex = -1;
 };
 
 UCLASS()
@@ -37,17 +56,36 @@ public:
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	void InitQuestUI(AActor* Instigator);
+	void RefreshBlocks();
+	UFUNCTION()
+	void OpenQuestInfo(int index);
 
-	FString GetMainQuestText(FString origin, int maxperline, bool isStriked);
-	FString GetSubQuestText(FString origin, int maxperline, bool isStriked);
+	FString GetSubQuestText(FSingleQuest* subquest);
 
 public:
 	AMainCharacter* Player;
 	APlayerController* Controller;
 	bool Bounded = false;
 
-	TArray<FQuestTextBlock> QuestBlocks;
+	// Widgets
 	UCanvasPanel* RootCanvas;
+	// MainQuestList
+	UScrollBox* MainQuestScroll;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UQuestButton*> MainQuestBlocks;
+	// QuestInfo
+	UVerticalBox* QuestInfoBox;
+	URichTextBlock* QuestNameText;
+	UScrollBox* QuestInfoScroll;
+	URichTextBlock* QuestInfoText;
+	UScrollBox* SubQuestsScroll;
+	URichTextBlock* SubQuestsText;
 	
-	UDataTable* RichTextSet;
+	// Resources
+	UDataTable* MainFont;
+	FSlateBrush QuestSlotBrush_N;
+	FSlateBrush QuestSlotBrush_H;
+	FSlateBrush QuestSlotBrush_S;
+
+	int SelectedSlotIndex = -1;
 };

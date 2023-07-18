@@ -4,6 +4,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../../UI/QuestStatus.h"
+#include "../../UI/Notify.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/CanvasPanelSlot.h"
+#include "../../UI/MainWidget.h"
+#include "../../Core/GameInstance/MainGameInstance.h"
 #include <Kismet/GameplayStatics.h>
 
 AMainCharacter::AMainCharacter()
@@ -28,50 +33,16 @@ AMainCharacter::AMainCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	Helpers::SetComponent(&Camera, RootComponent, FVector(-172.0f, 0.0f, 85.0f), FRotator(-20.0f, 0.0f, 0.0f));
 	Camera->bUsePawnControlRotation = true;
-	Camera->PostProcessSettings.AddBlendable(Helpers::C_LoadObjectFromPath<UMaterial>(TEXT("/Game/ShootingGame/Material/PostProcess/M_Highlight.M_Highlight")), 1);
+	Camera->PostProcessSettings.AddBlendable(Helpers::C_LoadObjectFromPath<UMaterial>(TEXT("/Game/ShootingGame/Asset/Material/PostProcess/M_Highlight.M_Highlight")), 1);
 
 	// Fire Sound Component
 	FireAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 	FireAudio->SetupAttachment(RootComponent);
-	FireAudio->SetSound(Helpers::C_LoadObjectFromPath<USoundWave>(TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01")));
+	FireAudio->SetSound(Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Explosion_01_Cue.Explosion_01_Cue")));
 	FireAudio->bAutoActivate = false;
 
 	// Muzzle Pos
 	Muzzle = FVector(110.0f, 20.0f, 45.0f);
-
-	// Armory & Inventory 초기화
-	Inventory.Add(FWrappedItemForm()); // Weapons
-	Inventory.Add(FWrappedItemForm()); // Items
-	Inventory.Add(FWrappedItemForm()); // Clothes
-
-	Quickslots_Before = TArray<int>({ 0,0,0 });
-	Quickslots_Now = TArray<int>({ 0,0,0 });
-	Quickslots_Next = TArray<int>({ 0,0,0 });
-
-	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
-	FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
-	FItemForm nocloth = FItemForm(FItemShortForm(ETypeTag::Cloth, "NoCloth"));
-	fist.ShortForm.InfoTag = "Fist";
-	fist.ShortForm.Code = 0;
-	fist.ShortForm.bIsSellable = false;
-	noitem.ShortForm.InfoTag = " NoItem";
-	noitem.ShortForm.bIsSellable = false;
-	nocloth.ShortForm.InfoTag = "NoCloth";
-	nocloth.ShortForm.bIsSellable = false;
-
-	fist.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
-	fist.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
-	fist.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
-	noitem.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
-	noitem.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
-	noitem.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
-	nocloth.Thumbnail_N = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
-	nocloth.Thumbnail_H = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
-	nocloth.Thumbnail_S = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
-
-	Inventory[uint8(ETypeTag::Weapon)].ItemForms.Add(fist);
-	Inventory[uint8(ETypeTag::Item)].ItemForms.Add(noitem);
-	Inventory[uint8(ETypeTag::Cloth)].ItemForms.Add(nocloth);
 
 	// Weapon's Physics Constraint
 	WeaponJoint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("WeaponJoint"));
@@ -85,8 +56,8 @@ AMainCharacter::AMainCharacter()
 	WeaponJoint->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
 
 	// Footstep Sound
-	RunningSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Sounds/Cue/Footstep_Run.Footstep_Run"));
-	WalkingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Sounds/Cue/Footstep_Walk.Footstep_Walk"));
+	RunningSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Audio/SoundCue/Footstep_Run.Footstep_Run"));
+	WalkingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Character/Main/Audio/SoundCue/Footstep_Walk.Footstep_Walk"));
 	FootstepAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Footstep Audio"));
 	FootstepAudioComponent->SetupAttachment(RootComponent);
 }
@@ -101,7 +72,26 @@ void AMainCharacter::BeginPlay()
 	StartPos = GetActorLocation();
 
 	// Get Game Mode
-	GameMode = (AquickstartGameModeBase*)UGameplayStatics::GetGameMode(this);
+	GameMode = (AMainGameMode*)UGameplayStatics::GetGameMode(this);
+
+	UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GI)
+	{
+		GI->LoadToCharacter(this);
+	}
+
+	Cast<UMainWidget>(GameMode->MainUI)->RefreshHPBar();
+	Cast<UMainWidget>(GameMode->MainUI)->RefreshQuickslot();
+}
+
+void AMainCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GI)
+	{
+		GI->SaveFromCharacter(this);
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -319,7 +309,7 @@ void AMainCharacter::RollWeapons()
 void AMainCharacter::RefreshInventory(ETypeTag type)
 {
 	Quickslots_Next[(uint8)type] = MathUtil::CircularPlus(Quickslots_Now[(uint8)type], Inventory[(uint8)type].ItemForms.Num());
-	bQuickslotDirty = true;
+	Cast<UMainWidget>(GameMode->MainUI)->RefreshQuickslot();
 }
 
 void AMainCharacter::Register(FItemShortForm iteminfo)
@@ -512,18 +502,38 @@ void AMainCharacter::unSubAttack()
 
 void AMainCharacter::RegisterQuest(FQuest& quest)
 {
+	quest.Progress = EQuestProgress::InProgress;
 	WorkingQuests.Add(&quest);
 	for (int i = 0; i < quest.SubQuests.Num(); i++)
 	{
-		quest.SubQuests[i].Owner = &quest;
+		FSingleQuest* subquest = &quest.SubQuests[i];
+		subquest->Owner = &quest;
+		switch (subquest->Type)
+		{
+		case ESingleQuestType::Hunt:
+			subquest->currAmounts.SetNum(subquest->HuntingLists.Num());
+			break;
+		case ESingleQuestType::Item:
+			subquest->currAmounts.SetNum(subquest->ItemLists.Num());
+			for (int j = 0; j < subquest->ItemLists.Num(); j++)
+			{
+				FString itemname = subquest->ItemLists[j].ItemName;
+				auto preexist = Inventory[(uint8)subquest->ItemLists[j].ItemType].ItemForms.FindByPredicate([itemname](const FItemForm& item) {return itemname == item.ShortForm.NameTag; });
+				if (preexist)
+				{
+					subquest->currAmounts[j] = preexist->ShortForm.Num;
+				}
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	if (quest.Type == EQuestType::Serial)
 	{
 		quest.currPhase = 0;
 		RegisterSubQuest(quest.SubQuests[quest.currPhase]);
-
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, HuntingQuests[0]->Name);
 	}
 	else
 	{
@@ -540,23 +550,15 @@ void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
 	switch (subquest.Type)
 	{
 	case ESingleQuestType::Arrival:
+	{
 		ArrivalQuests.Add(&subquest);
+		RegisterDestinationFlagVolume(&subquest);
 		break;
+	}
 	case ESingleQuestType::Hunt:
-		subquest.currAmounts.SetNum(subquest.HuntingLists.Num());
 		HuntingQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Item:
-		subquest.currAmounts.SetNum(subquest.ItemLists.Num());
-		for (int i = 0; i < subquest.ItemLists.Num(); i++)
-		{
-			FString itemname = subquest.ItemLists[i].ItemName;
-			auto preexist = Inventory[(uint8)subquest.ItemLists[i].ItemType].ItemForms.FindByPredicate([itemname](const FItemForm& item) {return itemname == item.ShortForm.NameTag; });
-			if (preexist)
-			{
-				subquest.currAmounts[i] = preexist->ShortForm.Num;
-			}
-		}
 		ItemQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Action:
@@ -569,6 +571,8 @@ void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
 
 void AMainCharacter::EndQuest(FQuest& quest)
 {
+	quest.Progress = EQuestProgress::AlreadyDone;
+
 	FQuest* qptr = &quest;
 	int questindex = WorkingQuests.IndexOfByPredicate([qptr](const FQuest* ptr) {return qptr == ptr; });
 
@@ -614,6 +618,26 @@ void AMainCharacter::EndQuest(FQuest& quest)
 					arr->RemoveAt(subquestindex);
 				}
 			}
+		}
+
+		for (FReward reward : qptr->Rewards)
+		{
+			switch (reward.Type)
+			{
+			case ERewardType::EXP:
+				// TODO : EXP 시스템
+				break;
+			case ERewardType::ITEM:
+				Register(reward.Item);
+				break;
+			case ERewardType::MONEY:
+				CurrMoney += reward.Money;
+				break;
+			default:
+				break;
+			}
+
+			NotifyQueue.Add(reward);
 		}
 
 		WorkingQuests.RemoveAt(questindex);
@@ -686,25 +710,11 @@ void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
 				{
 					FQuest* Ownerquest = HuntingQuests[i]->Owner;
 
-					if (Ownerquest->Type == EQuestType::Serial)
+					bool finished = Ownerquest->EndSingleTask();
+
+					if (!finished && Ownerquest->Type == EQuestType::Serial)
 					{
-						Ownerquest->currPhase++;
-						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
-						{
-							Ownerquest->Progress = EQuestProgress::Finished;
-						}
-						else
-						{
-							RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
-						}
-					}
-					else
-					{
-						Ownerquest->Remains--;
-						if (Ownerquest->Remains <= 0)
-						{
-							Ownerquest->Progress = EQuestProgress::Finished;
-						}
+						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
 					}
 				}
 			}
@@ -727,25 +737,11 @@ void AMainCharacter::ReportItem(FString name, int num)
 				{
 					FQuest* Ownerquest = ItemQuests[i]->Owner;
 
-					if (Ownerquest->Type == EQuestType::Serial)
+					bool finished = Ownerquest->EndSingleTask();
+
+					if (!finished && Ownerquest->Type == EQuestType::Serial)
 					{
-						Ownerquest->currPhase++;
-						if (Ownerquest->currPhase == Ownerquest->SubQuests.Num())
-						{
-							Ownerquest->Progress = EQuestProgress::Finished;
-						}
-						else
-						{
-							RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
-						}
-					}
-					else
-					{
-						Ownerquest->Remains--;
-						if (Ownerquest->Remains <= 0)
-						{
-							Ownerquest->Progress = EQuestProgress::Finished;
-						}
+						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
 					}
 				}
 			}
@@ -755,20 +751,72 @@ void AMainCharacter::ReportItem(FString name, int num)
 				{
 					FQuest* Ownerquest = ItemQuests[i]->Owner;
 
-					if (Ownerquest->Type == EQuestType::Serial)
-					{
-						Ownerquest->currPhase--;
-						Ownerquest->Progress = EQuestProgress::InProgress;
-					}
-					else
-					{
-						Ownerquest->Remains++;
-						Ownerquest->Progress = EQuestProgress::InProgress;
-					}
+					Ownerquest->UndoSingleTask();
 				}
 			}
 		}
 	}
 }
 
-////////// kill, Item, Arrival, Action에 대해 event(Or tick)을 통해 퀘스트 완료 여부를 검사 --> 서브 퀘스트 완료시 퀘스트 업데이트
+void AMainCharacter::ReportArrival(FSingleQuest* quest)
+{
+	quest->Completed = true;
+	FQuest* Ownerquest = quest->Owner;
+
+	if (!Ownerquest->EndSingleTask() && Ownerquest->Type == EQuestType::Serial)
+	{
+		RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+	}
+}
+
+ABeacon* AMainCharacter::RegisterDestinationFlagVolume(FSingleQuest* quest)
+{
+	FActorSpawnParameters param;
+	param.Owner = this;
+	param.Instigator = GetInstigator();
+
+	ABeacon* beacon = GetWorld()->SpawnActor<ABeacon>(ABeacon::StaticClass(), quest->Destination, FRotator::ZeroRotator, param);
+	beacon->SetHidden(false);
+	beacon->SetActorEnableCollision(true);
+	beacon->RegisterAllComponents();
+	beacon->RegisterQuest(quest);
+
+	return beacon;
+}
+
+void AMainCharacter::ReportAction(int code)
+{
+	for (auto quest : ActionQuests)
+	{
+		if (quest->ActionCode == code && !quest->Completed)
+		{
+			quest->Completed = true;
+			FQuest* Ownerquest = quest->Owner;
+			if (!Ownerquest->EndSingleTask() && Ownerquest->Type == EQuestType::Serial)
+			{
+				RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+			}
+		}
+	}
+}
+
+void AMainCharacter::Notify()
+{
+	if (NotifyQueue.Num() > 0)
+	{
+		UNotifyAcquire* NotifyPopup = GameMode->CurrentUI->WidgetTree->ConstructWidget<UNotifyAcquire>(GameMode->NotifyWidgetClass, TEXT("Notify"));
+		if (NotifyPopup)
+		{
+			Cast<UCanvasPanel>(GameMode->CurrentUI->GetRootWidget())->AddChild(NotifyPopup);
+			Cast<UCanvasPanelSlot>(NotifyPopup->Slot)->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			NotifyPopup->InitializeNotifications(NotifyQueue);
+		}
+	}
+}
+
+float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	Cast<UMainWidget>(GameMode->MainUI)->RefreshHPBar();
+
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}

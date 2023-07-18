@@ -23,8 +23,8 @@ ABullet::ABullet()
 
 	// πﬂªÁ√º mesh
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
-	ProjectileMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Sphere.Sphere")));
-	ProjectileMesh->SetMaterial(0, Helpers::C_LoadObjectFromPath<UMaterial>(TEXT("/Game/ShootingGame/Material/M_Metal_Steel.M_Metal_Steel")));
+	ProjectileMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Primitive/StaticMesh/Sphere.Sphere")));
+	ProjectileMesh->SetMaterial(0, Helpers::C_LoadObjectFromPath<UMaterial>(TEXT("/Game/ShootingGame/Asset/Material/M_Metal_Steel.M_Metal_Steel")));
 	Helpers::SetComponent(&ProjectileMesh, RootComponent, FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.f), FVector(0.02f, 0.02f, 0.02f));
 	ProjectileMesh->SetCollisionProfileName(TEXT("Projectile"));
 

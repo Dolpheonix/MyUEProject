@@ -12,7 +12,7 @@ AChain::AChain()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> chainMesh(TEXT("/Game/ShootingGame/Asset/ChainSegment.ChainSegment"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> chainMesh(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/ChainSegment.ChainSegment"));
 	if (chainMesh.Succeeded())
 	{
 		ChainMesh = chainMesh.Object;

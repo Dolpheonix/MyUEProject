@@ -19,7 +19,10 @@ public:
 	static FORCEINLINE T* LoadObjectFromPath(const FName& path)
 	{
 		if (path == NAME_None) return nullptr;
-		return Cast<T>(StaticLoadObject(UObject::StaticClass(), NULL, *path.ToString()));
+		T* obj = Cast<T>(StaticLoadObject(UObject::StaticClass(), NULL, *path.ToString()));
+		if (!obj) UE_LOG(LogTemp, Log, TEXT("No object in path %s"), *path.ToString());
+
+		return obj;
 	}
 
 	template <typename T>
@@ -37,7 +40,11 @@ public:
 	{
 		ConstructorHelpers::FObjectFinder<T> finder(*path.ToString());
 		if (finder.Succeeded()) return finder.Object;
-		else return nullptr;
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("No object in path %s"), *path.ToString());
+			return nullptr;
+		}
 	}
 
 	// WidgetHelpers
@@ -48,7 +55,7 @@ public:
 
 	static FORCEINLINE FString GetMeshFromName(FString name)
 	{
-		FString path = "/Game/ShootingGame/Asset/" + name + "/" + name + "." + name;
+		FString path = "/Game/ShootingGame/Asset/Item/StaticMesh/" + name + "." + name;
 		return path;
 	}
 
@@ -92,5 +99,10 @@ public:
 			else return "Invalid Item, Check data table";
 		}
 		else return "Invaild Type";
+	}
+
+	static FORCEINLINE FString GetRichText(FString str, FString header)
+	{
+		return FString("<" + header + ">" + str + "</>");
 	}
 };

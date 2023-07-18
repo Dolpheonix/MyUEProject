@@ -18,14 +18,14 @@ AFloatingSphere::AFloatingSphere()
 
 	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	SphereMesh->SetupAttachment(RootComponent);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Game/ShootingGame/Asset/Sphere.Sphere"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Game/ShootingGame/Asset/Primitive/StaticMesh/Sphere.Sphere"));
 	if (meshFinder.Succeeded())
 	{
 		SphereMesh->SetStaticMesh(meshFinder.Object);
 		SphereMesh->SetRelativeScale3D(FVector(0.9f, 0.9f, 0.9f));
 		SphereMesh->SetCollisionProfileName(TEXT("Default"));
 	}
-	static ConstructorHelpers::FObjectFinder<UMaterial> materialFinder(TEXT("/Game/ShootingGame/Material/M_Metal_Steel.M_Metal_Steel"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> materialFinder(TEXT("/Game/ShootingGame/Asset/Material/M_Metal_Steel.M_Metal_Steel"));
 	if (materialFinder.Succeeded())
 	{
 		SphereMesh->SetMaterial(0, materialFinder.Object);

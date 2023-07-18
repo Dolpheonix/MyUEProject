@@ -19,14 +19,14 @@ ACausticStuff::ACausticStuff()
 	
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Game/ShootingGame/Asset/Sphere.Sphere"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> meshFinder(TEXT("/Game/ShootingGame/Asset/Primitive/StaticMesh/Sphere.Sphere"));
 	if (meshFinder.Succeeded())
 	{
 		ProjectileMesh->SetStaticMesh(meshFinder.Object);
 		ProjectileMesh->SetRelativeScale3D(FVector(0.9f, 0.9f, 0.9f));
 		ProjectileMesh->SetCollisionProfileName(TEXT("Projectile"));
 	}
-	static ConstructorHelpers::FObjectFinder<UMaterial> materialFinder(TEXT("/Game/ShootingGame/Material/M_Metal_Steel.M_Metal_Steel"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> materialFinder(TEXT("/Game/ShootingGame/Asset/Material/M_Metal_Steel.M_Metal_Steel"));
 	if (materialFinder.Succeeded())
 	{
 		ProjectileMesh->SetMaterial(0, materialFinder.Object);

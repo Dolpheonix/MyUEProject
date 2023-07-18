@@ -34,9 +34,6 @@ public:
 	virtual void UnInteract() override;
 
 	void OpenShop();
-	void OpenQuestDialogue(int index);
-	void GiveQuest(int index);
-	void EndQuest(int index);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -46,7 +43,7 @@ public:
 	AAIController* AIController;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<FDialogueLine> DialogueTree;
+	FDialogueTree DialogueTree;
 
 	UPROPERTY(BlueprintReadWrite)
 	AMainCharacter* Player;

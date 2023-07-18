@@ -16,11 +16,11 @@ void UShop::NativePreConstruct()
 
 	if (!Bounded)
 	{
-		BuySellSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Item_Sell_Purchase_03_Cue.Item_Sell_Purchase_03_Cue"));
-		IncreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Abstract_Pop_05_Cue.Abstract_Pop_05_Cue"));
-		DecreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Abstract_Pop_02_Cue.Abstract_Pop_02_Cue"));
-		SelectSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Pop_01_Cue.Pop_01_Cue"));
-		ExitSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Futuristic_Click_07_Cue.Futuristic_Click_07_Cue"));
+		BuySellSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Item_Sell_Purchase_01_Cue.Item_Sell_Purchase_01_Cue"));
+		IncreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_03_Cue.Pop_03_Cue"));
+		DecreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_02_Cue.Pop_02_Cue"));
+		SelectSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_01_Cue.Pop_01_Cue"));
+		ExitSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Click_02_Cue.Click_02_Cue"));
 
 		DefaultTex = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Empty_Normal.Empty_Normal"));
 		DefaultBrush.SetResourceObject(DefaultTex);

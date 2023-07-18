@@ -6,6 +6,8 @@
 #include "Interactable.h"
 #include "Lever.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLeverTriggerEvent);
+
 /**
  * 
  */
@@ -23,6 +25,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintAssignable, Category="Event")
+	FLeverTriggerEvent OnLeverTriggered;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void Lever_On();

@@ -4,23 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "quickstartGameModeBase.generated.h"
+#include "../../Utils/NPCUtil.h"
+#include "MainGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class QUICKSTART_API AquickstartGameModeBase : public AGameModeBase
+class QUICKSTART_API AMainGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
-	AquickstartGameModeBase();
+	AMainGameMode();
 
 	UFUNCTION(BlueprintCallable, Category = "UMG_Game")
 	void ChangeMenuWidget(UUserWidget* TargetUI);
 
 	UFUNCTION()
 	void SniperMode(bool turnOn);
+
+	void InitializeQuests();
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,6 +47,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
 	TSubclassOf<UUserWidget> QuestWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
+	TSubclassOf<UUserWidget> NotifyWidgetClass;
+
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* IntroUI;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* MainUI;
@@ -69,6 +78,8 @@ public:
 	class UDataTable* ItemTable;
 	class UDataTable* WeaponTable;
 	class UDataTable* ClothTable;
+
+	TArray<bool> ActionCodeTable;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "UMG_Game")

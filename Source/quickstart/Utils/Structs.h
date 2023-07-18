@@ -58,6 +58,17 @@ struct FItemForm
 	FItemForm(FItemShortForm sf) : MeshComponent(nullptr), Thumbnail_N(nullptr), Thumbnail_H(nullptr), Thumbnail_S(nullptr), ShortForm(sf) {}
 };
 
+
+USTRUCT(BlueprintType)
+struct FWrappedItemForm
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+		TArray<FItemForm> ItemForms;
+};
+
 struct CapturedSlot_Info
 {
 	ETypeTag ItemType;

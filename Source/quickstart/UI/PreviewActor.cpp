@@ -45,7 +45,7 @@ APreviewActor::APreviewActor()
 	}
 
 	PreviewCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PreviewCamera"));
-	PreviewCamera->TextureTarget = Helpers::C_LoadObjectFromPath<UTextureRenderTarget2D>(TEXT("/Game/ShootingGame/UI/Preview.Preview"));
+	PreviewCamera->TextureTarget = Helpers::C_LoadObjectFromPath<UTextureRenderTarget2D>(TEXT("/Game/ShootingGame/Blueprint/UI/Preview.Preview"));
 	PreviewCamera->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 	Helpers::SetComponent<USceneCaptureComponent2D>(&PreviewCamera, RootComponent, FVector(50.0f, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f));
 }

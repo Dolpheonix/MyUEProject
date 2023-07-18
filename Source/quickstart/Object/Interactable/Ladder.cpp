@@ -10,7 +10,7 @@ ALadder::ALadder()
 	PrimaryActorTick.bCanEverTick = true;
 
 	LadderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LadderMesh"));
-	LadderMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Ladder.Ladder")));
+	LadderMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Ladder.Ladder")));
 	LadderMesh->SetupAttachment(RootComponent);
 }
 

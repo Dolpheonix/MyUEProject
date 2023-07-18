@@ -14,21 +14,21 @@ void UInventory::NativePreConstruct()
 	bIsFocusable = true;
 	if (!Bounded)
 	{
-		SelectSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Pop_01_Cue.Pop_01_Cue"));
-		CatchSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Click_05_Cue.Click_05_Cue"));
-		PopupSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Coins_04_Cue.Coins_04_Cue"));
-		ExitSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Futuristic_Click_07_Cue.Futuristic_Click_07_Cue"));
+		SelectSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_01_Cue.Pop_01_Cue"));
+		CatchSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Click_01_Cue.Click_01_Cue"));
+		PopupSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Coins_01_Cue.Coins_01_Cue"));
+		ExitSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Click_02_Cue.Click_02_Cue"));
 
 		DefaultTex = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Empty_Normal.Empty_Normal"));
 		DefaultBrush.SetResourceObject(DefaultTex);
 		DefaultStyle.SetNormal(DefaultBrush);
 		DefaultStyle.SetHovered(DefaultBrush);
 
-		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/8-bit/8bitOperatorPlus-Bold_Font.8bitOperatorPlus-Bold_Font"));
+		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/8bitOperatorPlus-Bold_Font.8bitOperatorPlus-Bold_Font"));
 		DefaultFont.OutlineSettings.OutlineSize = 1;
 		DefaultFont.Size = 24.0f;
 
-		PopupClass = StaticLoadClass(UUserWidget::StaticClass(), this, TEXT("/Game/ShootingGame/UI/PopUpUI.PopUpUI_C"));
+		PopupClass = StaticLoadClass(UUserWidget::StaticClass(), this, TEXT("/Game/ShootingGame/Blueprint/UI/PopUpUI.PopUpUI_C"));
 		DeletePopup = nullptr;
 
 		InitializeSlots();
@@ -495,9 +495,11 @@ void UInventory::ThrowAway()
 {
 	if (DeletePopup)
 	{
+		FItemForm* Selected = &Player->Inventory[(uint8)CapturedInfo.ItemType].ItemForms[CapturedInfo.index];
+		Player->ReportItem(Selected->ShortForm.NameTag, -DeletePopup->CurrNum);
 		if (DeletePopup->CurrNum < DeletePopup->MaxNum)
 		{
-			Player->Inventory[(uint8)CapturedInfo.ItemType].ItemForms[CapturedInfo.index].ShortForm.Num -= DeletePopup->CurrNum;
+			Selected->ShortForm.Num -= DeletePopup->CurrNum;
 			ChangeNumber(CapturedInfo.index, CapturedInfo.ItemType);
 			RestoreButtons();
 		}

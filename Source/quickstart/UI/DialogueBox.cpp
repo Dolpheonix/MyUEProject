@@ -2,7 +2,9 @@
 
 
 #include "DialogueBox.h"
-#include "../quickstartGameModeBase.h"
+#include "../quickstart.h"
+#include "../Core/GameMode/MainGameMode.h"
+#include "Blueprint/WidgetTree.h"
 #include "Kismet/GameplayStatics.h"
 
 void UDialogueBox::NativePreConstruct()
@@ -23,9 +25,13 @@ void UDialogueBox::NativePreConstruct()
 
 		for (int i = 0; i < 3; i++)
 		{
-			ResponseButtons[i]->index = i;
-			ResponseButtons[i]->DialogueButtonEvent.AddDynamic(this, &UDialogueBox::GetNextDialogue);
+			if (ResponseButtons[i])
+			{
+				ResponseButtons[i]->index = i;
+				ResponseButtons[i]->DialogueButtonEvent.AddDynamic(this, &UDialogueBox::OnPressed_EndLine);
+			}
 		}
+
 		Bounded = true;
 	}
 }
@@ -37,14 +43,17 @@ void UDialogueBox::NativeConstruct()
 
 void UDialogueBox::NativeDestruct()
 {
-	DialogueTree.Empty();
 	InteractedNPC = nullptr;
 
 	UUserWidget::NativeDestruct();
 }
 
-void UDialogueBox::InitDialogue(TArray<FDialogueLine> dialogues, ANPC* Interacted)
+void UDialogueBox::OpenUI(ANPC* interacted)
 {
+	check(DialogueText);
+	check(ResponseTexts[0] && ResponseTexts[1] && ResponseTexts[2]);
+	check(ResponseButtons[0] && ResponseButtons[1] && ResponseButtons[2]);
+
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	Controller = Cast<APlayerController>(Player->GetController());
 
@@ -55,93 +64,143 @@ void UDialogueBox::InitDialogue(TArray<FDialogueLine> dialogues, ANPC* Interacte
 	Controller->SetShowMouseCursor(true);
 	Controller->SetInputMode(FInputModeUIOnly());
 
-	InteractedNPC = Interacted;
-	DialogueTree = dialogues;
-	currIndex = 0;
+	InteractedNPC = interacted;
 
+	IsQuestDialogue = false;
+	DialogueLine = InteractedNPC->DialogueTree.GetStartLine();
 	RefreshDialogue();
 }
 
-void UDialogueBox::InitQuestDialogue(int index)
+void UDialogueBox::GetDialogue(int index)
 {
-	TriggeredQuest = &InteractedNPC->Quests[index];
-	QuestIndex = index;
+	DialogueLine = InteractedNPC->DialogueTree.DialogueLines[index];
+	RefreshDialogue();
+}
+
+void UDialogueBox::GetQuestDialogue(int index)
+{
 	switch (TriggeredQuest->Progress)
 	{
+	case EQuestProgress::Unavailable:
+		QuestDialogueLine = TriggeredQuest->DialogueTree_Unavailable.DialogueLines[index];
+		break;
 	case EQuestProgress::Available:
-		DialogueTree = TriggeredQuest->CommitDialogue;
+		QuestDialogueLine = TriggeredQuest->DialogueTree_Available.DialogueLines[index];
 		break;
 	case EQuestProgress::InProgress:
-		DialogueTree = TriggeredQuest->InProgressDialogue;
+		QuestDialogueLine = TriggeredQuest->DialogueTree_InProgress.DialogueLines[index];
 		break;
 	case EQuestProgress::Finished:
-		DialogueTree = TriggeredQuest->FinishDialogue;
+		QuestDialogueLine = TriggeredQuest->DialogueTree_Finished.DialogueLines[index];
 		break;
 	default:
 		break;
 	}
-	currIndex = 0;
+
 	RefreshDialogue();
 }
 
-void UDialogueBox::GetNextDialogue(int index)
+void UDialogueBox::OnPressed_EndLine(int index)
 {
-	if (DialogueTree[currIndex].Responses[index].isEnd)
+	if (!IsQuestDialogue)
 	{
-		EndDialogue(currIndex, index);
+		FDialogueResponse Pressed = DialogueLine.Responses[index];
+		for (FDialogueEvent e : Pressed.Events)
+		{
+			switch (e.EventType)
+			{
+			case EDialogueEventType::OPENQUEST:
+			{
+				QuestIndex = e.QuestIndex;
+				if (QuestIndex >= InteractedNPC->Quests.Num())
+				{
+					UE_LOG(ErrNPC, Log, TEXT("Index >= Array.Num()"));
+				}
+				else
+				{
+					TriggeredQuest = &InteractedNPC->Quests[QuestIndex];
+					IsQuestDialogue = true;
+					QuestDialogueLine = TriggeredQuest->GetStartLine();
+					RefreshDialogue();
+				}
+				break;
+			}
+			case EDialogueEventType::GIVEITEM:
+				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);
+				break;
+			case EDialogueEventType::PHASESHIFT:
+				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;
+				break;
+			case EDialogueEventType::OPENSHOP:
+				InteractedNPC->OpenShop();
+				break;
+			default:
+				break;
+			}
+		}
+		if (Pressed.IsEnd) // End Dialogue
+		{
+			Controller->SetShowMouseCursor(false);
+			Controller->SetInputMode(FInputModeGameOnly());
+			InteractedNPC->UnInteract();
+		}
+		else if(!IsQuestDialogue) // OPENQUEST 이벤트에 의해 다이얼로그가 이미 바뀌었는지 체크	
+		{
+			GetDialogue(Pressed.NextIndex);
+		}
 	}
 	else
 	{
-		currIndex = DialogueTree[currIndex].Responses[index].nextIndex;
-
-		RefreshDialogue();
-	}
-}
-
-void UDialogueBox::EndDialogue(int index, int responseIndex)
-{
-	// TODO //
-	switch (DialogueTree[index].Responses[responseIndex].EndContext)
-	{
-	case EDialogueEndType::DEFAULT:
-		Controller->SetShowMouseCursor(false);
-		Controller->SetInputMode(FInputModeGameOnly());
-		InteractedNPC->UnInteract();
-		break;
-	case EDialogueEndType::SHOP:
-		InteractedNPC->OpenShop();
-		break;
-	case EDialogueEndType::QUEST_START:
-		InteractedNPC->OpenQuestDialogue(DialogueTree[index].Responses[responseIndex].QuestIndex);
-		break;
-	case EDialogueEndType::QUEST_COMMIT:
-		InteractedNPC->GiveQuest(QuestIndex);
-		Controller->SetShowMouseCursor(false);
-		Controller->SetInputMode(FInputModeGameOnly());
-		InteractedNPC->UnInteract();
-		break;
-	case EDialogueEndType::QUEST_END:
-		InteractedNPC->EndQuest(QuestIndex);
-		Controller->SetShowMouseCursor(false);
-		Controller->SetInputMode(FInputModeGameOnly());
-		InteractedNPC->UnInteract();
-		break;
-	default:
-		break;
+		FQuestDialogueResponse Pressed = QuestDialogueLine.Responses[index];
+		for (FQuestDialogueEvent e : Pressed.Events)
+		{
+			switch (e.EventType)
+			{
+			case EQuestDialogueEventType::COMMIT:
+				Player->RegisterQuest(*TriggeredQuest);
+				break;
+			case EQuestDialogueEventType::COMPLETE:
+				Player->EndQuest(*TriggeredQuest);
+				break;
+			case EQuestDialogueEventType::GIVEITEM:
+				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);
+				break;
+			case EQuestDialogueEventType::BACKTODIALOGUE:
+				IsQuestDialogue = false;
+				DialogueLine = InteractedNPC->DialogueTree.DialogueLines[e.BacktoDialogueIndex];
+				RefreshDialogue();
+				break;
+			case EQuestDialogueEventType::PHASESHIFT:
+				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;
+				break;
+			default:
+				break;
+			}
+		}
+		if (Pressed.IsEnd) // End Dialogue
+		{
+			Controller->SetShowMouseCursor(false);
+			Controller->SetInputMode(FInputModeGameOnly());
+			InteractedNPC->UnInteract();
+		}
+		else if(IsQuestDialogue)
+		{
+			GetQuestDialogue(Pressed.NextIndex);
+		}
 	}
 }
 
 void UDialogueBox::RefreshDialogue()
 {
-	if (currIndex < DialogueTree.Num())
+	if (!IsQuestDialogue)
 	{
-		FString script = DialogueTree[currIndex].Speaker + " : " + DialogueTree[currIndex].TextLine;
+		FString script = DialogueLine.Speaker + " : " + DialogueLine.TextLine;
 		DialogueText->SetText(FText::FromString(script));
 
 		int i;
-		for (i = 0; i < DialogueTree[currIndex].Responses.Num(); i++)
+		for (i = 0; i < DialogueLine.Responses.Num(); i++)
 		{
-			ResponseTexts[i]->SetText(FText::FromString(DialogueTree[currIndex].Responses[i].Response));
+			ResponseTexts[i]->SetText(FText::FromString(DialogueLine.Responses[i].Response));
 			ResponseButtons[i]->SetIsEnabled(true);
 		}
 		for (int j = i; j < ResponseTexts.Num(); j++)
@@ -152,6 +211,19 @@ void UDialogueBox::RefreshDialogue()
 	}
 	else
 	{
-		InteractedNPC->UnInteract();
+		FString script = QuestDialogueLine.Speaker + " : " + QuestDialogueLine.TextLine;
+		DialogueText->SetText(FText::FromString(script));
+
+		int i;
+		for (i = 0; i < QuestDialogueLine.Responses.Num(); i++)
+		{
+			ResponseTexts[i]->SetText(FText::FromString(QuestDialogueLine.Responses[i].Response));
+			ResponseButtons[i]->SetIsEnabled(true);
+		}
+		for (int j = i; j < ResponseTexts.Num(); j++)
+		{
+			ResponseTexts[j]->SetText(FText::GetEmpty());
+			ResponseButtons[j]->SetIsEnabled(false);
+		}
 	}
 }

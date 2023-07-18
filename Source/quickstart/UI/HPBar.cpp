@@ -8,5 +8,5 @@ void UHPBar::NativeConstruct()
 	UUserWidget::NativeConstruct();
 
 	HP_ProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("HPBar")));
-	HP_ProgressBar->SetFillColorAndOpacity(FLinearColor::Red);
+	if(HP_ProgressBar) HP_ProgressBar->SetFillColorAndOpacity(FLinearColor::Red);
 }

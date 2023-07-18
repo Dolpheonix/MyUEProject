@@ -4,7 +4,8 @@
 #include "CollectableItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../quickstart.h"
-#include "../../quickstartGameModeBase.h"
+#include "../../Core/GameMode/MainGameMode.h"
+#include "../../Utils/Helpers.h"
 #include "../../Data/DataTables.h"
 
 
@@ -16,7 +17,7 @@ ACollectableItem::ACollectableItem()
 
 	AuraComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	AuraComponent->SetupAttachment(RootComponent);
-	AuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/FXVarietyPack/Particles/P_ky_healAura.P_ky_healAura")));
+	AuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_healAura.P_ky_healAura")));
 	AuraComponent->SetRelativeScale3D(FVector(0.6f, 0.6f, 0.6f));
 	AuraComponent->Deactivate();
 
@@ -69,10 +70,12 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 			if (row)
 			{
 				ItemInfo.InfoTag = row->Info;
+				MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(FName(Helpers::GetMeshFromName(ItemInfo.NameTag))));
 			}
 			else
 			{
 				ItemInfo.InfoTag = "Invalid Item, Check data table";
+				MeshComponent->SetStaticMesh(nullptr);
 			}
 			break;
 		}
@@ -84,10 +87,12 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 			{
 				ItemInfo.InfoTag = row->Info;
 				ItemInfo.Code = row->Code;
+				MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(FName(Helpers::GetMeshFromName(ItemInfo.NameTag))));
 			}
 			else
 			{
 				ItemInfo.InfoTag = "Invalid Item, Check data table";
+				MeshComponent->SetStaticMesh(nullptr);
 			}
 			break;
 		}
@@ -98,10 +103,12 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 			if (row)
 			{
 				ItemInfo.InfoTag = row->Info;
+				MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(FName(Helpers::GetMeshFromName(ItemInfo.NameTag))));
 			}
 			else
 			{
 				ItemInfo.InfoTag = "Invalid Item, Check data table";
+				MeshComponent->SetStaticMesh(nullptr);
 			}
 			break;
 		}

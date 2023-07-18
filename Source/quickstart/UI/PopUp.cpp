@@ -8,10 +8,10 @@ void UPopUp::NativePreConstruct()
 	bIsFocusable = true;
 	if (!Bounded)
 	{
-		IncreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Abstract_Pop_05_Cue.Abstract_Pop_05_Cue"));
-		DecreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Abstract_Pop_02_Cue.Abstract_Pop_02_Cue"));
-		ConfirmSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Item_Sell_Purchase_03_Cue.Item_Sell_Purchase_03_Cue"));
-		CancleSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/Interface_And_Item_Sounds/Cues/Futuristic_Click_07_Cue.Futuristic_Click_07_Cue"));
+		IncreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_03_Cue.Pop_03_Cue"));
+		DecreaseSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Pop_02_Cue.Pop_02_Cue"));
+		ConfirmSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Item_Sell_Purchase_01_Cue.Item_Sell_Purchase_01_Cue"));
+		CancleSound = Helpers::LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Click_02_Cue.Click_02_Cue"));
 
 		IncreaseButton = Cast<UButton>(GetWidgetFromName(TEXT("Increase")));
 		DecreaseButton = Cast<UButton>(GetWidgetFromName(TEXT("Decrease")));
@@ -20,11 +20,11 @@ void UPopUp::NativePreConstruct()
 
 		NumberInput = Cast<UEditableTextBox>(GetWidgetFromName(TEXT("Number_Input")));
 
-		IncreaseButton->OnPressed.AddDynamic(this, &UPopUp::Increase);
-		DecreaseButton->OnPressed.AddDynamic(this, &UPopUp::Decrease);
-		ConfirmButton->OnPressed.AddDynamic(this, &UPopUp::Confirm);
-		CancleButton->OnPressed.AddDynamic(this, &UPopUp::Cancle);
-		NumberInput->OnTextCommitted.AddDynamic(this, &UPopUp::ApplyInput);
+		if(IncreaseButton) IncreaseButton->OnPressed.AddDynamic(this, &UPopUp::Increase);
+		if(DecreaseButton) DecreaseButton->OnPressed.AddDynamic(this, &UPopUp::Decrease);
+		if(ConfirmButton) ConfirmButton->OnPressed.AddDynamic(this, &UPopUp::Confirm);
+		if(CancleButton) CancleButton->OnPressed.AddDynamic(this, &UPopUp::Cancle);
+		if(NumberInput) NumberInput->OnTextCommitted.AddDynamic(this, &UPopUp::ApplyInput);
 
 		Bounded = true;
 	}
@@ -32,6 +32,8 @@ void UPopUp::NativePreConstruct()
 
 void UPopUp::InitializeNumber(int max)
 {
+	check(IncreaseButton && DecreaseButton && ConfirmButton && CancleButton && NumberInput);
+
 	CurrNum = 1;
 	MaxNum = max;
 	NumberInput->SetText(FText::FromString(FString::FromInt(CurrNum)));

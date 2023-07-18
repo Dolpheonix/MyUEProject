@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../../quickstartGameModeBase.h"
+#include "../../Core/GameMode/MainGameMode.h"
 #include "../Character_Root.h"
 #include "../../Object/Item/Bullet.h"
 #include "../../Object/Item/Throwable.h"
+#include "../../Object/Volume/Beacon.h"
 #include "../../Utils/NPCUtil.h"
 #include "../../Utils/MathUtil.h"
 #include "../../Utils/Structs.h"
@@ -39,16 +40,6 @@ enum class ECustomActionMode : uint8
 	MAX,
 };
 
-USTRUCT(BlueprintType)
-struct FWrappedItemForm
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FItemForm> ItemForms;
-};
-
 UCLASS()
 class QUICKSTART_API AMainCharacter : public ACharacter_Root, public IGenericTeamAgentInterface
 {
@@ -61,6 +52,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
@@ -161,18 +153,25 @@ public:
 	void RegisterSubQuest(FSingleQuest& subquest);
 	UFUNCTION()
 	void EndQuest(FQuest& quest);
+	UFUNCTION()
+	void Notify();
 
 // Condition
 	UFUNCTION()
 	bool CanAttack();
 
 // Dead function
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void OnHurt() override;
 	virtual void OnDead() override;
 
 // Quest checker
 	void ReportKill(TSubclassOf<AActor> killclass);
 	void ReportItem(FString itemname, int num);
+	void ReportArrival(FSingleQuest* quest);
+	ABeacon* RegisterDestinationFlagVolume(FSingleQuest* quest);
+	UFUNCTION(BlueprintCallable)
+	void ReportAction(int code);
 public:
 // Third-person Camera
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -228,8 +227,6 @@ public:
 
 // Item 관련
 	UPROPERTY(BlueprintReadWrite)
-	TArray<bool> Usable;
-	UPROPERTY(BlueprintReadWrite)
 	bool bQuickslotDirty=false;
 
 // Cloth 관련
@@ -250,6 +247,7 @@ public:
 	TArray<FSingleQuest*> ArrivalQuests;
 	TArray<FSingleQuest*> ItemQuests;
 	TArray<FSingleQuest*> ActionQuests;
+	TArray<FReward> NotifyQueue;
 
 // Respawn
 	FVector StartPos;
@@ -263,10 +261,12 @@ public:
 	USoundCue* WalkingSound;
 	UAudioComponent* FootstepAudioComponent;
 	
-// Money
+// Profile
+	FString Name;
 	int32 CurrMoney = 10000;
+	int32 CurrLevel = 1;
 
 // Game Mode
 	UPROPERTY(BlueprintReadWrite)
-	AquickstartGameModeBase* GameMode;
+	AMainGameMode* GameMode;
 };

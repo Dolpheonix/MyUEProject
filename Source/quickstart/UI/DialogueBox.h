@@ -23,46 +23,38 @@ public:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	//virtual void NativeTick(const FGeometry& Mygeometry, float InDeltaTime) override;
 	//virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
-	void InitDialogue(TArray<FDialogueLine> dialogues, ANPC* Interacted);
-	void InitQuestDialogue(int index);
+	void OpenUI(ANPC* interacted);
+	void GetDialogue(int index);
+	void GetQuestDialogue(int index);
 	void RefreshDialogue();
 
 	UFUNCTION()
-	void GetNextDialogue(int index);
+	void OnPressed_EndLine(int index);
 
 	void EndDialogue(int index, int responseIndex);
 
 	AMainCharacter* Player;
-
 	APlayerController* Controller;
-
-	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* DialogueText;
-
-	UPROPERTY(BlueprintReadWrite)
 	ANPC* InteractedNPC;
 
 	FQuest* TriggeredQuest;
-
-	UPROPERTY(BlueprintReadWrite)
 	int QuestIndex;
 
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<FDialogueLine> DialogueTree;
+	FDialogueLine DialogueLine;
+	FQuestDialogueLine QuestDialogueLine;
 
+	bool IsQuestDialogue;
+
+	UPROPERTY(BlueprintReadWrite)
+	UTextBlock* DialogueText;
 	UPROPERTY(BlueprintReadWrite)
 	UButton* NextButton;
-
 	UPROPERTY(BlueprintReadWrite)
 	TArray<UTextBlock*> ResponseTexts;
-
 	UPROPERTY(BlueprintReadWrite)
 	TArray<UDialogueButton*> ResponseButtons;
-
-	int currIndex = 0;
 
 	bool Bounded = false;
 };

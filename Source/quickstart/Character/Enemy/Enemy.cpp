@@ -28,21 +28,21 @@ AEnemy::AEnemy()
 
 	QuestionMarkComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Question Mark"));
 	Helpers::SetComponent<UBillboardComponent>(&QuestionMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f ,0.04f, 0.04f));
-	UTexture2D* QuestionMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/QuestionMark.QuestionMark"));
+	UTexture2D* QuestionMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/InGameImage/QuestionMark.QuestionMark"));
 	QuestionMarkComponent->SetSprite(QuestionMark);
 	QuestionMarkComponent->SetHiddenInGame(false);
 	QuestionMarkComponent->SetVisibility(false);
 
 	ExclamationMarkComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Exclamation Mark"));
 	Helpers::SetComponent<UBillboardComponent>(&ExclamationMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f, 0.04f, 0.04f));
-	UTexture2D* ExclamationMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/ExclamationMark.ExclamationMark"));
+	UTexture2D* ExclamationMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/InGameImage/ExclamationMark.ExclamationMark"));
 	ExclamationMarkComponent->SetSprite(ExclamationMark);
 	ExclamationMarkComponent->SetHiddenInGame(false);
 	ExclamationMarkComponent->SetVisibility(false);
 
-	FireSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/StarterContent/Audio/Explosion_Cue.Explosion_Cue"));
-	DoubtingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/HumanVocalizations/HumanMaleA/Cues/voice_male_effort_grunt_02_Cue.voice_male_effort_grunt_02_Cue"));
-	DetectingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/HumanVocalizations/HumanMaleC/Cues/voice_male_c_attack_01_Cue.voice_male_c_attack_01_Cue"));
+	FireSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Explosion_01_Cue.Explosion_01_Cue"));
+	DoubtingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleA/SoundCue/voice_male_effort_grunt_02_Cue.voice_male_effort_grunt_02_Cue"));
+	DetectingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleC/SoundCue/voice_male_c_attack_01_Cue.voice_male_c_attack_01_Cue"));
 	
 	FireAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Fire Audio"));
 	FireAudioComponent->SetupAttachment(RootComponent);

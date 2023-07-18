@@ -3,11 +3,12 @@
 
 #include "NPC.h"
 #include "Components/CapsuleComponent.h"
-#include "../../quickstartGameModeBase.h"
+#include "../../Core/GameMode/MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../UI/DialogueBox.h"
 #include "../../UI/Shop.h"
 #include "../../Utils/Helpers.h"
+#include "Blueprint/WidgetTree.h"
 #include "../../quickstart.h"
 
 ANPC::ANPC()
@@ -58,6 +59,26 @@ void ANPC::BeginPlay()
 		registerform.Price = ShopItemsInfo[i].Price;
 
 		ShopItems.Add(registerform);
+	}
+
+	for (FQuest quest : Quests)
+	{
+		for (FSingleQuest subquest : quest.SubQuests)
+		{
+			if (subquest.Type == ESingleQuestType::Action)
+			{
+				AMainGameMode* gamemode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+				if (!gamemode->ActionCodeTable[subquest.ActionCode])
+				{
+					gamemode->ActionCodeTable[subquest.ActionCode] = true;
+				}
+				else
+				{
+					UE_LOG(ErrQuest, Error, TEXT("Action Code Conflict at %i"), subquest.ActionCode);
+				}
+			}
+		}
 	}
 }
 
@@ -111,20 +132,23 @@ void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
 		else
 		{
 			index = e.GetArrayIndex(TEXT("AcquireItemsInfo"));
-			switch (AcquireItemsInfo[index].TypeTag)
+			if (index >= 0)
 			{
-			case ETypeTag::Cloth:
-				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, AcquireItemsInfo[index].NameTag, code);
-				break;
-			case ETypeTag::Item:
-				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, AcquireItemsInfo[index].NameTag, code);
-				break;
-			case ETypeTag::Weapon:
-				AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, AcquireItemsInfo[index].NameTag, code);
-				AcquireItemsInfo[index].Code = code;
-				break;
-			default:
-				break;
+				switch (AcquireItemsInfo[index].TypeTag)
+				{
+				case ETypeTag::Cloth:
+					AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ClothTable, ETypeTag::Cloth, AcquireItemsInfo[index].NameTag, code);
+					break;
+				case ETypeTag::Item:
+					AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(ItemTable, ETypeTag::Item, AcquireItemsInfo[index].NameTag, code);
+					break;
+				case ETypeTag::Weapon:
+					AcquireItemsInfo[index].InfoTag = Helpers::FindInfo(WeaponTable, ETypeTag::Weapon, AcquireItemsInfo[index].NameTag, code);
+					AcquireItemsInfo[index].Code = code;
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
@@ -146,50 +170,27 @@ void ANPC::Interact()
 
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 1.0f);
 
-	AquickstartGameModeBase* gamemode = Cast<AquickstartGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	AMainGameMode* gamemode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	gamemode->ChangeMenuWidget(gamemode->DialogueBoxUI);
 
-	Cast<UDialogueBox>(gamemode->DialogueBoxUI)->InitDialogue(DialogueTree, this);
+	Cast<UDialogueBox>(gamemode->DialogueBoxUI)->OpenUI(this);
 }
 
 void ANPC::UnInteract()
 {
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(Player, 1.0f);
 	bInteracted = false;
+
 	Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
+	Player->Notify();
 }
 
 void ANPC::OpenShop()
 {
-	AquickstartGameModeBase* gamemode = Cast<AquickstartGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	AMainGameMode* gamemode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	gamemode->ChangeMenuWidget(gamemode->ShopUI);
 
 	Cast<UShop>(gamemode->ShopUI)->InitShop(this);
-}
-
-void ANPC::OpenQuestDialogue(int index)
-{
-	if (index >= Quests.Num())
-	{
-		UE_LOG(ErrNPC, Log, TEXT("Index >= Array.Num()"));
-	}
-	else
-	{
-		AquickstartGameModeBase* gamemode = Cast<AquickstartGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-		Cast<UDialogueBox>(gamemode->DialogueBoxUI)->InitQuestDialogue(index);
-	}
-}
-
-void ANPC::GiveQuest(int index)
-{
-	Quests[index].Progress = EQuestProgress::InProgress;
-	Player->RegisterQuest(Quests[index]);
-}
-
-void ANPC::EndQuest(int index)
-{
-	Quests[index].Progress = EQuestProgress::AlreadyDone;
-	Player->EndQuest(Quests[index]);
 }

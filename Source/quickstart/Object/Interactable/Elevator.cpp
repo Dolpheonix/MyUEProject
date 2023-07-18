@@ -11,23 +11,23 @@ AElevator::AElevator()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ElevatorBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorBody"));
-	ElevatorBody->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Elevator/Elevator_Body.Elevator_Body")));
+	ElevatorBody->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Elevator_Body.Elevator_Body")));
 	ElevatorBody->SetupAttachment(RootComponent);
 
 	ElevatorInternalSwitch = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorInternalSwitch"));
-	ElevatorInternalSwitch->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Elevator/Switch.Switch")));
+	ElevatorInternalSwitch->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Elevator_Switch.Elevator_Switch")));
 	Helpers::SetComponent<UStaticMeshComponent>(&ElevatorInternalSwitch, RootComponent, FVector(80.0f, 15.0f, 150.0f), FRotator(0.0f, -90.0f, 0.0f), FVector(0.7f, 0.7f, 0.7f));
 
 	ElevatorExternalSwitch = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorExternalSwitch"));
-	ElevatorExternalSwitch->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Elevator/Switch.Switch")));
+	ElevatorExternalSwitch->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Elevator_Switch.Elevator_Switch")));
 	Helpers::SetComponent<UStaticMeshComponent>(&ElevatorExternalSwitch, RootComponent, FVector(80.0f, -15.0f, 150.0f), FRotator(0.0f, 90.0f, 0.0f), FVector(0.7f, 0.7f, 0.7f));
 
 	ElevatorDoor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorDoor"));
-	ElevatorDoor->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Elevator/Elevator_Door.Elevator_Door")));
+	ElevatorDoor->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Elevator_Door.Elevator_Door")));
 	Helpers::SetComponent<UStaticMeshComponent>(&ElevatorDoor, RootComponent, FVector(140.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
 
 	ElevatorCeiling = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorCeiling"));
-	ElevatorCeiling->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Architecture/Floor_400x400.Floor_400x400")));
+	ElevatorCeiling->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Architecture/StaticMesh/Floor_400x400.Floor_400x400")));
 	Helpers::SetComponent<UStaticMeshComponent>(&ElevatorCeiling, RootComponent, FVector(0.0f, 10.0f, 420.0f), FRotator(0.0f, 0.0f, 0.0f));
 
 	ElevatorLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("ElevatorLight"));
