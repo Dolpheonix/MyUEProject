@@ -3,7 +3,7 @@
 #include "../../quickstart.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "../../UI/QuestStatus.h"
+#include "../../UI/QuestTable.h"
 #include "../../UI/Notify.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanelSlot.h"
@@ -77,7 +77,8 @@ void AMainCharacter::BeginPlay()
 	UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{
-		GI->LoadToCharacter(this);
+		GI->ApplyCharacterMemory(this);
+		LoadItemThumbnailAndMesh();
 	}
 
 	Cast<UMainWidget>(GameMode->MainUI)->RefreshHPBar();
@@ -86,11 +87,6 @@ void AMainCharacter::BeginPlay()
 
 void AMainCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GI)
-	{
-		GI->SaveFromCharacter(this);
-	}
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -163,13 +159,64 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("RollItems", IE_Pressed, this, &AMainCharacter::RollItems);			  // R
 	PlayerInputComponent->BindAction("RollWeapons", IE_Pressed, this, &AMainCharacter::RollWeapons);          // T
-	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::Use);                          // Q
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::Use);                          // F
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainCharacter::Attack);                    // Mouse Left
-	PlayerInputComponent->BindAction("SubAttack", IE_Pressed, this, &AMainCharacter::SubAttack);                      // Mouse Right
+	PlayerInputComponent->BindAction("SubAttack", IE_Pressed, this, &AMainCharacter::SubAttack);              // Mouse Right
 	PlayerInputComponent->BindAction("SubAttack", IE_Released, this, &AMainCharacter::unSubAttack);
 
 	PlayerInputComponent->BindAction("OpenShowroom", IE_Pressed, this, &AMainCharacter::OpenShowroom);        // I
-	PlayerInputComponent->BindAction("OpenQuestUI", IE_Pressed, this, &AMainCharacter::OpenQuestUI);
+	PlayerInputComponent->BindAction("OpenQuestUI", IE_Pressed, this, &AMainCharacter::OpenQuestUI);		  // Q
+	PlayerInputComponent->BindAction("OpenMenu", IE_Pressed, this, &AMainCharacter::OpenMenu);				  // ESC
+}
+
+void AMainCharacter::LoadItemThumbnailAndMesh()
+{
+	for (int i = 0; i < Inventory[(uint8)ETypeTag::Cloth].ItemForms.Num(); i++)
+	{
+		FItemShortForm iteminfo = Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].ShortForm;
+		Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+
+		if (i > 0)
+		{
+			Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+			Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
+			FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
+			Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
+			Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].MeshComponent->RegisterComponent();
+		}
+	}
+
+	for (int i = 0; i < Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num(); i++)
+	{
+		FItemShortForm iteminfo = Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].ShortForm;
+		Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+
+		if (i > 0)
+		{
+			Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
+			Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
+			FAttachmentTransformRules rule = { EAttachmentRule::SnapToTarget, true };
+			Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].MeshComponent->AttachToComponent(GetMesh(), rule, FName(iteminfo.NameTag + "_unEquip"));
+			Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].MeshComponent->RegisterComponent();
+
+			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms[i].MeshComponent->OnComponentHit.AddDynamic(this, &AMainCharacter::OnHit);
+			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms[i].MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapped);
+		}
+	}
+
+	for (int i = 0; i < Inventory[(uint8)ETypeTag::Item].ItemForms.Num(); i++)
+	{
+		FItemShortForm iteminfo = Inventory[(uint8)ETypeTag::Item].ItemForms[i].ShortForm;
+		Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+	}
+
+	Equip();
 }
 
 void AMainCharacter::MoveForward(float val)
@@ -503,7 +550,7 @@ void AMainCharacter::unSubAttack()
 void AMainCharacter::RegisterQuest(FQuest& quest)
 {
 	quest.Progress = EQuestProgress::InProgress;
-	WorkingQuests.Add(&quest);
+	QuestList.WorkingQuests.Add(&quest);
 	for (int i = 0; i < quest.SubQuests.Num(); i++)
 	{
 		FSingleQuest* subquest = &quest.SubQuests[i];
@@ -515,15 +562,6 @@ void AMainCharacter::RegisterQuest(FQuest& quest)
 			break;
 		case ESingleQuestType::Item:
 			subquest->currAmounts.SetNum(subquest->ItemLists.Num());
-			for (int j = 0; j < subquest->ItemLists.Num(); j++)
-			{
-				FString itemname = subquest->ItemLists[j].ItemName;
-				auto preexist = Inventory[(uint8)subquest->ItemLists[j].ItemType].ItemForms.FindByPredicate([itemname](const FItemForm& item) {return itemname == item.ShortForm.NameTag; });
-				if (preexist)
-				{
-					subquest->currAmounts[j] = preexist->ShortForm.Num;
-				}
-			}
 			break;
 		default:
 			break;
@@ -532,8 +570,8 @@ void AMainCharacter::RegisterQuest(FQuest& quest)
 
 	if (quest.Type == EQuestType::Serial)
 	{
-		quest.currPhase = 0;
-		RegisterSubQuest(quest.SubQuests[quest.currPhase]);
+		quest.CurrPhase = 0;
+		RegisterSubQuest(quest.SubQuests[quest.CurrPhase]);
 	}
 	else
 	{
@@ -551,18 +589,26 @@ void AMainCharacter::RegisterSubQuest(FSingleQuest& subquest)
 	{
 	case ESingleQuestType::Arrival:
 	{
-		ArrivalQuests.Add(&subquest);
+		QuestList.ArrivalQuests.Add(&subquest);
 		RegisterDestinationFlagVolume(&subquest);
 		break;
 	}
 	case ESingleQuestType::Hunt:
-		HuntingQuests.Add(&subquest);
+		QuestList.HuntingQuests.Add(&subquest);
 		break;
 	case ESingleQuestType::Item:
-		ItemQuests.Add(&subquest);
+	{
+		for (int i = 0; i < subquest.ItemLists.Num(); i++)
+		{
+			FString ItemName = subquest.ItemLists[i].ItemName;
+			auto preexist = Inventory[(uint8)subquest.ItemLists[i].ItemType].ItemForms.FindByPredicate([ItemName](const FItemForm& item) {return ItemName == item.ShortForm.NameTag; });
+			if (preexist) subquest.currAmounts[i] = preexist->ShortForm.Num;
+		}
+		QuestList.ItemQuests.Add(&subquest);
 		break;
+	}
 	case ESingleQuestType::Action:
-		ActionQuests.Add(&subquest);
+		QuestList.ActionQuests.Add(&subquest);
 		break;
 	default:
 		break;
@@ -574,7 +620,7 @@ void AMainCharacter::EndQuest(FQuest& quest)
 	quest.Progress = EQuestProgress::AlreadyDone;
 
 	FQuest* qptr = &quest;
-	int questindex = WorkingQuests.IndexOfByPredicate([qptr](const FQuest* ptr) {return qptr == ptr; });
+	int questindex = QuestList.WorkingQuests.IndexOfByPredicate([qptr](const FQuest* ptr) {return qptr == ptr; });
 
 	if (questindex < 0)
 	{
@@ -589,16 +635,16 @@ void AMainCharacter::EndQuest(FQuest& quest)
 			switch (sptr->Type)
 			{
 			case ESingleQuestType::Arrival:
-				arr = &ArrivalQuests;
+				arr = &QuestList.ArrivalQuests;
 				break;
 			case ESingleQuestType::Item:
-				arr = &ItemQuests;
+				arr = &QuestList.ItemQuests;
 				break;
 			case ESingleQuestType::Hunt:
-				arr = &HuntingQuests;
+				arr = &QuestList.HuntingQuests;
 				break;
 			case ESingleQuestType::Action:
-				arr = &ActionQuests;
+				arr = &QuestList.ActionQuests;
 				break;
 			}
 
@@ -640,14 +686,19 @@ void AMainCharacter::EndQuest(FQuest& quest)
 			NotifyQueue.Add(reward);
 		}
 
-		WorkingQuests.RemoveAt(questindex);
+		QuestList.WorkingQuests.RemoveAt(questindex);
 	}
 }
 
 void AMainCharacter::OpenQuestUI()
 {
 	GameMode->ChangeMenuWidget(GameMode->QuestUI);
-	Cast<UQuestStatus>(GameMode->QuestUI)->InitQuestUI(this);
+	Cast<UQuestTable>(GameMode->QuestUI)->InitQuestUI(this);
+}
+
+void AMainCharacter::OpenMenu()
+{
+	GameMode->ChangeMenuWidget(GameMode->InGameMenuUI);
 }
 
 ECustomMovementMode AMainCharacter::GetCurrentMovement()
@@ -696,25 +747,25 @@ void AMainCharacter::OnDead()
 
 void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
 {
-	for (int i = 0; i < HuntingQuests.Num(); i++)
+	for (int i = 0; i < QuestList.HuntingQuests.Num(); i++)
 	{
-		int idx = HuntingQuests[i]->HuntingLists.IndexOfByPredicate([killclass](const FHuntingQuestForm& item) {return killclass == item.Huntee; });
+		int idx = QuestList.HuntingQuests[i]->HuntingLists.IndexOfByPredicate([killclass](const FHuntingQuestForm& item) {return killclass == item.Huntee; });
 
 		if (idx >= 0)
 		{
-			HuntingQuests[i]->currAmounts[idx]++;
+			QuestList.HuntingQuests[i]->currAmounts[idx]++;
 
-			if (!HuntingQuests[i]->Completed)
+			if (!QuestList.HuntingQuests[i]->Completed)
 			{
-				if (HuntingQuests[i]->CheckCompletion())
+				if (QuestList.HuntingQuests[i]->CheckCompletion())
 				{
-					FQuest* Ownerquest = HuntingQuests[i]->Owner;
+					FQuest* Ownerquest = QuestList.HuntingQuests[i]->Owner;
 
 					bool finished = Ownerquest->EndSingleTask();
 
 					if (!finished && Ownerquest->Type == EQuestType::Serial)
 					{
-						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->CurrPhase]);
 					}
 				}
 			}
@@ -724,32 +775,32 @@ void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
 
 void AMainCharacter::ReportItem(FString name, int num)
 {
-	for (int i = 0; i < ItemQuests.Num(); i++)
+	for (int i = 0; i < QuestList.ItemQuests.Num(); i++)
 	{
-		int idx = ItemQuests[i]->ItemLists.IndexOfByPredicate([name](const FItemQuestForm& item) {return name == item.ItemName; });
+		int idx = QuestList.ItemQuests[i]->ItemLists.IndexOfByPredicate([name](const FItemQuestForm& item) {return name == item.ItemName; });
 		if (idx >= 0)
 		{
-			ItemQuests[i]->currAmounts[idx] += num;
+			QuestList.ItemQuests[i]->currAmounts[idx] += num;
 
-			if (num > 0 && !ItemQuests[i]->Completed)	// item을 얻은 경우이므로, 이전에 다 모았던 item quest는 건드릴 필요 없음
+			if (num > 0 && !QuestList.ItemQuests[i]->Completed)	// item을 얻은 경우이므로, 이전에 다 모았던 item quest는 건드릴 필요 없음
 			{
-				if (ItemQuests[i]->CheckCompletion())
+				if (QuestList.ItemQuests[i]->CheckCompletion())
 				{
-					FQuest* Ownerquest = ItemQuests[i]->Owner;
+					FQuest* Ownerquest = QuestList.ItemQuests[i]->Owner;
 
 					bool finished = Ownerquest->EndSingleTask();
 
 					if (!finished && Ownerquest->Type == EQuestType::Serial)
 					{
-						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+						RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->CurrPhase]);
 					}
 				}
 			}
-			else if (num < 0 && ItemQuests[i]->Completed) // item을 잃은 경우 ==> 기존에 Complete 처리한 SubQuest를 다시 검사
+			else if (num < 0 && QuestList.ItemQuests[i]->Completed) // item을 잃은 경우 ==> 기존에 Complete 처리한 SubQuest를 다시 검사
 			{
-				if (!ItemQuests[i]->CheckCompletion())
+				if (!QuestList.ItemQuests[i]->CheckCompletion())
 				{
-					FQuest* Ownerquest = ItemQuests[i]->Owner;
+					FQuest* Ownerquest = QuestList.ItemQuests[i]->Owner;
 
 					Ownerquest->UndoSingleTask();
 				}
@@ -765,7 +816,7 @@ void AMainCharacter::ReportArrival(FSingleQuest* quest)
 
 	if (!Ownerquest->EndSingleTask() && Ownerquest->Type == EQuestType::Serial)
 	{
-		RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+		RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->CurrPhase]);
 	}
 }
 
@@ -786,7 +837,7 @@ ABeacon* AMainCharacter::RegisterDestinationFlagVolume(FSingleQuest* quest)
 
 void AMainCharacter::ReportAction(int code)
 {
-	for (auto quest : ActionQuests)
+	for (auto quest : QuestList.ActionQuests)
 	{
 		if (quest->ActionCode == code && !quest->Completed)
 		{
@@ -794,7 +845,7 @@ void AMainCharacter::ReportAction(int code)
 			FQuest* Ownerquest = quest->Owner;
 			if (!Ownerquest->EndSingleTask() && Ownerquest->Type == EQuestType::Serial)
 			{
-				RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->currPhase]);
+				RegisterSubQuest(Ownerquest->SubQuests[Ownerquest->CurrPhase]);
 			}
 		}
 	}

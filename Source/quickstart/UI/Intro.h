@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,7 +15,7 @@
 /**
  * 
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLoadSlotClickedEvent, int, index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLoadSlotClickedEvent, FString, Name);
 
 UCLASS()
 class QUICKSTART_API USlotButton : public UUserWidget
@@ -40,6 +40,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Index")
 	int Index = -1;
+
+	FString Name;
 
 	bool Bounded = false;
 };
@@ -67,7 +69,7 @@ public:
 	UFUNCTION()
 	void StartLoadGame();
 	UFUNCTION()
-	void GetSlotInfo(int index);
+	void GetSlotInfo(FString Name);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SubWidget")

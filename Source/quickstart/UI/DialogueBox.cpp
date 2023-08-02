@@ -4,6 +4,7 @@
 #include "DialogueBox.h"
 #include "../quickstart.h"
 #include "../Core/GameMode/MainGameMode.h"
+#include "../Core/GameInstance/MainGameInstance.h"
 #include "Blueprint/WidgetTree.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -111,17 +112,21 @@ void UDialogueBox::OnPressed_EndLine(int index)
 			{
 			case EDialogueEventType::OPENQUEST:
 			{
-				QuestIndex = e.QuestIndex;
-				if (QuestIndex >= InteractedNPC->Quests.Num())
+				UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+				if (GI)
 				{
-					UE_LOG(ErrNPC, Log, TEXT("Index >= Array.Num()"));
+					QuestIndex = e.QuestIndex;
+					TriggeredQuest = GI->GetQuest(QuestIndex);
+					if (TriggeredQuest)
+					{
+						IsQuestDialogue = true;
+						QuestDialogueLine = TriggeredQuest->GetStartLine(InteractedNPC->DisplayName);
+						RefreshDialogue();
+					}
 				}
 				else
 				{
-					TriggeredQuest = &InteractedNPC->Quests[QuestIndex];
-					IsQuestDialogue = true;
-					QuestDialogueLine = TriggeredQuest->GetStartLine();
-					RefreshDialogue();
+					UE_LOG(LogTemp, Error, TEXT("Couldn't cast GameInstance to UMainGameInstance"));
 				}
 				break;
 			}

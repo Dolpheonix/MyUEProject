@@ -238,26 +238,29 @@ struct FSingleQuest
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadWrite)
 	ESingleQuestType Type;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadWrite)
 	FString Name;
 
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Arrival"))
+	UPROPERTY(BlueprintReadWrite)
 	UParticleSystem* FXTemplate;
 
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Arrival"))
+	UPROPERTY(BlueprintReadWrite)
 	FVector Destination;
 
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Hunt"))
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FHuntingQuestForm> HuntingLists;
 
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Item"))
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FItemQuestForm> ItemLists;
 
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "Type == ESingleQuestType::Action"))
+	UPROPERTY(BlueprintReadWrite)
 	int ActionCode;
+
+	UPROPERTY(BlueprintReadWrite)
+	FString ActionInfo;
 
 	FQuest* Owner;
 
@@ -274,6 +277,9 @@ struct FQuest
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere)
+	int32 Index;
+
+	UPROPERTY(EditAnywhere)
 	FString Name;
 
 	UPROPERTY(EditAnywhere, meta=(MultiLine="true"))
@@ -286,7 +292,10 @@ struct FQuest
 	TArray<FSingleQuest> SubQuests;
 
 	UPROPERTY(EditAnywhere)
-	AActor* Instigator;
+	FString Instigator;
+
+	UPROPERTY(EditAnywhere)
+	FString Ender;
 
 	UPROPERTY(EditAnywhere)
 	EQuestProgress Progress;
@@ -303,14 +312,35 @@ struct FQuest
 	UPROPERTY(EditAnywhere)
 	TArray<FReward> Rewards;
 
-	int currPhase = 0;
+	int CurrPhase = 0;
 
 	int Remains = -1;
 
-	FQuestDialogueLine GetStartLine();
+	FQuestDialogueLine GetStartLine(FString NPCName);
 
 	bool EndSingleTask();
 	void UndoSingleTask();
+};
+
+USTRUCT(BlueprintType)
+struct FSubQuestStatus
+{
+	GENERATED_USTRUCT_BODY()
+
+	bool Completed;
+	TArray<int> CurrAmount;
+};
+
+USTRUCT(BlueprintType)
+struct FQuestStatus
+{
+	GENERATED_USTRUCT_BODY()
+
+	int QuestIndex;
+	EQuestProgress Progress;
+	int CurrPhase;
+	int Remains;
+	TArray<FSubQuestStatus> SubStatus;
 };
 
 // Shop
@@ -332,4 +362,16 @@ struct FShopItemForm
 
 	FItemForm ItemForm;
 	int Price;
+};
+
+USTRUCT(BlueprintType)
+struct FWorkingQuestMemory
+{
+	GENERATED_USTRUCT_BODY()
+
+	TArray<FQuest*> WorkingQuests;
+	TArray<FSingleQuest*> HuntingQuests;
+	TArray<FSingleQuest*> ArrivalQuests;
+	TArray<FSingleQuest*> ItemQuests;
+	TArray<FSingleQuest*> ActionQuests;
 };

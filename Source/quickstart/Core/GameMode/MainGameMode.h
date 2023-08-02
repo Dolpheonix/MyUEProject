@@ -34,6 +34,9 @@ public:
 	TSubclassOf<UUserWidget> MainWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
+	TSubclassOf<UUserWidget> InGameMenuWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
 	TSubclassOf<UUserWidget> ShowroomWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG_Game")
@@ -52,10 +55,10 @@ public:
 	TSubclassOf<UUserWidget> NotifyWidgetClass;
 
 	UPROPERTY(BlueprintReadWrite)
-	UUserWidget* IntroUI;
+	UUserWidget* MainUI;
 
 	UPROPERTY(BlueprintReadWrite)
-	UUserWidget* MainUI;
+	UUserWidget* InGameMenuUI;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* ShowroomUI;

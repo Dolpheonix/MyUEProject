@@ -62,6 +62,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void LoadItemThumbnailAndMesh();
+
 // Binding Functions
 // Locomotive
 	UFUNCTION()
@@ -109,6 +111,8 @@ public:
 	void OpenShowroom();
 	UFUNCTION()
 	void OpenQuestUI();
+	UFUNCTION()
+	void OpenMenu();
 
 // Item Functions
 	UFUNCTION()
@@ -242,11 +246,7 @@ public:
 	TArray<int> Quickslots_Next;
 
 // Quest
-	TArray<FQuest*> WorkingQuests;
-	TArray<FSingleQuest*> HuntingQuests;
-	TArray<FSingleQuest*> ArrivalQuests;
-	TArray<FSingleQuest*> ItemQuests;
-	TArray<FSingleQuest*> ActionQuests;
+	FWorkingQuestMemory QuestList;
 	TArray<FReward> NotifyQueue;
 
 // Respawn
@@ -262,7 +262,6 @@ public:
 	UAudioComponent* FootstepAudioComponent;
 	
 // Profile
-	FString Name;
 	int32 CurrMoney = 10000;
 	int32 CurrLevel = 1;
 

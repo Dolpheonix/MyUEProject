@@ -34,6 +34,7 @@ public:
 	virtual void UnInteract() override;
 
 	void OpenShop();
+	void GenerateShopItems();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

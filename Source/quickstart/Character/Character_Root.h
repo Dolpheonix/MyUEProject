@@ -37,6 +37,9 @@ public:
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Name")
+	FString DisplayName;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Status")
 	float HP = 100.0f;
 

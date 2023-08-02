@@ -19,6 +19,7 @@ void AMainGameMode::BeginPlay()
 {
     Super::BeginPlay();
     MainUI = CreateWidget(GetWorld(), MainWidgetClass);
+    InGameMenuUI = CreateWidget(GetWorld(), InGameMenuWidgetClass);
     ShowroomUI = CreateWidget(GetWorld(), ShowroomWidgetClass);
     SniperUI = CreateWidget(GetWorld(), SniperWidgetClass);
     DialogueBoxUI = CreateWidget(GetWorld(), DialogueBoxWidgetClass);

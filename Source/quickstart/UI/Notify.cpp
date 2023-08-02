@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Notify.h"
@@ -16,7 +16,7 @@ void UNotify::NativePreConstruct()
 	bIsFocusable = true;
 	if (!Bounded)
 	{
-		NotifyText = Cast<URichTextBlock>(GetWidgetFromName(TEXT("Notify")));
+		NotifyText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Notify")));
 		
 		ConfirmButton = Cast<UButton>(GetWidgetFromName(TEXT("Confirm")));
 		if (ConfirmButton) ConfirmButton->OnPressed.AddDynamic(this, &UNotify::OnPressed_Confirm);
@@ -82,7 +82,7 @@ void UNotifyAcquire::SetNotification()
 		break;
 	}
 
-	if(NotifyText) NotifyText->SetText(FText::FromString(Helpers::GetRichText(str, "InfoNormal")));
+	if(NotifyText) NotifyText->SetText(FText::FromString(str));
 }
 
 void UNotifyAcquire::OnPressed_Confirm()

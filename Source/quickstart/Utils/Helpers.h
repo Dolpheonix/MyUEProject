@@ -7,7 +7,6 @@
 #include "../Data/DataTables.h"
 #include "UObject/Object.h"
 
-
 #define ITEM_MESH_PATH TEXT("/Game/ShootingGame/Asset/")
 #define ITEM_THUMBNAIL_PATH "/Game/ShootingGame/Image/WidgetImage/"
 
@@ -106,3 +105,21 @@ public:
 		return FString("<" + header + ">" + str + "</>");
 	}
 };
+
+class SaveHelpers
+{
+public:
+	static FORCEINLINE void SaveNPCShopItems(TArray<FShopItemForm> itemlist, TArray<FShopItemShortForm>& saver)
+	{
+		saver.Empty();
+		for (int i = 0; i < itemlist.Num(); i++)
+		{
+			FShopItemShortForm shortform;
+			shortform.ItemInfo = itemlist[i].ItemForm.ShortForm;
+			shortform.Price = itemlist[i].Price;
+			saver.Add(shortform);
+		}
+	}
+};
+/*
+*/

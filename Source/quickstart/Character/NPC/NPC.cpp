@@ -194,3 +194,30 @@ void ANPC::OpenShop()
 
 	Cast<UShop>(gamemode->ShopUI)->InitShop(this);
 }
+
+void ANPC::GenerateShopItems()
+{
+	ShopItems.Empty();
+
+	for (int i = 0; i < ShopItemsInfo.Num(); i++)
+	{
+		FItemShortForm iteminfo = ShopItemsInfo[i].ItemInfo;
+
+		if (iteminfo.InfoTag == "Invalid Item, Check data table")
+		{
+			UE_LOG(ErrAsset, Error, TEXT("%s : No such item exist"), *iteminfo.NameTag);
+		}
+
+		FItemForm itemform(iteminfo);
+
+		itemform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
+		itemform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
+		itemform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
+
+		FShopItemForm registerform;
+		registerform.ItemForm = itemform;
+		registerform.Price = ShopItemsInfo[i].Price;
+
+		ShopItems.Add(registerform);
+	}
+}

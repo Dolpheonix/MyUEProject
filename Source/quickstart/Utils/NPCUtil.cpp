@@ -31,29 +31,45 @@ bool FSingleQuest::CheckCompletion()
 	return Completed;
 }
 
-FQuestDialogueLine FQuest::GetStartLine()
+FQuestDialogueLine FQuest::GetStartLine(FString NPCName)
 {
 	switch (Progress)
 	{
 	case EQuestProgress::Unavailable:
-		return DialogueTree_Unavailable.GetStartLine();
+	{
+		if(NPCName == Instigator) return DialogueTree_Unavailable.GetStartLine();
+		break;
+	}
 	case EQuestProgress::Available:
-		return DialogueTree_Available.GetStartLine();
+	{
+		if(NPCName == Instigator) return DialogueTree_Available.GetStartLine();
+		break;
+	}
 	case EQuestProgress::InProgress:
-		return DialogueTree_InProgress.GetStartLine();
+	{
+		if(NPCName == Instigator) return DialogueTree_InProgress.GetStartLine();
+		break;
+	}
 	case EQuestProgress::Finished:
-		return DialogueTree_Finished.GetStartLine();
+	{
+		if (NPCName == Ender) return DialogueTree_Finished.GetStartLine();
+		if (NPCName == Instigator) return DialogueTree_InProgress.GetStartLine();
+		break;
+	}
 	default:
 		return FQuestDialogueLine();
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("Invalid quest dialogue request"));
+	return FQuestDialogueLine();
 }
 
 bool FQuest::EndSingleTask()
 {
 	if (Type == EQuestType::Serial)
 	{
-		currPhase++;
-		if (currPhase >= SubQuests.Num())
+		CurrPhase++;
+		if (CurrPhase >= SubQuests.Num())
 		{
 			Progress = EQuestProgress::Finished;
 			return true;
@@ -76,7 +92,7 @@ void FQuest::UndoSingleTask() // Undo the completion. Especially in Item collect
 {
 	if (Type == EQuestType::Serial)
 	{
-		currPhase--;
+		CurrPhase--;
 		Progress = EQuestProgress::InProgress;
 	}
 	else

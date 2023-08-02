@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Intro.h"
@@ -11,6 +11,7 @@
 #include "../Core/GameMode/IntroGameMode.h"
 #include "../Core/GameInstance/MainGameInstance.h"
 #include "../Core/SaveObject/GameSaver.h"
+#include "../Utils/JsonHelpers.h"
 
 void USlotButton::NativePreConstruct()
 {
@@ -38,7 +39,7 @@ void USlotButton::NativeConstruct()
 
 void USlotButton::FireClickEvent()
 {
-	ClickedEvent.Broadcast(Index);
+	ClickedEvent.Broadcast(Name);
 }
 
 void UIntro::NativePreConstruct()
@@ -157,19 +158,20 @@ void UIntro::OpenLoadGameUI()
 	LoadGame_Canvas->SetVisibility(ESlateVisibility::Visible);
 	LoadGame_SaveSlotsScrollBox->SetVisibility(ESlateVisibility::Visible);
 
-	USaveSlots* SaveList = Cast<USaveSlots>(UGameplayStatics::LoadGameFromSlot("SaveSlots", 10));
-	if (SaveList)
+	TArray<FString> SlotList;
+	if (JsonLoader::LoadSlotList(SlotList))
 	{
 		for (int i = 0; i < MAX_SAVE_SLOTS; i++)
 		{
-			if (SaveList->SlotNames[i] == "")
+			if (SlotList[i] == "")
 			{
 				LoadGame_SlotButtons[i]->SlotNameText->SetText(FText::FromString("Empty"));
 				LoadGame_SlotButtons[i]->SetIsEnabled(false);
 			}
 			else
 			{
-				LoadGame_SlotButtons[i]->SlotNameText->SetText(FText::FromString(SaveList->SlotNames[i]));
+				LoadGame_SlotButtons[i]->SlotNameText->SetText(FText::FromString(SlotList[i]));
+				LoadGame_SlotButtons[i]->Name = SlotList[i];
 				LoadGame_SlotButtons[i]->SetIsEnabled(true);
 			}
 		}
@@ -205,16 +207,23 @@ void UIntro::StartNewGame()
 
 	if (Name.IsEmpty())
 	{
-
+		AIntroGameMode* IntroGM = Cast<AIntroGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		UNotify* NotifyPopup = WidgetTree->ConstructWidget<UNotify>(IntroGM->NotifyWidgetClass);
+		if (NotifyPopup)
+		{
+			Cast<UCanvasPanel>(GetRootWidget())->AddChild(NotifyPopup);
+			Cast<UCanvasPanelSlot>(NotifyPopup->Slot)->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
+			FString str = TEXT("이름을 입력해주세요!");
+			NotifyPopup->SetNotification(str);
+		}
 	}
 	else
 	{
 		auto* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GI)
 		{
-			GI->InitializeMemory(Name);
+			GI->InitializeCharacterMemory(Name);
 			int alloced = GI->AllocateSlotIndex();
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::FromInt(alloced));
 			if (alloced < 0)
 			{
 				AIntroGameMode* IntroGM = Cast<AIntroGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -238,47 +247,41 @@ void UIntro::StartNewGame()
 			}
 			else
 			{
-				GI->SaveToFile();
 				GI->Start();
 			}
 		}
 	}
 }
 
-void UIntro::GetSlotInfo(int index)
+void UIntro::GetSlotInfo(FString Name)
 {
-	USaveSlots* SaveList = Cast<USaveSlots>(UGameplayStatics::LoadGameFromSlot("SaveSlots", 10));
-	if (SaveList)
+	FString JsonString;
+	FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + "SaveGames/" + Name + ".json"));
+	TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(JsonString);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+	FJsonSerializer::Deserialize(Reader, JsonObject);
+
+	if (JsonObject.IsValid())
 	{
-		FString SlotName = SaveList->SlotNames[index];
-		if (SlotName.IsEmpty())
-		{
-			UE_LOG(ErrLoadSave, Error, TEXT("Save slot %i does not exists"), index);
-		}
-		else
-		{
-			UGameSaver* SaveFile = Cast<UGameSaver>(UGameplayStatics::LoadGameFromSlot(SlotName, index));
-			if (SaveFile)
-			{
-				LoadGame_InfoNameText->SetText(FText::FromString("Name : " + SlotName));
-				FString info = "Level : " + FString::FromInt(SaveFile->CharacterMemory.CurrentLevel);
-				info += "\n";
-				info += "Current Map : " + SaveFile->CharacterMemory.CurrentMap;
+		FCharacterMemory ChMem;
+		JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), ChMem);
+		
+		LoadGame_InfoNameText->SetText(FText::FromString("Name : " + Name));
 
-				LoadGame_InfoText->SetText(FText::FromString(info));
+		FString info = "Level : " + FString::FromInt(ChMem.CurrentLevel);
+		info += "\n";
+		info += "Current Map : " + ChMem.CurrentMap;
+		LoadGame_InfoText->SetText(FText::FromString(info));
 
-				LoadGame_SelectedName = SlotName;
-				LoadGame_SelectedIndex = index;
-				LoadGame_GameStartButton->SetIsEnabled(true);
-			}
-			else
-			{
-				UE_LOG(ErrLoadSave, Error, TEXT("Save file %s does not exists"), *SlotName);
-
-				LoadGame_SelectedIndex = -1;
-				LoadGame_GameStartButton->SetIsEnabled(false);
-			}
-		}
+		LoadGame_SelectedName = Name;
+		LoadGame_GameStartButton->SetIsEnabled(true);
+	}
+	else
+	{
+		UE_LOG(LogJson, Error, TEXT("Save File %s not exist"), *Name);
+		LoadGame_InfoNameText->SetText(FText::FromString("Name : " + Name));
+		LoadGame_InfoText->SetText(FText::FromString("Not Found"));
+		LoadGame_GameStartButton->SetIsEnabled(false);
 	}
 }
 
@@ -287,7 +290,7 @@ void UIntro::StartLoadGame()
 	auto* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{
-		GI->LoadFromFile(LoadGame_SelectedName, LoadGame_SelectedIndex);
+		GI->LoadFromFile(LoadGame_SelectedName);
 		GI->Start();
 	}
 }

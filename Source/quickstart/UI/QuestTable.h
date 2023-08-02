@@ -13,38 +13,38 @@
 #include "Components/ScrollBox.h"
 #include "Components/VerticalBox.h"
 #include "Components/Overlay.h"
-#include "QuestStatus.generated.h"
+#include "QuestTable.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FQuestButtonEvent, int, index);
 
 UCLASS()
-class QUICKSTART_API UQuestButton : public UCanvasPanel
+class QUICKSTART_API UQuestButton : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	UQuestButton();
+	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 
-	void SetQuest(FQuest* quest);
-	void InitText(UDataTable* font);
-	void SetQsText(FString str);
+	FQuestButtonEvent ClickedEvent;
+
 	UFUNCTION()
-	void OnPressed_Broadcast();
-	FString GetDisplayName(FString name);
-
-	FQuestButtonEvent PressedEvent;
+	void FireClickEvent();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UButton* SlotButton;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	URichTextBlock* SlotText;
+	UPROPERTY(BlueprintReadWrite)
+	UButton* QuestSlotButton;
+	UPROPERTY(BlueprintReadWrite)
+	UTextBlock* QuestSlotNameText;
 
-	int QuestIndex = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Index")
+	int Index;
+
+	bool Bounded = false;
 };
 
 UCLASS()
-class QUICKSTART_API UQuestStatus : public UUserWidget
+class QUICKSTART_API UQuestTable : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -67,25 +67,16 @@ public:
 	APlayerController* Controller;
 	bool Bounded = false;
 
-	// Widgets
-	UCanvasPanel* RootCanvas;
 	// MainQuestList
-	UScrollBox* MainQuestScroll;
+	UScrollBox* QuestSlotsScroll;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UQuestButton*> MainQuestBlocks;
+	TArray<UQuestButton*> QuestSlotButtons;
 	// QuestInfo
 	UVerticalBox* QuestInfoBox;
-	URichTextBlock* QuestNameText;
-	UScrollBox* QuestInfoScroll;
-	URichTextBlock* QuestInfoText;
-	UScrollBox* SubQuestsScroll;
-	URichTextBlock* SubQuestsText;
+	UTextBlock* QuestNameText;
+	UTextBlock* QuestInfoText;
+	UTextBlock* SubQuestsText;
 	
 	// Resources
-	UDataTable* MainFont;
-	FSlateBrush QuestSlotBrush_N;
-	FSlateBrush QuestSlotBrush_H;
-	FSlateBrush QuestSlotBrush_S;
-
 	int SelectedSlotIndex = -1;
 };

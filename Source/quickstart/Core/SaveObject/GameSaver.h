@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "../../Utils/Structs.h"
+#include "../../Utils/NPCUtil.h"
 #include "GameSaver.generated.h"
 
 #define MAX_SAVE_SLOTS 10
@@ -16,6 +17,8 @@ struct FCharacterMemory
 
 public:
 	UPROPERTY(EditDefaultsOnly)
+	FString DisplayName;
+	UPROPERTY(EditDefaultsOnly)
 	int32 CurrentLevel;
 	UPROPERTY(EditDefaultsOnly)
 	FString CurrentMap;
@@ -24,11 +27,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FRotator CurrentRot;
 	UPROPERTY(EditDefaultsOnly)
-	FString Name;
+	float CurrentHP;
 	UPROPERTY(EditDefaultsOnly)
-	float HP;
-	UPROPERTY(EditDefaultsOnly)
-	int32 Money;
+	int32 CurrentMoney;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FWrappedItemForm> Inventory;
 	UPROPERTY(EditDefaultsOnly)
@@ -40,12 +41,55 @@ public:
 };
 
 USTRUCT(BlueprintType)
+struct FActorMemory
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FString Name;
+	UPROPERTY(EditDefaultsOnly)
+	bool IsValid;
+	UPROPERTY(EditDefaultsOnly)
+	FVector CurrentPos;
+	UPROPERTY(EditDefaultsOnly)
+	FRotator CurrentRot;
+};
+
+USTRUCT(BlueprintType)
+struct FNPCMemory
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FString DisplayName;
+	UPROPERTY(EditDefaultsOnly)
+	FActorMemory ActorMemory;
+	UPROPERTY(EditDefaultsOnly)
+	int DialoguePhase;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FShopItemShortForm> ShopItems;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FItemShortForm> AcquireItems;
+};
+
+USTRUCT(BlueprintType)
 struct FMapMemory
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
-	int32 a;
+	UPROPERTY(EditDefaultsOnly)
+	FString Name;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FNPCMemory> LocalNPCMemory;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FActorMemory> OriginActorMemory_Character;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FActorMemory> OriginActorMemory_CollectableItem;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FActorMemory> DynamicActorMemory;
 };
 
 UCLASS()
@@ -69,4 +113,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	FCharacterMemory CharacterMemory;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FMapMemory> MapMemories;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FQuestStatus> QuestStatus;
 };
