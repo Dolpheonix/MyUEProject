@@ -56,8 +56,6 @@ public:
 	void ChangeNumber(bool isShopslot, int index);
 
 public:
-	UCanvasPanel* RootCanvas;
-
 	TArray<UItemButton*> ShopSlots;
 	TArray<UItemButton*> CharacterSlots;
 	TArray<UItemButton*> TabSlots;
@@ -70,6 +68,7 @@ public:
 	UButton* ConfirmationButton;
 	UButton* EndButton;
 
+	UTextBlock* ShopNameText;
 	UTextBlock* NumText;
 	UTextBlock* BuySellText;
 	UTextBlock* PriceText;

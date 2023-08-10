@@ -10,7 +10,7 @@
 
 void UInventory::NativePreConstruct()
 {
-	UUserWidget::NativePreConstruct();
+	Super::NativePreConstruct();
 	bIsFocusable = true;
 	if (!Bounded)
 	{
@@ -24,21 +24,25 @@ void UInventory::NativePreConstruct()
 		DefaultStyle.SetNormal(DefaultBrush);
 		DefaultStyle.SetHovered(DefaultBrush);
 
-		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/8bitOperatorPlus-Bold_Font.8bitOperatorPlus-Bold_Font"));
+		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/Ramche_Font.Ramche_Font"));
 		DefaultFont.OutlineSettings.OutlineSize = 1;
 		DefaultFont.Size = 24.0f;
 
 		PopupClass = StaticLoadClass(UUserWidget::StaticClass(), this, TEXT("/Game/ShootingGame/Blueprint/UI/PopUpUI.PopUpUI_C"));
 		DeletePopup = nullptr;
 
+		InfoText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Info")));
+
 		InitializeSlots();
-		SetTexts();
+		SetEvents();
+
+		Bounded = true;
 	}
 }
 
 void UInventory::NativeConstruct()
 {
-	UUserWidget::NativeConstruct();
+	Super::NativeConstruct();
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
 	Controller = Cast<APlayerController>(Player->GetController());
 
@@ -51,18 +55,16 @@ void UInventory::NativeConstruct()
 
 	RefreshSlots();
 
-	if (!Bounded)
-	{
-		SetEvents();
-		Bounded = true;
-	}
-
 	TArray<AActor*> temp;
 	UGameplayStatics::GetAllActorsOfClass(this, APreviewActor::StaticClass(), temp);
 	if (temp.Num() == 1)
 	{
 		Preview = Cast<APreviewActor>(temp[0]);
 		Preview->SyncEvent.Broadcast();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("You must place one PreviewActor at one map"));
 	}
 }
 
@@ -93,243 +95,126 @@ FReply UInventory::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent&
 	int ascii = InKeyEvent.GetCharacter();
 	if (ascii == 73 || ascii == 105)
 	{
-		UGameplayStatics::PlaySound2D(this, ExitSound);
-
-		Player->GameMode->bShowroom = false;
-		Controller->SetShowMouseCursor(false);
-		Controller->SetInputMode(FInputModeGameOnly());
-		Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
+		Exit();
 	}
 
 	return FReply::Handled();
+}
+
+void UInventory::Exit()
+{
+	UGameplayStatics::PlaySound2D(this, ExitSound);
+
+	Player->GameMode->bShowroom = false;
+	Controller->SetShowMouseCursor(false);
+	Controller->SetInputMode(FInputModeGameOnly());
+	Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
 }
 
 void UInventory::InitializeSlots()
 {
 	// Allocating Blueprint Image Widgets to Array
 	{
-	RootCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("Root")));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_00"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_01"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_02"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_03"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_10"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_11"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_12"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_13"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_20"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_21"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_22"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_23"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_30"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_31"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_32"))));
+		ItemButtons.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemButton_33"))));
 
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_00"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_01"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_02"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_03"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_10"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_11"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_12"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_13"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_20"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_21"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_22"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_23"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_30"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_31"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_32"))));
-	ClothSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Cloth_33"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_00"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_01"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_02"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_03"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_10"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_11"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_12"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_13"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_20"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_21"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_22"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_23"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_30"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_31"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_32"))));
+		ItemNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemNumber_33"))));
 
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_00"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_01"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_02"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_03"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_04"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_05"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_10"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_11"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_12"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_13"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_14"))));
-	ItemSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Item_15"))));
+		ItemTabs.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemTab_Cloth"))));
+		ItemTabs.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemTab_Weapon"))));
+		ItemTabs.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("ItemTab_Item"))));
+		
+		TabTexts.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("TabText_Cloth"))));
+		TabTexts.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("TabText_Weapon"))));
+		TabTexts.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("TabText_Item"))));
 
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_00"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_01"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_02"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_03"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_10"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_11"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_12"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_13"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_20"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_21"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_22"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_23"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_30"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_31"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_32"))));
-	WeaponSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Weapon_33"))));
+		TrashCan = Cast<UButton>(GetWidgetFromName(TEXT("Button_Trashcan")));
+		CapturedImage = Cast<UImage>(GetWidgetFromName(TEXT("Captured")));
 
-	TrashCan = Cast<UButton>(GetWidgetFromName(TEXT("Button_Trashcan")));
-	CapturedImage = Cast<UImage>(GetWidgetFromName(TEXT("Captured")));
+		ExitButton = Cast<UButton>(GetWidgetFromName(TEXT("Button_Exit")));
+
+		CurrMoneyText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurrMoney")));
 	}
-
-	FSlateFontInfo LargeFont = DefaultFont;
-	LargeFont.Size = 70.0f;
-
-	WeaponText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Weapon_Text"));
-	RootCanvas->AddChild(WeaponText);
-	Cast<UCanvasPanelSlot>(WeaponText->Slot)->SetSize(FVector2D(300.0f, 100.0f));
-	WeaponText->SetRenderTranslation(FVector2D(1400.0f, 20.0f));
-	WeaponText->SetText(FText::FromString("Weapon"));
-	WeaponText->SetFont(LargeFont);
-
-	ItemText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Item_Text"));
-	RootCanvas->AddChild(ItemText);
-	Cast<UCanvasPanelSlot>(ItemText->Slot)->SetSize(FVector2D(300.0f, 100.0f));
-	ItemText->SetRenderTranslation(FVector2D(1250.0f, 630.0f));
-	ItemText->SetText(FText::FromString("Item"));
-	ItemText->SetFont(LargeFont);
-
-	ClothText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Cloth_Text"));
-	RootCanvas->AddChild(ClothText);
-	Cast<UCanvasPanelSlot>(ClothText->Slot)->SetSize(FVector2D(300.0f, 100.0f));
-	ClothText->SetRenderTranslation(FVector2D(900.0f, 20.0f));
-	ClothText->SetText(FText::FromString("Cloth"));
-	ClothText->SetFont(LargeFont);
-
 
 	for (int i = 0; i < 16; i++)
 	{
-		ClothSlots[i]->SetStyle(DefaultStyle);
-		ClothSlots[i]->index = i;
-		ClothSlots[i]->type = ETypeTag::Cloth;
-		ClothSlots[i]->SetIsEnabled(false);
-
-		WeaponSlots[i]->SetStyle(DefaultStyle);
-		WeaponSlots[i]->index = i;
-		WeaponSlots[i]->type = ETypeTag::Weapon;
-		WeaponSlots[i]->SetIsEnabled(false);
-
-		if (i < 12)
-		{
-			ItemSlots[i]->SetStyle(DefaultStyle);
-			ItemSlots[i]->index = i;
-			ItemSlots[i]->type = ETypeTag::Item;
-			ItemSlots[i]->SetIsEnabled(false);
-		}
+		ItemButtons[i]->SetStyle(DefaultStyle);
+		ItemButtons[i]->Index = i;
+		ItemButtons[i]->SetIsEnabled(false);
 	}
 
-	for (int i = 0; i < WeaponSlots.Num(); i++)
-	{
-		int hor = i % 4;
-		int ver = i / 4;
+	ItemTabs[0]->Type = ETypeTag::Cloth;
+	ItemTabs[1]->Type = ETypeTag::Weapon;
+	ItemTabs[2]->Type = ETypeTag::Item;
 
-		WeaponSlotNumbers.Add(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), FName("Weapon Slot " + i)));
-		RootCanvas->AddChild(WeaponSlotNumbers[i]);
-		Cast<UCanvasPanelSlot>(WeaponSlotNumbers[i]->Slot)->SetSize(FVector2D(25.0f, 40.0f));
-		WeaponSlotNumbers[i]->SetRenderTranslation(FVector2D(1430.0f + hor * 125.0f, 160.0f + ver * 125.0f));
-		WeaponSlotNumbers[i]->SetJustification(ETextJustify::Right);
-		WeaponSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(0)));
-		WeaponSlotNumbers[i]->SetFont(DefaultFont);
-	}
-	for (int i = 0; i < ItemSlots.Num(); i++)
-	{
-		int hor = i % 6;
-		int ver = i / 6;
-
-		ItemSlotNumbers.Add(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), FName("Item Slot " + i)));
-		RootCanvas->AddChild(ItemSlotNumbers[i]);
-		Cast<UCanvasPanelSlot>(ItemSlotNumbers[i]->Slot)->SetSize(FVector2D(25.0f, 40.0f));
-		ItemSlotNumbers[i]->SetRenderTranslation(FVector2D(1080.0f + hor * 125.0f, 760.0f + ver * 125.0f));
-		ItemSlotNumbers[i]->SetJustification(ETextJustify::Right);
-		ItemSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(0)));
-		ItemSlotNumbers[i]->SetFont(DefaultFont);
-	}
-	for (int i = 0; i < ClothSlots.Num(); i++)
-	{
-		int hor = i % 4;
-		int ver = i / 4;
-
-		ClothSlotNumbers.Add(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), FName("Cloth Slot " + i)));
-		RootCanvas->AddChild(ClothSlotNumbers[i]);
-		Cast<UCanvasPanelSlot>(ClothSlotNumbers[i]->Slot)->SetSize(FVector2D(25.0f, 40.0f));
-		ClothSlotNumbers[i]->SetRenderTranslation(FVector2D(880.0f + hor * 125.0f, 160.0f + ver * 125.0f));
-		ClothSlotNumbers[i]->SetJustification(ETextJustify::Right);
-		ClothSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(0)));
-		ClothSlotNumbers[i]->SetFont(DefaultFont);
-	}
+	CurrTab = ETypeTag::Cloth;
+	CurrTabText = TabTexts[0];
+	ItemTabs[0]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f));
 
 	CapturedImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	CapturedImage->SetOpacity(0.0f);
-}
-
-void UInventory::SetTexts()
-{
-	FSlateFontInfo InfoFont = DefaultFont;
-	InfoFont.Size = 30.0f;
-
-	InfoText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("Info_Text"));
-	RootCanvas->AddChild(InfoText);
-	Cast<UCanvasPanelSlot>(InfoText->Slot)->SetSize(FVector2D(620.0f, 250.0f));
-	InfoText->SetRenderTranslation(FVector2D(30.0f, 780.0f));
-	InfoText->SetFont(InfoFont);
-	InfoText->SetText(FText::FromString(""));
 }
 
 void UInventory::RefreshSlots()
 {
 	for (int i = 0; i < 16; i++)
 	{
-		if (i < Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms.Num())
-		{
-			FSlateBrush brush_N, brush_H;
-			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Cloth]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].Thumbnail_H);
-			ClothSlots[i]->WidgetStyle.SetNormal(brush_N);
-			ClothSlots[i]->WidgetStyle.SetHovered(brush_H);
-			ClothSlots[i]->SetIsEnabled(true);
+		ItemButtons[i]->Type = CurrTab;
 
-			ClothSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms[i].ShortForm.Num)));
-			ClothSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
+		FSlateBrush NBrush, HBrush;
+		if (i < Player->Inventory[(uint8)CurrTab].ItemForms.Num())
+		{
+			if (i == Player->Quickslots_Now[(uint8)CurrTab]) NBrush.SetResourceObject(Player->Inventory[(uint8)CurrTab].ItemForms[i].Thumbnail_S);
+			else NBrush.SetResourceObject(Player->Inventory[(uint8)CurrTab].ItemForms[i].Thumbnail_N);
+
+			HBrush.SetResourceObject(Player->Inventory[(uint8)CurrTab].ItemForms[i].Thumbnail_H);
+
+			ItemButtons[i]->WidgetStyle.SetNormal(NBrush);
+			ItemButtons[i]->WidgetStyle.SetHovered(HBrush);
+			ItemButtons[i]->WidgetStyle.SetPressed(NBrush);
+			ItemButtons[i]->SetIsEnabled(true);
+
+			ItemNumbers[i]->SetText(FText::FromString(FString::FromInt(Player->Inventory[(uint8)CurrTab].ItemForms[i].ShortForm.Num)));
+			ItemNumbers[i]->SetVisibility(ESlateVisibility::Visible);
 		}
 		else
 		{
-			ClothSlots[i]->SetStyle(DefaultStyle);
-			ClothSlots[i]->SetIsEnabled(false);
+			ItemButtons[i]->SetStyle(DefaultStyle);
+			ItemButtons[i]->SetIsEnabled(false);
 
-			ClothSlotNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
+			ItemNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		if (i < Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num())
-		{
-			FSlateBrush brush_N, brush_H;
-			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Weapon]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].Thumbnail_H);
-			WeaponSlots[i]->WidgetStyle.SetNormal(brush_N);
-			WeaponSlots[i]->WidgetStyle.SetHovered(brush_H);
-			WeaponSlots[i]->SetIsEnabled(true);
-
-			WeaponSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms[i].ShortForm.Num)));
-			WeaponSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			WeaponSlots[i]->SetStyle(DefaultStyle);
-			WeaponSlots[i]->SetIsEnabled(false);
-
-			WeaponSlotNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
-		}
-		
-		if (i < Player->Inventory[(uint8)ETypeTag::Item].ItemForms.Num())
-		{
-			FSlateBrush brush_N, brush_H;
-			if (i == Player->Quickslots_Now[(uint8)ETypeTag::Item]) brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_S);
-			else brush_N.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_N);
-			brush_H.SetResourceObject(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].Thumbnail_H);
-			ItemSlots[i]->WidgetStyle.SetNormal(brush_N);
-			ItemSlots[i]->WidgetStyle.SetHovered(brush_H);
-			ItemSlots[i]->SetIsEnabled(true);
-
-			ItemSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(Player->Inventory[(uint8)ETypeTag::Item].ItemForms[i].ShortForm.Num)));
-			ItemSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
-		}
-		else if (i < 12)
-		{
-			ItemSlots[i]->SetStyle(DefaultStyle);
-			ItemSlots[i]->SetIsEnabled(false);
-
-			ItemSlotNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
-		}
+		CurrMoneyText->SetText(FText::FromString("º¸À¯ : " + FString::FromInt(Player->CurrMoney)));
 	}
 }
 
@@ -337,34 +222,21 @@ void UInventory::SetEvents()
 {
 	for (int i = 0; i < 16; i++)
 	{
-		ClothSlots[i]->HoveredEvent.AddDynamic(this, &UInventory::OnHovered_GetInfo);
-		ClothSlots[i]->ClickedEvent.AddDynamic(this, &UInventory::OnClicked_Select);
-		ClothSlots[i]->PressedEvent.AddDynamic(this, &UInventory::OnPressed_Catch);
-		WeaponSlots[i]->HoveredEvent.AddDynamic(this, &UInventory::OnHovered_GetInfo);
-		WeaponSlots[i]->ClickedEvent.AddDynamic(this, &UInventory::OnClicked_Select);
-		WeaponSlots[i]->PressedEvent.AddDynamic(this, &UInventory::OnPressed_Catch);
-		if (i < 12)
-		{
-			ItemSlots[i]->HoveredEvent.AddDynamic(this, &UInventory::OnHovered_GetInfo);
-			ItemSlots[i]->ClickedEvent.AddDynamic(this, &UInventory::OnClicked_Select);
-			ItemSlots[i]->PressedEvent.AddDynamic(this, &UInventory::OnPressed_Catch);
-		}
+		ItemButtons[i]->HoveredEvent.AddDynamic(this, &UInventory::OnHovered_GetInfo);
+		ItemButtons[i]->ClickedEvent.AddDynamic(this, &UInventory::OnClicked_Select);
+		ItemButtons[i]->PressedEvent.AddDynamic(this, &UInventory::OnPressed_Catch);
+		ItemButtons[i]->OnUnhovered.AddDynamic(this, &UInventory::OnUnhovered_DelInfo);
+		ItemButtons[i]->OnReleased.AddDynamic(this, &UInventory::OnReleased_Delete);
+		ItemButtons[i]->SetEvent();
 	}
-	for (int i = 0; i < 16; i++)
+
+	for (int i = 0; i < 3; i++)
 	{
-		ClothSlots[i]->SetEvent();
-		ClothSlots[i]->OnUnhovered.AddDynamic(this, &UInventory::OnUnhovered_DelInfo);
-		ClothSlots[i]->OnReleased.AddDynamic(this, &UInventory::OnReleased_Delete);
-		WeaponSlots[i]->SetEvent();
-		WeaponSlots[i]->OnUnhovered.AddDynamic(this, &UInventory::OnUnhovered_DelInfo);
-		WeaponSlots[i]->OnReleased.AddDynamic(this, &UInventory::OnReleased_Delete);
-		if (i < 12)
-		{
-			ItemSlots[i]->SetEvent();
-			ItemSlots[i]->OnUnhovered.AddDynamic(this, &UInventory::OnUnhovered_DelInfo);
-			ItemSlots[i]->OnReleased.AddDynamic(this, &UInventory::OnReleased_Delete);
-		}
+		ItemTabs[i]->ClickedEvent.AddDynamic(this, &UInventory::OnClicked_Tab);
+		ItemTabs[i]->SetEvent();
 	}
+
+	ExitButton->OnClicked.AddDynamic(this, &UInventory::Exit);
 }
 
 void UInventory::OpenPopup()
@@ -469,24 +341,47 @@ void UInventory::OnReleased_Delete()
 	}
 }
 
-void UInventory::ChangeNumber(int index, ETypeTag type)
+void UInventory::OnClicked_Tab(int index, ETypeTag type)
 {
-	FItemForm* ChangedItem = &Player->Inventory[(uint8)type].ItemForms[index];
-	UTextBlock* toChange = nullptr;
-	switch (type)
+	switch (CurrTab)
 	{
 	case ETypeTag::Cloth:
-		toChange = ClothSlotNumbers[index];
+		ItemTabs[0]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f));
 		break;
 	case ETypeTag::Weapon:
-		toChange = WeaponSlotNumbers[index];
+		ItemTabs[1]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f));
 		break;
 	case ETypeTag::Item:
-		toChange = ItemSlotNumbers[index];
+		ItemTabs[2]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f));
 		break;
 	default:
 		break;
 	}
+
+	CurrTab = type;
+	
+	switch(CurrTab)
+	{
+	case ETypeTag::Cloth:
+		ItemTabs[0]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f));
+		break;
+	case ETypeTag::Weapon:
+		ItemTabs[1]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f));
+		break;
+	case ETypeTag::Item:
+		ItemTabs[2]->WidgetStyle.Normal.TintColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f));
+		break;
+	default:
+		break;
+	}
+
+	RefreshSlots();
+}
+
+void UInventory::ChangeNumber(int index, ETypeTag type)
+{
+	FItemForm* ChangedItem = &Player->Inventory[(uint8)type].ItemForms[index];
+	UTextBlock* toChange = ItemNumbers[index];
 
 	if(toChange) toChange->SetText(FText::FromString(FString::FromInt(ChangedItem->ShortForm.Num)));
 }
@@ -518,20 +413,10 @@ void UInventory::DisableButtonsTemporarily()
 {
 	TArray<int> list;
 
-	for (int i = 0; i < Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num(); i++)
+	for (int i = 0; i < Player->Inventory[(uint8)CurrTab].ItemForms.Num(); i++)
 	{
-		WeaponSlots[i]->SetIsEnabled(false);
-		list.Add((i + 1) * pow(10, (uint8)ETypeTag::Weapon));
-	}
-	for (int i = 0; i < Player->Inventory[(uint8)ETypeTag::Item].ItemForms.Num(); i++)
-	{
-		ItemSlots[i]->SetIsEnabled(false);
-		list.Add((i + 1) * pow(10, (uint8)ETypeTag::Item));
-	}
-	for (int i = 0; i < Player->Inventory[(uint8)ETypeTag::Cloth].ItemForms.Num(); i++)
-	{
-		ClothSlots[i]->SetIsEnabled(false);
-		list.Add((i + 1) * pow(10, (uint8)ETypeTag::Cloth));
+		ItemButtons[i]->SetIsEnabled(false);
+		list.Add(i);
 	}
 
 	ShutdownList = list;
@@ -539,23 +424,8 @@ void UInventory::DisableButtonsTemporarily()
 
 void UInventory::RestoreButtons()
 {
-	TArray<int> div = { 1, 10, 100 };
 	for (int idx : ShutdownList)
 	{
-		if (idx >= div[(uint8)ETypeTag::Cloth])
-		{
-			int index = idx / div[(uint8)ETypeTag::Cloth] - 1;
-			ClothSlots[index]->SetIsEnabled(true);
-		}
-		else if (idx >= div[(uint8)ETypeTag::Item])
-		{
-			int index = idx / div[(uint8)ETypeTag::Item] - 1;
-			ItemSlots[index]->SetIsEnabled(true);
-		}
-		else
-		{
-			int index = idx - 1;
-			WeaponSlots[index]->SetIsEnabled(true);
-		}
+		ItemButtons[idx]->SetIsEnabled(true);
 	}
 }

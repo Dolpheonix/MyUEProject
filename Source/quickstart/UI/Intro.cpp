@@ -247,6 +247,7 @@ void UIntro::StartNewGame()
 			}
 			else
 			{
+				GI->SaveToFile();
 				GI->Start();
 			}
 		}

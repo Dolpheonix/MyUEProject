@@ -5,13 +5,13 @@
 
 UItemButton::UItemButton()
 {
-	index = -1;
+	Index = -1;
 	SetPressMethod(EButtonPressMethod::DownAndUp);
 }
 
 UItemButton::UItemButton(int i)
 {
-	index = i;
+	Index = i;
 }
 
 void UItemButton::SetEvent()
@@ -24,15 +24,15 @@ void UItemButton::SetEvent()
 
 void UItemButton::HoverTrigger()
 {
-	HoveredEvent.Broadcast(index, type);
+	HoveredEvent.Broadcast(Index, Type);
 }
 
 void UItemButton::ClickTrigger()
 {
-	ClickedEvent.Broadcast(index, type);
+	ClickedEvent.Broadcast(Index, Type);
 }
 
 void UItemButton::PressTrigger()
 {
-	PressedEvent.Broadcast(index, type);
+	PressedEvent.Broadcast(Index, Type);
 }

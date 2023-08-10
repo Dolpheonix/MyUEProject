@@ -35,8 +35,8 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Button")
-	int index;
+	int Index;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
-	ETypeTag type;
+	ETypeTag Type;
 };

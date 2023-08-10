@@ -258,8 +258,11 @@ TArray<FQuestStatus> UMainGameInstance::SaveQuestStatus()
 
 void UMainGameInstance::SaveLevel()
 {
-	SaveNPC();
-	SaveItems();
+	if (CurrentMapMemory)
+	{
+		SaveNPC();
+		SaveItems();
+	}
 }
 
 void UMainGameInstance::SaveNPC()

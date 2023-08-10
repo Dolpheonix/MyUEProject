@@ -30,7 +30,6 @@ public:
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 	void InitializeSlots();
-	void SetTexts();
 	void RefreshSlots();
 	void SetEvents();
 	void OpenPopup();
@@ -50,11 +49,15 @@ public:
 	void OnPressed_Catch(int index, ETypeTag type);
 	UFUNCTION()
 	void OnReleased_Delete();
-
+	UFUNCTION()
+	void OnClicked_Tab(int index, ETypeTag type);
 	UFUNCTION()
 	void ThrowAway();
+	UFUNCTION()
+	void Exit();
 
 	void ChangeNumber(int index, ETypeTag type);
+
 
 public:
 	UPROPERTY(BlueprintReadWrite)
@@ -63,29 +66,20 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	UTextBlock* InfoText;
 
-	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* WeaponText;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UItemButton*> WeaponSlots;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UTextBlock*> WeaponSlotNumbers;
+	TArray<UItemButton*> ItemButtons;
+	TArray<UTextBlock*> ItemNumbers;
+	TArray<UItemButton*> ItemTabs;
+	TArray<UTextBlock*> TabTexts;
 
-	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* ItemText;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UItemButton*> ItemSlots;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UTextBlock*> ItemSlotNumbers;
+	ETypeTag CurrTab;
+	UTextBlock* CurrTabText;
 
-	UPROPERTY(BlueprintReadWrite)
-	UTextBlock* ClothText;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UItemButton*> ClothSlots;
-	UPROPERTY(BlueprintReadWrite)
-	TArray<UTextBlock*> ClothSlotNumbers;
+	UTextBlock* CurrMoneyText;
 
 	UPROPERTY(BlueprintReadWrite)
 	UButton* TrashCan;
+	UPROPERTY(BlueprintReadWrite)
+	UButton* ExitButton;
 
 	UClass* PopupClass;
 

@@ -1,6 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 ///////////////////////////TODO///////////////////////
-///////Sell, Buy ±â´É Ãß°¡//////////////
+///////Sell, Buy ê¸°ëŠ¥ ì¶”ê°€//////////////
 
 #include "Shop.h"
 #include "Blueprint/WidgetTree.h"
@@ -27,11 +27,9 @@ void UShop::NativePreConstruct()
 		DefaultStyle.SetNormal(DefaultBrush);
 		DefaultStyle.SetHovered(DefaultBrush);
 
-		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/OldLondon_Font.OldLondon_Font"));
+		DefaultFont.FontObject = Helpers::LoadObjectFromPath<UObject>(TEXT("/Game/ShootingGame/Font/Ramche_Font.Ramche_Font"));
 		DefaultFont.OutlineSettings.OutlineSize = 1;
 		DefaultFont.Size = 28.0f;
-
-		RootCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("Root")));
 
 		ShopSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Shop_00"))));
 		ShopSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Shop_01"))));
@@ -52,7 +50,7 @@ void UShop::NativePreConstruct()
 
 		for (int i = 0; i < ShopSlots.Num(); i++)
 		{
-			ShopSlots[i]->index = i;
+			ShopSlots[i]->Index = i;
 		}
 
 		CharacterSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Character_00"))));
@@ -74,47 +72,56 @@ void UShop::NativePreConstruct()
 
 		for (int i = 0; i < CharacterSlots.Num(); i++)
 		{
-			CharacterSlots[i]->index = i;
+			CharacterSlots[i]->Index = i;
 		}
 
-		for (int i = 0; i < ShopSlots.Num(); i++)
-		{
-			int hor = i % 4;
-			int ver = i / 4;
-			ShopSlotNumbers.Add(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), FName("ShopSlot Number " + i)));
-			RootCanvas->AddChild(ShopSlotNumbers[i]);
-			Cast<UCanvasPanelSlot>(ShopSlotNumbers[i]->Slot)->SetSize(FVector2D(25.0f, 40.0f));
-			ShopSlotNumbers[i]->SetRenderTranslation(FVector2D(210.0f + hor * 150.0f, 210.0f + ver * 150.0f));
-			ShopSlotNumbers[i]->SetJustification(ETextJustify::Right);
-			ShopSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(0)));
-			ShopSlotNumbers[i]->SetFont(DefaultFont);
-		}
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_00"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_01"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_02"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_03"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_10"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_11"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_12"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_13"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_20"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_21"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_22"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_23"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_30"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_31"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_32"))));
+		ShopSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("ShopSlotNumber_33"))));
 
-		for (int i = 0; i < CharacterSlots.Num(); i++)
-		{
-			int hor = i % 4;
-			int ver = i / 4;
-			CharacterSlotNumbers.Add(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), FName("CharacterSlot Number " + i)));
-			RootCanvas->AddChild(CharacterSlotNumbers[i]);
-			Cast<UCanvasPanelSlot>(CharacterSlotNumbers[i]->Slot)->SetSize(FVector2D(25.0f, 40.0f));
-			CharacterSlotNumbers[i]->SetRenderTranslation(FVector2D(1310.0f + hor * 150.0f, 220.0f + ver * 150.0f));
-			CharacterSlotNumbers[i]->SetJustification(ETextJustify::Right);
-			CharacterSlotNumbers[i]->SetText(FText::FromString(FString::FromInt(0)));
-			CharacterSlotNumbers[i]->SetFont(DefaultFont);
-		}
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_00")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_01")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_02")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_03")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_10")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_11")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_12")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_13")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_20")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_21")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_22")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_23")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_30")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_31")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_32")));
+		CharacterSlotNumbers.Add(Cast<UTextBlock>(GetWidgetFromName("CharacterSlotNumber_33")));
 
 		TabSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Tab_Cloth"))));
 		TabSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Tab_Weapon"))));
 		TabSlots.Add(Cast<UItemButton>(GetWidgetFromName(TEXT("Tab_Item"))));
-		TabSlots[0]->type = ETypeTag::Cloth;
-		TabSlots[1]->type = ETypeTag::Weapon;
-		TabSlots[2]->type = ETypeTag::Item;
+		TabSlots[0]->Type = ETypeTag::Cloth;
+		TabSlots[1]->Type = ETypeTag::Weapon;
+		TabSlots[2]->Type = ETypeTag::Item;
 
 		DecreaseButton = Cast<UButton>(GetWidgetFromName(TEXT("Decrease")));
 		IncreaseButton = Cast<UButton>(GetWidgetFromName(TEXT("Increase")));
 
+		ShopNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_ShopName")));
 		NumText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_Num")));
-		BuySellText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_BuyorSell")));
+		BuySellText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_BuySell")));
 		PriceText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_Price")));
 		WalletText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Text_Wallet")));
 
@@ -131,6 +138,30 @@ void UShop::NativePreConstruct()
 void UShop::NativeConstruct()
 {
 	UUserWidget::NativeConstruct();
+
+	for (int i = 0; i < ShopSlots.Num(); i++)
+	{
+		check(ShopSlots[i]);
+		check(ShopSlotNumbers[i]);
+	}
+	for (int i = 0; i < CharacterSlots.Num(); i++)
+	{
+		check(CharacterSlots[i]);
+		check(CharacterSlotNumbers[i]);
+	}
+	for (int i = 0; i < TabSlots.Num(); i++)
+	{
+		check(TabSlots[i]);
+	}
+	check(DecreaseButton);
+	check(IncreaseButton);
+	check(ShopNameText);
+	check(NumText);
+	check(BuySellText);
+	check(PriceText);
+	check(WalletText);
+	check(ConfirmationButton);
+	check(EndButton);
 }
 
 void UShop::NativeDestruct()
@@ -147,36 +178,45 @@ void UShop::SetEvents()
 {
 	for (int i = 0; i < TabSlots.Num(); i++)
 	{
-		TabSlots[i]->SetClickMethod(EButtonClickMethod::DownAndUp);
-		TabSlots[i]->ClickedEvent.AddDynamic(this, &UShop::TabCharacterSlot);
-		TabSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
-		TabSlots[i]->SetEvent();
+		if (TabSlots[i])
+		{
+			TabSlots[i]->SetClickMethod(EButtonClickMethod::DownAndUp);
+			TabSlots[i]->ClickedEvent.AddDynamic(this, &UShop::TabCharacterSlot);
+			TabSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
+			TabSlots[i]->SetEvent();
+		}
 	}
 	for (int i = 0; i < ShopSlots.Num(); i++)
 	{
-		ShopSlots[i]->ClickedEvent.AddDynamic(this, &UShop::SelectBuyItem);
-		ShopSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
-		ShopSlots[i]->SetEvent();
+		if (ShopSlots[i])
+		{
+			ShopSlots[i]->ClickedEvent.AddDynamic(this, &UShop::SelectBuyItem);
+			ShopSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
+			ShopSlots[i]->SetEvent();
+		}
 	}
 	for (int i = 0; i < CharacterSlots.Num(); i++)
 	{
-		CharacterSlots[i]->ClickedEvent.AddDynamic(this, &UShop::SelectSellItem);
-		CharacterSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
-		CharacterSlots[i]->SetEvent();
+		if (CharacterSlots[i])
+		{
+			CharacterSlots[i]->ClickedEvent.AddDynamic(this, &UShop::SelectSellItem);
+			CharacterSlots[i]->OnClicked.AddDynamic(this, &UShop::PlaySelectSound);
+			CharacterSlots[i]->SetEvent();
+		}
 	}
 
-	DecreaseButton->OnClicked.AddDynamic(this, &UShop::Decrease);
-	IncreaseButton->OnClicked.AddDynamic(this, &UShop::Increase);
+	if(DecreaseButton) DecreaseButton->OnClicked.AddDynamic(this, &UShop::Decrease);
+	if(IncreaseButton) IncreaseButton->OnClicked.AddDynamic(this, &UShop::Increase);
 
-	ConfirmationButton->OnClicked.AddDynamic(this, &UShop::Deal);
+	if(ConfirmationButton) ConfirmationButton->OnClicked.AddDynamic(this, &UShop::Deal);
 
-	EndButton->OnClicked.AddDynamic(this, &UShop::EndShop);
+	if(EndButton) EndButton->OnClicked.AddDynamic(this, &UShop::EndShop);
 }
 
-// Player¿ÍÀÇ ´ëÈ­¸¦ ÅëÇØ »óÁ¡ ÀÎÅÍÆäÀÌ½º°¡ ¿­¸± ¶§ È£ÃâµÊ
-// ¸¶¿ì½º Ä¿¼­, ÀÔ·Â ¸ğµå ¼³Á¤
-// »óÁ¡ ½½·Ô, Ä³¸¯ÅÍ ½½·Ô ÃÊ±âÈ­
-// ¹öÆ°, ¼ö·®, °¡°İ µî ÃÊ±âÈ­
+// Playerì™€ì˜ ëŒ€í™”ë¥¼ í†µí•´ ìƒì  ì¸í„°í˜ì´ìŠ¤ê°€ ì—´ë¦´ ë•Œ í˜¸ì¶œë¨
+// ë§ˆìš°ìŠ¤ ì»¤ì„œ, ì…ë ¥ ëª¨ë“œ ì„¤ì •
+// ìƒì  ìŠ¬ë¡¯, ìºë¦­í„° ìŠ¬ë¡¯ ì´ˆê¸°í™”
+// ë²„íŠ¼, ìˆ˜ëŸ‰, ê°€ê²© ë“± ì´ˆê¸°í™”
 void UShop::InitShop(ANPC* Interacted)
 {
 	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
@@ -193,12 +233,14 @@ void UShop::InitShop(ANPC* Interacted)
 	SelectedItem = nullptr;
 	CurrIndex = -1;
 
+	ShopNameText->SetText(FText::FromString(InteractedNPC->DisplayName + "ì˜ ìƒì "));
+
 	InitShopSlots();
 	InitCharacterSlots();
 	RefreshIncDec();
 }
 
-// »óÁ¡ ½½·Ô ÃÊ±âÈ­, ¹öÆ° È°¼ºÈ­ ¿©ºÎ °áÁ¤
+// ìƒì  ìŠ¬ë¡¯ ì´ˆê¸°í™”, ë²„íŠ¼ í™œì„±í™” ì—¬ë¶€ ê²°ì •
 void UShop::InitShopSlots()
 {
 	for (int i = 0; i < InteractedNPC->ShopItems.Num(); i++)
@@ -223,8 +265,8 @@ void UShop::InitShopSlots()
 	}
 }
 
-// Ä³¸¯ÅÍ ½½·Ô ÃÊ±âÈ­, ¹öÆ° È°¼ºÈ­ ¿©ºÎ °áÁ¤
-// ÀÇ»ó ÅÇÀ¸·Î ÃÊ±âÈ­
+// ìºë¦­í„° ìŠ¬ë¡¯ ì´ˆê¸°í™”, ë²„íŠ¼ í™œì„±í™” ì—¬ë¶€ ê²°ì •
+// ì˜ìƒ íƒ­ìœ¼ë¡œ ì´ˆê¸°í™”
 void UShop::InitCharacterSlots()
 {
 	TArray<FItemForm>* Initslot = &MainCharacter->Inventory[(uint8)ETypeTag::Cloth].ItemForms;
@@ -236,7 +278,7 @@ void UShop::InitCharacterSlots()
 		CharacterSlots[i]->WidgetStyle.SetNormal(brush_N);
 		CharacterSlots[i]->WidgetStyle.SetHovered(brush_H);
 		CharacterSlots[i]->SetIsEnabled(true);
-		CharacterSlots[i]->type = ETypeTag::Cloth;
+		CharacterSlots[i]->Type = ETypeTag::Cloth;
 
 		CharacterSlotNumbers[i]->SetText(FText::FromString(FString::FromInt((*Initslot)[i].ShortForm.Num)));
 		CharacterSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
@@ -253,9 +295,9 @@ void UShop::InitCharacterSlots()
 	CurrTab = ETypeTag::Cloth;
 }
 
-// ÅÇ ¹öÆ°À» ´­·¶À» ¶§ È£ÃâµÊ.
-// Ä³¸¯ÅÍ ½½·ÔÀ» ´­¸° ÅÇ Å¸ÀÔÀÇ ¾ÆÀÌÅÛµé·Î ÃÊ±âÈ­
-// ¸¸¾à Ä³¸¯ÅÍ ½½·ÔÀ» ¼±ÅÃ ÁßÀÌ¾ú´Ù¸é ¹Ù²ï ÅÇÀÇ Ã¹¹øÂ° ¾ÆÀÌÅÛÀ» ¼±ÅÃ½ÃÅ´ (´Ü, UnselectÇÒ ÇÊ¿ä´Â ¾øÀ¸¹Ç·Î CurrIndex´Â -1·Î ¼³Á¤ ÈÄ ¼±ÅÃ)
+// íƒ­ ë²„íŠ¼ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œë¨.
+// ìºë¦­í„° ìŠ¬ë¡¯ì„ ëˆŒë¦° íƒ­ íƒ€ì…ì˜ ì•„ì´í…œë“¤ë¡œ ì´ˆê¸°í™”
+// ë§Œì•½ ìºë¦­í„° ìŠ¬ë¡¯ì„ ì„ íƒ ì¤‘ì´ì—ˆë‹¤ë©´ ë°”ë€ íƒ­ì˜ ì²«ë²ˆì§¸ ì•„ì´í…œì„ ì„ íƒì‹œí‚´ (ë‹¨, Unselectí•  í•„ìš”ëŠ” ì—†ìœ¼ë¯€ë¡œ CurrIndexëŠ” -1ë¡œ ì„¤ì • í›„ ì„ íƒ)
 void UShop::TabCharacterSlot(int index, ETypeTag type)
 {
 	if (type == CurrTab)
@@ -273,7 +315,7 @@ void UShop::TabCharacterSlot(int index, ETypeTag type)
 			CharacterSlots[i]->WidgetStyle.SetNormal(brush_N);
 			CharacterSlots[i]->WidgetStyle.SetHovered(brush_H);
 			CharacterSlots[i]->SetIsEnabled(true);
-			CharacterSlots[i]->type = type;
+			CharacterSlots[i]->Type = type;
 
 			CharacterSlotNumbers[i]->SetText(FText::FromString(FString::FromInt((*Currslot)[i].ShortForm.Num)));
 			CharacterSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
@@ -283,7 +325,7 @@ void UShop::TabCharacterSlot(int index, ETypeTag type)
 		{
 			CharacterSlots[i]->SetStyle(DefaultStyle);
 			CharacterSlots[i]->SetIsEnabled(false);
-			CharacterSlots[i]->type = type;
+			CharacterSlots[i]->Type = type;
 
 			CharacterSlotNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
@@ -298,8 +340,8 @@ void UShop::TabCharacterSlot(int index, ETypeTag type)
 	}
 }
 
-// Áõ°¡ ¹öÆ°À» ´­·¶À» ¶§ È£Ãâ
-// ¼ö·®À» Áõ°¡½ÃÅ² ÈÄ, RefreshIncDec()È£Ãâ
+// ì¦ê°€ ë²„íŠ¼ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// ìˆ˜ëŸ‰ì„ ì¦ê°€ì‹œí‚¨ í›„, RefreshIncDec()í˜¸ì¶œ
 void UShop::Increase()
 {
 	CurrNum++;
@@ -307,8 +349,8 @@ void UShop::Increase()
 	UGameplayStatics::PlaySound2D(this, IncreaseSound);
 }
 
-// °¨¼Ò ¹öÆ°À» ´­·¶À» ¶§ È£Ãâ
-// ¼ö·®À» °¨¼Ò½ÃÅ² ÈÄ, RefreshIncDec()È£Ãâ
+// ê°ì†Œ ë²„íŠ¼ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// ìˆ˜ëŸ‰ì„ ê°ì†Œì‹œí‚¨ í›„, RefreshIncDec()í˜¸ì¶œ
 void UShop::Decrease()
 {
 	CurrNum--;
@@ -316,10 +358,10 @@ void UShop::Decrease()
 	UGameplayStatics::PlaySound2D(this, DecreaseSound);
 }
 
-// »óÁ¡ ½½·ÔÀ» ´­·¶À» ¶§ È£Ãâ
-// ±âÁ¸¿¡ ¼±ÅÃµÇ¾ú´ø ¾ÆÀÌÅÛ Unselect
-// SelectedItem ¼³Á¤ ÈÄ ¹öÆ° ÀÌ¹ÌÁö º¯°æ
-// ¼ö·®À» 1·Î Á¶Á¤ ÈÄ RefreshIncDec() È£Ãâ
+// ìƒì  ìŠ¬ë¡¯ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// ê¸°ì¡´ì— ì„ íƒë˜ì—ˆë˜ ì•„ì´í…œ Unselect
+// SelectedItem ì„¤ì • í›„ ë²„íŠ¼ ì´ë¯¸ì§€ ë³€ê²½
+// ìˆ˜ëŸ‰ì„ 1ë¡œ ì¡°ì • í›„ RefreshIncDec() í˜¸ì¶œ
 void UShop::SelectBuyItem(int index, ETypeTag type)
 {
 	// Unselect
@@ -337,13 +379,13 @@ void UShop::SelectBuyItem(int index, ETypeTag type)
 
 	CurrNum = 1;
 	RefreshIncDec();
-	BuySellText->SetText(FText::FromString("Buy"));
+	BuySellText->SetText(FText::FromString("êµ¬ë§¤"));
 }
 
-// Ä³¸¯ÅÍ ½½·ÔÀ» ´­·¶À» ¶§ È£Ãâ
-// ±âÁ¸¿¡ ¼±ÅÃµÇ¾ú´ø ¾ÆÀÌÅÛ Unselect
-// SelectedItem ¼³Á¤ ÈÄ ¹öÆ° ÀÌ¹ÌÁö º¯°æ
-// ¼ö·®À» 1·Î Á¶Á¤ ÈÄ RefreshIncDec() È£Ãâ
+// ìºë¦­í„° ìŠ¬ë¡¯ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// ê¸°ì¡´ì— ì„ íƒë˜ì—ˆë˜ ì•„ì´í…œ Unselect
+// SelectedItem ì„¤ì • í›„ ë²„íŠ¼ ì´ë¯¸ì§€ ë³€ê²½
+// ìˆ˜ëŸ‰ì„ 1ë¡œ ì¡°ì • í›„ RefreshIncDec() í˜¸ì¶œ
 void UShop::SelectSellItem(int index, ETypeTag type)
 {
 	if (CurrIndex >= 0) Unselect();
@@ -360,22 +402,22 @@ void UShop::SelectSellItem(int index, ETypeTag type)
 
 	CurrNum = 1;
 	RefreshIncDec();
-	BuySellText->SetText(FText::FromString("Sell"));
+	BuySellText->SetText(FText::FromString("íŒë§¤"));
 }
 
-// ±¸¸Å/ÆÇ¸Å ¹öÆ°À» ´­·¶À» ¶§ È£Ãâ
-// ±¸¸Å
-//		ÇÃ·¹ÀÌ¾îÀÇ µ·¿¡¼­ Â÷°¨
-//		°¡Áö°í ÀÖ´ø ¾ÆÀÌÅÛÀÌ¸é º¸À¯ °³¼ö¸¸ º¯°æ, ¾Æ´Ï¸é ÀÎº¥Åä¸®¿¡ Ãß°¡
-//		»óÁ¡ ½½·Ô¿¡¼­ º¸À¯ ¼ö·® º¯°æ ÈÄ 0ÀÌ¸é ½½·Ô¿¡¼­ Á¦°Å
-//		½½·Ô¿¡ º¯°æÁ¡ ÀÖÀ¸¸é RefreshSlot() ¾Æ´Ï¸é ChangeNumber()
-// ÆÇ¸Å
-//		ÇÃ·¹ÀÌ¾îÀÇ µ·¿¡ Ãß°¡
-//		ÀÎº¥Åä¸®¿¡¼­ º¸À¯ ¼ö·® Â÷°¨ ÈÄ 0ÀÌ¸é ÀÎº¥Åä¸®¿¡¼­ Á¦°Å
-//		½½·Ô¿¡ º¯°æÁ¡ ÀÖÀ¸¸é RefreshSlot() ¾Æ´Ï¸é ChangeNumber()
-// ¼±ÅÃµÈ ½½·ÔÀÌ Á¦°ÅµÊ --> SelectedItem nullptr ÁöÁ¤
-// Á¦°ÅµÇÁö ¾ÊÀ½ --> ±¸¸Å/ÆÇ¸Å ¼ö·® 1·Î ÀçÁöÁ¤
-// RefreshIncDec() È£Ãâ
+// êµ¬ë§¤/íŒë§¤ ë²„íŠ¼ì„ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// êµ¬ë§¤
+//		í”Œë ˆì´ì–´ì˜ ëˆì—ì„œ ì°¨ê°
+//		ê°€ì§€ê³  ìˆë˜ ì•„ì´í…œì´ë©´ ë³´ìœ  ê°œìˆ˜ë§Œ ë³€ê²½, ì•„ë‹ˆë©´ ì¸ë²¤í† ë¦¬ì— ì¶”ê°€
+//		ìƒì  ìŠ¬ë¡¯ì—ì„œ ë³´ìœ  ìˆ˜ëŸ‰ ë³€ê²½ í›„ 0ì´ë©´ ìŠ¬ë¡¯ì—ì„œ ì œê±°
+//		ìŠ¬ë¡¯ì— ë³€ê²½ì  ìˆìœ¼ë©´ RefreshSlot() ì•„ë‹ˆë©´ ChangeNumber()
+// íŒë§¤
+//		í”Œë ˆì´ì–´ì˜ ëˆì— ì¶”ê°€
+//		ì¸ë²¤í† ë¦¬ì—ì„œ ë³´ìœ  ìˆ˜ëŸ‰ ì°¨ê° í›„ 0ì´ë©´ ì¸ë²¤í† ë¦¬ì—ì„œ ì œê±°
+//		ìŠ¬ë¡¯ì— ë³€ê²½ì  ìˆìœ¼ë©´ RefreshSlot() ì•„ë‹ˆë©´ ChangeNumber()
+// ì„ íƒëœ ìŠ¬ë¡¯ì´ ì œê±°ë¨ --> SelectedItem nullptr ì§€ì •
+// ì œê±°ë˜ì§€ ì•ŠìŒ --> êµ¬ë§¤/íŒë§¤ ìˆ˜ëŸ‰ 1ë¡œ ì¬ì§€ì •
+// RefreshIncDec() í˜¸ì¶œ
 void UShop::Deal()
 {
 	bool removed = false;
@@ -388,21 +430,21 @@ void UShop::Deal()
 		}
 		else
 		{
-			// MainCharacter ÁöºÒ
+			// MainCharacter ì§€ë¶ˆ
 			FString name = SelectedItem->ShortForm.NameTag;
 			MainCharacter->CurrMoney -= CurrPrice;
 
-			// MainCharacter¿¡ ±¸¸ÅÇÑ ¾ÆÀÌÅÛ Ãß°¡
+			// MainCharacterì— êµ¬ë§¤í•œ ì•„ì´í…œ ì¶”ê°€
 			ETypeTag type = SelectedItem->ShortForm.TypeTag;
 			TArray<FItemForm>* Buyslot = &MainCharacter->Inventory[(uint8)type].ItemForms;
 
-			// ÀÌ¹Ì °¡Áö°í ÀÖ´Â ¾ÆÀÌÅÛÀÎÁö °Ë»ö
+			// ì´ë¯¸ ê°€ì§€ê³  ìˆëŠ” ì•„ì´í…œì¸ì§€ ê²€ìƒ‰
 			int32 index = Buyslot->IndexOfByPredicate([name](const FItemForm& item)
 				{
 					return (item.ShortForm.NameTag == name);
 				});
 
-			// »õ·Î »ı±â´Â ¾ÆÀÌÅÛ -> ÀÎº¥Åä¸® ³¡¿¡ Ãß°¡ ÈÄ Ä³¸¯ÅÍ ½½·Ô Refresh
+			// ìƒˆë¡œ ìƒê¸°ëŠ” ì•„ì´í…œ -> ì¸ë²¤í† ë¦¬ ëì— ì¶”ê°€ í›„ ìºë¦­í„° ìŠ¬ë¡¯ Refresh
 			if (index < 0)
 			{
 				index = Buyslot->Num();
@@ -412,7 +454,7 @@ void UShop::Deal()
 
 				if(type == CurrTab) RefreshCharacterSlots(CurrTab, index);
 			}
-			// ÀÌ¹Ì ÀÖ´Â ¾ÆÀÌÅÛ -> °³¼ö¸¸ Ãß°¡, º¯°æ
+			// ì´ë¯¸ ìˆëŠ” ì•„ì´í…œ -> ê°œìˆ˜ë§Œ ì¶”ê°€, ë³€ê²½
 			else
 			{
 				(*Buyslot)[index].ShortForm.Num += CurrNum;
@@ -420,9 +462,9 @@ void UShop::Deal()
 				if (type == CurrTab) ChangeNumber(false, index);
 			}
 
-			// NPC ½½·Ô¿¡¼­ Â÷°¨
+			// NPC ìŠ¬ë¡¯ì—ì„œ ì°¨ê°
 			SelectedItem->ShortForm.Num -= CurrNum;
-			// º¸À¯ ¼ö·® 0ÀÌ¸é Á¦°Å ÈÄ Ä³¸¯ÅÍ ½½·Ô ÃÊ±âÈ­
+			// ë³´ìœ  ìˆ˜ëŸ‰ 0ì´ë©´ ì œê±° í›„ ìºë¦­í„° ìŠ¬ë¡¯ ì´ˆê¸°í™”
 			if (SelectedItem->ShortForm.Num == 0)
 			{
 				InteractedNPC->ShopItems.RemoveAt(CurrIndex);
@@ -430,7 +472,7 @@ void UShop::Deal()
 
 				RefreshShopSlots(CurrIndex);
 			}
-			// ³²¾ÆÀÖÀ¸¸é °³¼ö¸¸ º¯°æ
+			// ë‚¨ì•„ìˆìœ¼ë©´ ê°œìˆ˜ë§Œ ë³€ê²½
 			else
 			{
 				ChangeNumber(true, CurrIndex);
@@ -472,15 +514,15 @@ void UShop::Deal()
 	UGameplayStatics::PlaySound2D(this, BuySellSound);
 }
 
-// Exit ¹öÆ° ´­·¶À» ¶§ È£Ãâ
-// NPC¿ÍÀÇ »óÈ£ÀÛ¿ëÀ» Á¾·á
+// Exit ë²„íŠ¼ ëˆŒë €ì„ ë•Œ í˜¸ì¶œ
+// NPCì™€ì˜ ìƒí˜¸ì‘ìš©ì„ ì¢…ë£Œ
 void UShop::EndShop()
 {
 	UGameplayStatics::PlaySound2D(this, ExitSound);
 	InteractedNPC->UnInteract();
 }
 
-// Select() È£Ãâ ½Ã¿¡ ÀÌÀü¿¡ ¼±ÅÃµÈ ½½·ÔÀ» Unselect
+// Select() í˜¸ì¶œ ì‹œì— ì´ì „ì— ì„ íƒëœ ìŠ¬ë¡¯ì„ Unselect
 void UShop::Unselect()
 {
 	FItemForm unselected;
@@ -501,9 +543,9 @@ void UShop::Unselect()
 	}
 }
 
-// SelectedItem¿¡ µû¶ó
-// Increase, Decrease, Confirmation ButtonÀÇ È°¼º ¿©ºÎ¿Í
-// Buy number, Price, WalletÀÇ °ªÀ» º¯°æ
+// SelectedItemì— ë”°ë¼
+// Increase, Decrease, Confirmation Buttonì˜ í™œì„± ì—¬ë¶€ì™€
+// Buy number, Price, Walletì˜ ê°’ì„ ë³€ê²½
 void UShop::RefreshIncDec()
 {
 	if (SelectedItem)
@@ -580,7 +622,7 @@ void UShop::RefreshIncDec()
 			}
 		}
 	}
-	else // ¾Æ¹«°Íµµ ¼±ÅÃÇÏÁö ¾ÊÀº °æ¿ì
+	else // ì•„ë¬´ê²ƒë„ ì„ íƒí•˜ì§€ ì•Šì€ ê²½ìš°
 	{
 		CurrNum = 0;
 		CurrPrice = 0;
@@ -591,12 +633,12 @@ void UShop::RefreshIncDec()
 
 	NumText->SetText(FText::FromString(FString::FromInt(CurrNum)));
 	PriceText->SetText(FText::FromString(FString::FromInt(CurrPrice)));
-	WalletText->SetText(FText::FromString(FString::FromInt(MainCharacter->CurrMoney)));
+	WalletText->SetText(FText::FromString("ë³´ìœ  : " + FString::FromInt(MainCharacter->CurrMoney)));
 }
 
 void UShop::RefreshShopSlots(int changed)
 {
-	// Àç°í°¡ ¶³¾îÁø ¾ÆÀÌÅÛÀ» array¿¡¼­ Á¦°ÅÇÏ°í, ½½·ÔÀ» ÀçÁ¤·Ä
+	// ì¬ê³ ê°€ ë–¨ì–´ì§„ ì•„ì´í…œì„ arrayì—ì„œ ì œê±°í•˜ê³ , ìŠ¬ë¡¯ì„ ì¬ì •ë ¬
 	for (int i = changed; i < InteractedNPC->ShopItems.Num(); i++)
 	{
 		FSlateBrush brush_N, brush_H;
