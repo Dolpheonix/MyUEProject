@@ -1,0 +1,24 @@
+{
+  "Dialogues": [
+    {
+      "Index": -1,
+      "Speaker": "",
+      "Text": "",
+      "Responses": [
+        {
+          "Response": "",
+          "IsEnd": true,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest || GiveItem || PhaseShift || OpenShop",
+              "QuestIndex": -1,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
