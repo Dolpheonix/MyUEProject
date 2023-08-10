@@ -1,0 +1,133 @@
+{
+  "Dialogues": [
+    {
+      "Index" : 0,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "아, 드디어 오셨군요!",
+      "Responses": [
+        {
+          "Response": "여긴 어디죠?",
+          "IsEnd": false,
+          "Next": 1,
+          "Events": []
+        }
+      ]
+    },
+    {
+      "Index": 1,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "여긴 튜토리얼 맵입니다. 여기서, 플레이어님은 간단한 조작법과 시스템을 이해한 후, 본격적으로 게임을 시작할 수 있습니다",
+      "Responses": [
+        {
+          "Response": "뭐부터 하면 되죠?",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 0,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 2,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "퀘스트 : 인벤토리 열기",
+      "Responses": [
+        {
+          "Response": "확인하기",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 0,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 3,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "이제 다음 퀘스트를 드리겠습니다",
+      "Responses": [
+        {
+          "Response": "뭔가요?",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 1,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 4,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "퀘스트 : 이동",
+      "Responses": [
+        {
+          "Response": "확인하기",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 1,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 5,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "이제 기본적인 이동 방법까지 익혔습니다!",
+      "Responses": [
+        {
+          "Response": "네",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 6,
+      "Speaker": "튜토리얼 NPC",
+      "Text": "퀘스트 : 교관 NPC 찾기",
+      "Responses": [
+        {
+          "Response": "확인하기",
+          "IsEnd": true,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

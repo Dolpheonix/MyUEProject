@@ -1,7 +1,10 @@
 /Intermediate
-/Saved
 /Content
 /.vs
 /Binaries
 /.vscode
+/Saved/Autosaves
+/Saved/Collections
+/Saved/Crashes
+/Saved/Logs
 *.ipch
