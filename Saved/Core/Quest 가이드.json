@@ -1,0 +1,82 @@
+{
+  "Quests": [
+    {
+      "Index": -1,
+      "Name": "Quest 이름",
+      "Explanation": "Quest 창에 나타날 설명",
+      "Type": "Serial || Parallel",
+      "Instigator": "Instigator NPC의 Display Name",
+      "Ender": "Ender NPC의 Display Name",
+      "Rewards": [
+        {
+          "Type": "EXP || Item || Money",
+          "EXP": -1,
+          "Money": -1,
+          "Item": {
+            "Type": "Cloth || Weapon || Item",
+            "Name": "Item 이름",
+            "Code": -1,
+            "Num": -1,
+            "Sellable": true
+          }
+        }
+      ],
+      "SubQuests": [
+        {
+          "Name": "SubQuest 이름",
+          "Type": "Arrival || Hunt || Item || Action",
+          "Q_Arrival": {
+            "Destination": [ -1, -1, -1 ],
+            "FXTemplate": "Indicator volume의 FX 소스에셋 경로"
+          },
+          "Q_Hunt": {
+            "List": [
+              {
+                "Huntee": "Hunt 대상의 class 이름",
+                "Amount": -1
+              }
+            ]
+          },
+          "Q_Item": {
+            "List": [
+              {
+                "Type": "Cloth || Weapon || Item",
+                "Amount": -1
+              }
+            ]
+          },
+          "Q_Action": {
+            "Code": -1,
+            "Info": "Action quest에 대한 설명"
+          }
+        }
+      ],
+      "Dialogues": {
+        "Unavailable": [
+          {
+            "Speaker": "",
+            "Text": "",
+            "Responses": [
+              {
+                "Response": "",
+                "IsEnd": true,
+                "Next": -1,
+                "Events": [
+                  {
+                    "Type": "Commit || Complete || GiveItem || BackToDialogue || PhaseShift",
+                    "Item": -1,
+                    "BackToNPC": -1,
+                    "NextPhase": -1
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "Available": [],
+        "InProgress": [],
+        "Finished": []
+      }
+    }
+  ]
+}
