@@ -2,6 +2,7 @@
 
 
 #include "Enemy.h"
+#include "EnemyController.h"
 #include "Components/CapsuleComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -17,8 +18,6 @@ AEnemy::AEnemy()
 	Capsule->SetCollisionProfileName("Enemy");
 
 	auto MainMesh = GetMesh();
-	MainMesh->SetSkeletalMesh(Helpers::C_LoadObjectFromPath<USkeletalMesh>(TEXT("/Game/ShootingGame/Character/Main/Mesh/SK_Mannequin.SK_Mannequin")));
-	Helpers::SetComponent<USkeletalMeshComponent>(&MainMesh, RootComponent, FVector(0.f, 0.f, -88.f), FRotator(0.0f, -90.0f, 0.f));
 	MainMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	MainMesh->SetCollisionProfileName("NoCollision");
 	MainMesh->SetGenerateOverlapEvents(true);
@@ -40,23 +39,13 @@ AEnemy::AEnemy()
 	ExclamationMarkComponent->SetHiddenInGame(false);
 	ExclamationMarkComponent->SetVisibility(false);
 
-	FireSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/SoundEffect/SoundCue/Explosion_01_Cue.Explosion_01_Cue"));
 	DoubtingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleA/SoundCue/voice_male_effort_grunt_02_Cue.voice_male_effort_grunt_02_Cue"));
 	DetectingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleC/SoundCue/voice_male_c_attack_01_Cue.voice_male_c_attack_01_Cue"));
-	
-	FireAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Fire Audio"));
-	FireAudioComponent->SetupAttachment(RootComponent);
-	FireAudioComponent->SetSound(FireSound);
 
 	DetectionAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Detection Audio"));
 	DetectionAudioComponent->SetupAttachment(RootComponent);
 
-
-
-	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rifle"));
-	WeaponMesh->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName("Rifle")));
-	WeaponMesh->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName("Rifle_Equip"));
-	WeaponMesh->SetCollisionProfileName("Weapon");
+	AIControllerClass = AEnemyController::StaticClass();
 }
 
 void AEnemy::BeginPlay()
@@ -79,32 +68,6 @@ void AEnemy::Tick(float DeltaTime)
 
 	auto HPComp = Cast<UHPBar>(HPWidget->GetWidget());
 	if(HPComp) HPComp->HP_ProgressBar->SetPercent(HP / 100.0f);
-}
-
-void AEnemy::Fire()
-{
-	FVector MuzzleLocation = GetMesh()->GetSocketLocation(TEXT("Rifle_Muzzle"));
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.Instigator = GetInstigator(); // instigator : spawn을 trigger한 주체
-		ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, FRotator(0, 0, 0), SpawnParams); // world에 actor를 스폰
-		if (Projectile)
-		{
-			FVector LaunchDirection = GetControlRotation().Vector();
-			Projectile->FireInDirection(LaunchDirection); // 발사체 velocity 결정
-
-			FireAudioComponent->Play();
-		}
-	}
-}
-
-void AEnemy::PlayDetectSound(bool isDoubt)
-{
-	isDoubt ? DetectionAudioComponent->SetSound(DoubtingSound) : DetectionAudioComponent->SetSound(DetectingSound);
-	DetectionAudioComponent->Play();
 }
 
 void AEnemy::OnHurt()
@@ -132,4 +95,10 @@ void AEnemy::OnDead()
 
 	FTimerHandle destroyhandle;
 	GetWorld()->GetTimerManager().SetTimer(destroyhandle, [this]() { this->Destroy(); }, 0.5f, false, 2.0f);
+}
+
+void AEnemy::PlayDetectSound(bool isDoubt)
+{
+	isDoubt ? DetectionAudioComponent->SetSound(DoubtingSound) : DetectionAudioComponent->SetSound(DetectingSound);
+	DetectionAudioComponent->Play();
 }

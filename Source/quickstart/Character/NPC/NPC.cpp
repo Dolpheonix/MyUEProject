@@ -166,6 +166,8 @@ void ANPC::OnDead()
 
 void ANPC::Interact()
 {
+	Player->bInteracting = true;
+
 	bInteracted = true;
 
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this, 1.0f);
@@ -184,6 +186,7 @@ void ANPC::UnInteract()
 
 	Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
 	Player->Notify();
+	Player->bInteracting = false;
 }
 
 void ANPC::OpenShop()

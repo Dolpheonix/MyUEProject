@@ -91,30 +91,3 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FActorMemory> DynamicActorMemory;
 };
-
-UCLASS()
-class QUICKSTART_API USaveSlots : public USaveGame
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditDefaultsOnly)
-	TArray<FString> SlotNames;
-};
-
-UCLASS()
-class QUICKSTART_API UGameSaver : public USaveGame
-{
-	GENERATED_BODY()
-	
-public:
-	UPROPERTY(EditDefaultsOnly)
-	int32 SlotIndex;
-
-	UPROPERTY(EditDefaultsOnly)
-	FCharacterMemory CharacterMemory;
-	UPROPERTY(EditDefaultsOnly)
-	TArray<FMapMemory> MapMemories;
-	UPROPERTY(EditDefaultsOnly)
-	TArray<FQuestStatus> QuestStatus;
-};

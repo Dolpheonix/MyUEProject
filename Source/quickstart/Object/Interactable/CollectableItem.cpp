@@ -29,9 +29,6 @@ ACollectableItem::ACollectableItem()
 void ACollectableItem::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Forward = GetActorForwardVector();
-	InteractPoint += MeshComponent->GetRelativeLocation();
 }
 
 void ACollectableItem::Tick(float DeltaTime)
@@ -121,5 +118,6 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 void ACollectableItem::Interact()
 {
 	Player->Register(ItemInfo);
+	Player->InteractionFlag--;
 	Destroy();
 }

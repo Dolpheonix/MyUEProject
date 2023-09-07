@@ -235,7 +235,7 @@ public:
 
 			FSingleQuest SQ;
 			SQ.Name = SubQuest->GetStringField(TEXT("Name"));
-			
+
 			FString TypeStr = SubQuest->GetStringField(TEXT("Type"));
 			if (TypeStr == "Arrival")
 			{
@@ -243,12 +243,14 @@ public:
 
 				TSharedPtr<FJsonObject> Q_Arrival = SubQuest->GetObjectField(TEXT("Q_Arrival"));
 
+				SQ.MapName = Q_Arrival->GetStringField(TEXT("Map"));
+
 				TArray<TSharedPtr<FJsonValue>> Destination = Q_Arrival->GetArrayField(TEXT("Destination"));
 				SQ.Destination.X = Destination[0]->AsNumber();
 				SQ.Destination.Y = Destination[1]->AsNumber();
 				SQ.Destination.Z = Destination[2]->AsNumber();
 
-				SQ.FXTemplate = Helpers::LoadObjectFromPath<UParticleSystem>(FName(Q_Arrival->GetStringField("FXTemplate")));
+				SQ.FXTemplate = Helpers::LoadObjectFromPath<UParticleSystem>(TEXT("/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_healAura.P_ky_healAura"));
 			}
 			else if (TypeStr == "Hunt")
 			{
@@ -870,6 +872,8 @@ public:
 				Amount.Add(MakeShareable(new FJsonValueNumber(SubQuestStatus[i].CurrAmount[j])));
 			}
 			SQS->SetArrayField(TEXT("CurrAmount"), Amount);
+
+			SQSS.Add(MakeShareable(new FJsonValueObject(SQS)));
 		}
 
 		return SQSS;

@@ -245,10 +245,13 @@ struct FSingleQuest
 	FString Name;
 
 	UPROPERTY(BlueprintReadWrite)
-	UParticleSystem* FXTemplate;
+	FString MapName;
 
 	UPROPERTY(BlueprintReadWrite)
 	FVector Destination;
+
+	UPROPERTY(BlueprintReadWrite)
+	UParticleSystem* FXTemplate = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FHuntingQuestForm> HuntingLists;

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
-#include "../Enemy.h"
+#include "../Sniper.h"
 #include "BTTask_Fire.generated.h"
 
 /**
@@ -32,6 +32,6 @@ public:
 
 	float MuzzlePoint;
 	AActor* TargetActor;
-	AEnemy* OwnerEnemy;
+	ASniper* OwnerSniper;
 	AAIController* Controller;
 };

@@ -26,7 +26,7 @@ public:
 
 	virtual void Interact() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mesh")
 	UStaticMeshComponent* MainMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")

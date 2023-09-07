@@ -4,7 +4,7 @@
 #include "BTTask_Fire.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
-#include "../EnemyController.h"
+#include "../SniperController.h"
 #include "AIController.h"
 #include "GameFramework/Character.h"
 
@@ -20,7 +20,7 @@ UBTTask_Fire::UBTTask_Fire()
 EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Controller = OwnerComp.GetAIOwner();
-	OwnerEnemy = Cast<AEnemy>(Controller->GetCharacter());
+	OwnerSniper = Cast<ASniper>(Controller->GetCharacter());
 
 	auto Blackboard = Controller->GetBlackboardComponent();
 	TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(Target.SelectedKeyName));
@@ -28,19 +28,19 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(Blackboard->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
 	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;
 
-	FVector dir = (TargetActor->GetActorLocation() - OwnerEnemy->GetActorLocation()).GetSafeNormal();
+	FVector dir = (TargetActor->GetActorLocation() - OwnerSniper->GetActorLocation()).GetSafeNormal();
 	FRotator rot = FRotationMatrix::MakeFromX(dir).Rotator();
 
-	OwnerEnemy->SetActorRotation(rot);
+	OwnerSniper->SetActorRotation(rot);
 
-	OwnerEnemy->Fire();
+	OwnerSniper->Fire();
 
 	return EBTNodeResult::InProgress;
 }
 
 void UBTTask_Fire::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	auto isEnded = !OwnerEnemy->GetMesh()->GetSingleNodeInstance()->IsPlaying();
+	auto isEnded = !OwnerSniper->GetMesh()->GetSingleNodeInstance()->IsPlaying();
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(Controller->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
 	if (isEnded || Mode != EEnemyDetectionMode::DETECTED)
 	{

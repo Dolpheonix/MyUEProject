@@ -21,7 +21,7 @@ void ALever::BeginPlay()
 	Super::BeginPlay();
 
 	LeverBody->SetRelativeRotation(FRotator(40.0f, 0.0f, 0.0f));
-	Forward = GetActorForwardVector();
+	InteractForward = GetActorForwardVector();
 }
 
 void ALever::Tick(float DeltaTime)

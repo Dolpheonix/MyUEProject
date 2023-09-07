@@ -18,7 +18,7 @@ void ALadder::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Forward = GetActorRightVector();
+	InteractForward = GetActorRightVector();
 
 	Left = GetActorForwardVector();
 
@@ -45,14 +45,14 @@ void ALadder::Tick(float DeltaTime)
 void ALadder::Interact()
 {
 	FVector middlePoint = GetActorLocation() - 0.5f * Width * Left + FVector(0.0f, 0.0f, 88.0f);
-	FVector forcePoint = middlePoint + 30.0f * Forward;
+	FVector forcePoint = middlePoint + 30.0f * InteractForward;
 	FVector Look = middlePoint - forcePoint;
 	Look.Normalize();
 	float YawDeg = UKismetMathLibrary::Acos(FVector::DotProduct(Look, Player->GetActorForwardVector()));
 	float Yaw = UKismetMathLibrary::RadiansToDegrees(YawDeg);
 
 	Player->SetActorLocation(forcePoint);
-	Player->GetController()->SetControlRotation(UKismetMathLibrary::MakeRotFromX(-Forward));
+	Player->GetController()->SetControlRotation(UKismetMathLibrary::MakeRotFromX(-InteractForward));
 
 	Player->LadderInfo.onLadder = true;
 	Player->LadderInfo.Slope = Slope;

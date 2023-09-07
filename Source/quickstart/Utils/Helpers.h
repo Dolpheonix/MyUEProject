@@ -1,9 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/StaticMeshComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Structs.h"
+#include "NPCUtil.h"
 #include "../Data/DataTables.h"
 #include "UObject/Object.h"
 
@@ -119,6 +118,10 @@ public:
 			shortform.Price = itemlist[i].Price;
 			saver.Add(shortform);
 		}
+	}
+	static void RECOMPILE()
+	{
+
 	}
 };
 /*

@@ -80,6 +80,41 @@ void AMainCharacter::BeginPlay()
 		GI->ApplyCharacterMemory(this);
 		LoadItemThumbnailAndMesh();
 	}
+	else
+	{
+		FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
+		FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
+		FItemForm nocloth = FItemForm(FItemShortForm(ETypeTag::Cloth, "NoCloth"));
+		fist.ShortForm.InfoTag = "Fist";
+		fist.ShortForm.Code = 0;
+		fist.ShortForm.bIsSellable = false;
+		noitem.ShortForm.InfoTag = " NoItem";
+		noitem.ShortForm.bIsSellable = false;
+		nocloth.ShortForm.InfoTag = "NoCloth";
+		nocloth.ShortForm.bIsSellable = false;
+
+		fist.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
+		fist.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
+		fist.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
+		noitem.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoItem_Normal.NoItem_Normal"));
+		noitem.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoItem_Hovered.NoItem_Hovered"));
+		noitem.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoItem_Selected.NoItem_Selected"));
+		nocloth.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoCloth_Normal.NoCloth_Normal"));
+		nocloth.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoCloth_Hovered.NoCloth_Hovered"));
+		nocloth.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoCloth_Selected.NoCloth_Selected"));
+
+		Inventory.Add(FWrappedItemForm()); // Weapons
+		Inventory.Add(FWrappedItemForm()); // Items
+		Inventory.Add(FWrappedItemForm()); // Clothes
+		Inventory[uint8(ETypeTag::Weapon)].ItemForms.Add(fist);
+		Inventory[uint8(ETypeTag::Item)].ItemForms.Add(noitem);
+		Inventory[uint8(ETypeTag::Cloth)].ItemForms.Add(nocloth);
+
+		Quickslots_Before = TArray<int>({ 0,0,0 });
+		Quickslots_Now = TArray<int>({ 0,0,0 });
+		Quickslots_Next = TArray<int>({ 0,0,0 });
+		LoadItemThumbnailAndMesh();
+	}
 
 	Cast<UMainWidget>(GameMode->MainUI)->RefreshHPBar();
 	Cast<UMainWidget>(GameMode->MainUI)->RefreshQuickslot();
@@ -122,6 +157,17 @@ void AMainCharacter::Tick(float DeltaTime)
 			bHurt = false;
 			EnableInput(UGameplayStatics::GetPlayerController(this, 0));
 		}
+	}
+
+	if (!bInteracting && InteractionFlag > 0)
+	{
+		Cast<UMainWidget>(GameMode->MainUI)->NotifyInteractImage->SetVisibility(ESlateVisibility::Visible);
+		Cast<UMainWidget>(GameMode->MainUI)->NotifyInteractTextBlock->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Cast<UMainWidget>(GameMode->MainUI)->NotifyInteractImage->SetVisibility(ESlateVisibility::Hidden);
+		Cast<UMainWidget>(GameMode->MainUI)->NotifyInteractTextBlock->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	// Attack Phase
@@ -469,6 +515,10 @@ void AMainCharacter::Use()
 		else if (Curr == "Apple")
 		{
 			ThrowApple();
+		}
+		else if (Curr == "Seed")
+		{
+			ThrowSeed();
 		}
 	}
 }

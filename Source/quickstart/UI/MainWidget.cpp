@@ -17,6 +17,8 @@ void UMainWidget::NativePreConstruct()
 		QuickslotImage_Weapon.Add(Cast<UImage>(GetWidgetFromName("Weapon_Next")));
 		QuickslotImage_Item.Add(Cast<UImage>(GetWidgetFromName("Item_Curr")));
 		QuickslotImage_Item.Add(Cast<UImage>(GetWidgetFromName("Item_Next")));
+		NotifyInteractImage = Cast<UImage>(GetWidgetFromName("NotifyInteract"));
+		NotifyInteractTextBlock = Cast<UTextBlock>(GetWidgetFromName("NotifyInteractText"));
 
 		Bounded = true;
 	}
@@ -32,6 +34,8 @@ void UMainWidget::NativeConstruct()
 	check(QuickslotImage_Item[1])
 	check(QuickslotImage_Weapon[0])
 	check(QuickslotImage_Weapon[1])
+	check(NotifyInteractImage)
+	check(NotifyInteractTextBlock)
 }
 
 void UMainWidget::RefreshHPBar()

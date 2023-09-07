@@ -10,7 +10,6 @@
 #include "Components/BillboardComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
-#include "../../Object/Item/Bullet.h"
 #include "../../UI/HPBar.h"
 #include "Enemy.generated.h"
 
@@ -41,24 +40,18 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	void Fire();
-
-	UFUNCTION()
-	void PlayDetectSound(bool isDoubt);
-
 	virtual void OnHurt() override;
 
 	virtual void OnDead() override;
 
+	UFUNCTION()
+	void PlayDetectSound(bool isDoubt);
 public:
 
 	UPROPERTY(BlueprintReadWrite)
 	AAIController* AIController;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	UWidgetComponent* HPWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ClassSelection")
 	TSubclassOf<UHPBar> HPWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Billboard")
@@ -66,16 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Billboard")
 	UBillboardComponent* ExclamationMarkComponent;
 
-	UAudioComponent* FireAudioComponent;
+	UWidgetComponent* HPWidget;
 	UAudioComponent* DetectionAudioComponent;
-	USoundCue* FireSound;
 	USoundCue* DoubtingSound;
 	USoundCue* DetectingSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
-	TSubclassOf<ABullet> ProjectileClass;
-	UPROPERTY(BlueprintReadWrite)
-	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Perception")
 	float SightRadius = 1500.0f;

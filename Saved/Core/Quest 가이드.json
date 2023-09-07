@@ -2,11 +2,11 @@
   "Quests": [
     {
       "Index": -1,
-      "Name": "Quest ÀÌ¸§",
-      "Explanation": "Quest Ã¢¿¡ ³ªÅ¸³¯ ¼³¸í",
+      "Name": "Quest ï¿½Ì¸ï¿½",
+      "Explanation": "Quest Ã¢ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½",
       "Type": "Serial || Parallel",
-      "Instigator": "Instigator NPCÀÇ Display Name",
-      "Ender": "Ender NPCÀÇ Display Name",
+      "Instigator": "Instigator NPCï¿½ï¿½ Display Name",
+      "Ender": "Ender NPCï¿½ï¿½ Display Name",
       "Rewards": [
         {
           "Type": "EXP || Item || Money",
@@ -14,7 +14,7 @@
           "Money": -1,
           "Item": {
             "Type": "Cloth || Weapon || Item",
-            "Name": "Item ÀÌ¸§",
+            "Name": "Item ï¿½Ì¸ï¿½",
             "Code": -1,
             "Num": -1,
             "Sellable": true
@@ -23,16 +23,16 @@
       ],
       "SubQuests": [
         {
-          "Name": "SubQuest ÀÌ¸§",
+          "Name": "SubQuest ï¿½Ì¸ï¿½",
           "Type": "Arrival || Hunt || Item || Action",
           "Q_Arrival": {
             "Destination": [ -1, -1, -1 ],
-            "FXTemplate": "Indicator volumeÀÇ FX ¼Ò½º¿¡¼Â °æ·Î"
+            "FXTemplate": "Indicator volumeï¿½ï¿½ FX ï¿½Ò½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½"
           },
           "Q_Hunt": {
             "List": [
               {
-                "Huntee": "Hunt ´ë»óÀÇ class ÀÌ¸§",
+                "Huntee": "Hunt ï¿½ï¿½ï¿½ï¿½ï¿½ class ï¿½Ì¸ï¿½",
                 "Amount": -1
               }
             ]
@@ -47,7 +47,7 @@
           },
           "Q_Action": {
             "Code": -1,
-            "Info": "Action quest¿¡ ´ëÇÑ ¼³¸í"
+            "Info": "Action questï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"
           }
         }
       ],

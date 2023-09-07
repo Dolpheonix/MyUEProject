@@ -11,7 +11,6 @@
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../Character_Root.h"
-#include "../../Utils/Helpers.h"
 
 AEnemyController::AEnemyController()
 {
@@ -28,9 +27,6 @@ AEnemyController::AEnemyController()
 	PlayerKeyName = FName(TEXT("Player"));
 	OriginLocationKeyName = FName(TEXT("OriginLocation"));
 	HurtKeyName = FName(TEXT("Hurt"));
-
-	BT = Helpers::C_LoadObjectFromPath<UBehaviorTree>(TEXT("/Game/ShootingGame/Character/Enemy/Enemy_BT.Enemy_BT"));
-	BB = Helpers::C_LoadObjectFromPath<UBlackboardData>(TEXT("/Game/ShootingGame/Character/Enemy/Enemy_BB.Enemy_BB"));
 
 	SetGenericTeamId(FGenericTeamId(2));
 }
@@ -72,8 +68,7 @@ void AEnemyController::Tick(float DeltaTime)
 
 void AEnemyController::OnTargetPerceptionUpdate(AActor* SourceActor, FAIStimulus Stimulus)
 {
-	AActor* player = UGameplayStatics::GetPlayerPawn(this, 0);
-	if (SourceActor == player)
+	if (SourceActor == MainPlayer)
 	{
 		EEnemyDetectionMode currDetection = EEnemyDetectionMode(GetBlackboardComponent()->GetValueAsEnum("DetectionMode"));
 		if (Stimulus.WasSuccessfullySensed())

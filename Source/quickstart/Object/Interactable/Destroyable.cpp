@@ -13,8 +13,6 @@ ADestroyable::ADestroyable()
 void ADestroyable::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Forward = GetActorForwardVector();
 }
 
 void ADestroyable::Tick(float DeltaTime)

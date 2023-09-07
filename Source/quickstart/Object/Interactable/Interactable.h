@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "../../Character/Main/MainCharacter.h"
 #include "../../Interface/InteractionInterface.h"
+#include "Blueprint/UserWidget.h"
 #include "Interactable.generated.h"
 
 UCLASS(Abstract)
@@ -23,16 +24,29 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 protected:
 	AMainCharacter* Player;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interact")
 	FVector InteractPoint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	FVector InteractForward;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interact")
+	float InteractRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	float InteractRange;
 
-	// Look vector of Interaction point
-	FVector Forward;
+	UArrowComponent* InteractionForwardArrow;
+	UArrowComponent* InteractionRangeArrow_R;
+	UArrowComponent* InteractionRangeArrow_L;
+
+	UUserWidget* NotifyPopup;
 
 	bool bInteractable = false;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bActive = true;
 	bool bWait = false;
 };

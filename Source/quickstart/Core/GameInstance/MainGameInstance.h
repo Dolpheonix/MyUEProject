@@ -40,7 +40,8 @@ public:
 	void LoadNPC(UWorld* world);
 	UFUNCTION()
 	void LoadItems(UWorld* world);
-
+	UFUNCTION()
+	void LoadObjects(UWorld* world);
 	void Start();
 
 	int32 AllocateSlotIndex();

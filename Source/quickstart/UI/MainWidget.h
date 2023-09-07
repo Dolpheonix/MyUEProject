@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "../Utils/Structs.h"
 #include "MainWidget.generated.h"
 
@@ -32,4 +33,7 @@ public:
 	UImage* MinimapImage;
 	TArray<UImage*> QuickslotImage_Weapon;
 	TArray<UImage*> QuickslotImage_Item;
+	UImage* NotifyInteractImage;
+	UTextBlock* NotifyInteractTextBlock;
+
 };

@@ -119,6 +119,8 @@ public:
 	void NoItem();
 	UFUNCTION()
 	void ThrowApple();
+	UFUNCTION()
+	void ThrowSeed();
 
 // Attack Functions
 	UFUNCTION()
@@ -198,6 +200,10 @@ public:
 	bool bAttackBlocked = false;
 	UPROPERTY(BlueprintReadWrite)
 	bool bHurt = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bInteracting = false;
+	UPROPERTY(BlueprintReadWrite)
+	int32 InteractionFlag = 0;
 
 private:
 	UPROPERTY()

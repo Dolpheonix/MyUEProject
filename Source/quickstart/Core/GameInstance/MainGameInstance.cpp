@@ -21,7 +21,15 @@ void UMainGameInstance::Init()
 	{
 		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadNPC);
 		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadItems);
+		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadObjects);
 		JsonLoader::LoadQuests(Quests);
+		for (int i = 0; i < Quests.Num(); i++)
+		{
+			for (int j = 0; j < Quests[i].SubQuests.Num(); j++)
+			{
+				Quests[i].SubQuests[j].Owner = &Quests[i];
+			}
+		}
 		bApplyBound = true;
 	}
 }
@@ -248,6 +256,7 @@ TArray<FQuestStatus> UMainGameInstance::SaveQuestStatus()
 			SQS.CurrAmount = SingleQuest->currAmounts;
 
 			QS.SubStatus.Add(SQS);
+			UE_LOG(LogTemp, Log, TEXT("Added!"));
 		}
 
 		QSS.Add(QS);
@@ -486,6 +495,25 @@ void UMainGameInstance::LoadItems(UWorld* world)
 				{
 					(*FoundPtr)->Destroy();
 				}
+			}
+		}
+	}
+}
+
+void UMainGameInstance::LoadObjects(UWorld* world)
+{
+	//UGameplayStatics::GetCurrentLevelName(GetWorld());
+
+	AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+	if (Player)
+	{
+		for (int i = 0; i < Player->QuestList.ArrivalQuests.Num(); i++)
+		{
+			FSingleQuest* sq = Player->QuestList.ArrivalQuests[i];
+			if (sq && sq->MapName == CurrentMapMemory->Name && !sq->Completed)
+			{
+				Player->RegisterDestinationFlagVolume(sq);
 			}
 		}
 	}

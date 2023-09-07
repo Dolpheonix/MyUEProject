@@ -45,7 +45,7 @@ void AElevator::BeginPlay()
 	Super::BeginPlay();
 
 	InteractPoint += ElevatorExternalSwitch->GetRelativeLocation();
-	Forward = -ElevatorExternalSwitch->GetForwardVector();
+	InteractForward = -ElevatorExternalSwitch->GetForwardVector();
 
 	HeightStamp = GetActorLocation().Z;
 }
@@ -61,13 +61,13 @@ void AElevator::Tick(float DeltaTime)
 	{
 		bInside = true;
 		InteractPoint = GetActorLocation() + ElevatorInternalSwitch->GetRelativeLocation();
-		Forward = -Forward;
+		InteractForward = -InteractForward;
 	}
 	else if(bInside && playerLocal.Y < -10.0f)
 	{
 		bInside = false;
 		InteractPoint = GetActorLocation() + ElevatorExternalSwitch->GetRelativeLocation();
-		Forward = -Forward;
+		InteractForward = -InteractForward;
 	}
 
 	if (bElevating)
