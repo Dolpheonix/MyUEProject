@@ -29,15 +29,11 @@ AEnemy::AEnemy()
 	Helpers::SetComponent<UBillboardComponent>(&QuestionMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f ,0.04f, 0.04f));
 	UTexture2D* QuestionMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/InGameImage/QuestionMark.QuestionMark"));
 	QuestionMarkComponent->SetSprite(QuestionMark);
-	QuestionMarkComponent->SetHiddenInGame(false);
-	QuestionMarkComponent->SetVisibility(false);
 
 	ExclamationMarkComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("Exclamation Mark"));
 	Helpers::SetComponent<UBillboardComponent>(&ExclamationMarkComponent, RootComponent, FVector(0.0f, -35.0f, 100.0f), FRotator::ZeroRotator, FVector(0.04f, 0.04f, 0.04f));
 	UTexture2D* ExclamationMark = Helpers::C_LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/InGameImage/ExclamationMark.ExclamationMark"));
 	ExclamationMarkComponent->SetSprite(ExclamationMark);
-	ExclamationMarkComponent->SetHiddenInGame(false);
-	ExclamationMarkComponent->SetVisibility(false);
 
 	DoubtingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleA/SoundCue/voice_male_effort_grunt_02_Cue.voice_male_effort_grunt_02_Cue"));
 	DetectingSound = Helpers::C_LoadObjectFromPath<USoundCue>(TEXT("/Game/ShootingGame/Audio/Voice/HumanMaleC/SoundCue/voice_male_c_attack_01_Cue.voice_male_c_attack_01_Cue"));
@@ -60,6 +56,12 @@ void AEnemy::BeginPlay()
 	}
 	HPWidget->SetWidgetClass(HPWidgetClass);
 	HPWidget->SetDrawSize(FVector2D(100.0f, 10.0f));
+
+	QuestionMarkComponent->SetHiddenInGame(false);
+	QuestionMarkComponent->SetVisibility(false);
+
+	ExclamationMarkComponent->SetHiddenInGame(false);
+	ExclamationMarkComponent->SetVisibility(false);
 }
 
 void AEnemy::Tick(float DeltaTime)

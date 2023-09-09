@@ -58,8 +58,9 @@ public:
 	UBillboardComponent* QuestionMarkComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Billboard")
 	UBillboardComponent* ExclamationMarkComponent;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Billboard")
 	UWidgetComponent* HPWidget;
+
 	UAudioComponent* DetectionAudioComponent;
 	USoundCue* DoubtingSound;
 	USoundCue* DetectingSound;

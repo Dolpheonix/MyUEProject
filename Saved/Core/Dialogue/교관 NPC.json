@@ -1,0 +1,42 @@
+{
+  "Dialogues": [
+    {
+      "Index": 0,
+      "Speaker": "교관 NPC",
+      "Text": "퀘스트 : 교관 NPC 찾기",
+      "Responses": [
+        {
+          "Response": "확인인",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 2,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 1,
+      "Speaker": "교관 NPC",
+      "Text": "그럼 첫번째 임무를 드리겠습니다.",
+      "Responses": [
+        {
+          "Response": "확인",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
