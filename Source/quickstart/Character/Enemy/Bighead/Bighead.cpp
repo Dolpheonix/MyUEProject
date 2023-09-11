@@ -26,6 +26,8 @@ ABighead::ABighead()
 	BumpAuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_explosion.P_ky_explosion")));
 
 	AIControllerClass = ABigheadController::StaticClass();
+
+	Labels.Add("Bighead");
 }
 
 void ABighead::BeginPlay()

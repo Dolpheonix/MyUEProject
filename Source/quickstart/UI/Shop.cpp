@@ -233,7 +233,7 @@ void UShop::InitShop(ANPC* Interacted)
 	SelectedItem = nullptr;
 	CurrIndex = -1;
 
-	ShopNameText->SetText(FText::FromString(InteractedNPC->DisplayName + "의 상점"));
+	ShopNameText->SetText(FText::FromString(InteractedNPC->DisplayName + TEXT("의 상점")));
 
 	InitShopSlots();
 	InitCharacterSlots();
@@ -379,7 +379,7 @@ void UShop::SelectBuyItem(int index, ETypeTag type)
 
 	CurrNum = 1;
 	RefreshIncDec();
-	BuySellText->SetText(FText::FromString("구매"));
+	BuySellText->SetText(FText::FromString(TEXT("구매")));
 }
 
 // 캐릭터 슬롯을 눌렀을 때 호출
@@ -402,7 +402,7 @@ void UShop::SelectSellItem(int index, ETypeTag type)
 
 	CurrNum = 1;
 	RefreshIncDec();
-	BuySellText->SetText(FText::FromString("판매"));
+	BuySellText->SetText(FText::FromString(TEXT("판매")));
 }
 
 // 구매/판매 버튼을 눌렀을 때 호출
@@ -633,7 +633,7 @@ void UShop::RefreshIncDec()
 
 	NumText->SetText(FText::FromString(FString::FromInt(CurrNum)));
 	PriceText->SetText(FText::FromString(FString::FromInt(CurrPrice)));
-	WalletText->SetText(FText::FromString("보유 : " + FString::FromInt(MainCharacter->CurrMoney)));
+	WalletText->SetText(FText::FromString(TEXT("보유 : ") + FString::FromInt(MainCharacter->CurrMoney)));
 }
 
 void UShop::RefreshShopSlots(int changed)

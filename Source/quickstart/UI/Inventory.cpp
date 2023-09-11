@@ -214,7 +214,7 @@ void UInventory::RefreshSlots()
 			ItemNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		CurrMoneyText->SetText(FText::FromString("보유 : " + FString::FromInt(Player->CurrMoney)));
+		CurrMoneyText->SetText(FText::FromString(TEXT("보유 : ") + FString::FromInt(Player->CurrMoney)));
 	}
 }
 

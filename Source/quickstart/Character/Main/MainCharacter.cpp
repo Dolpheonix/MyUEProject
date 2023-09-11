@@ -823,11 +823,17 @@ void AMainCharacter::OnDead()
 		}, 0.5f, false, 2.0f);
 }
 
-void AMainCharacter::ReportKill(TSubclassOf<AActor> killclass)
+void AMainCharacter::ReportKill(TArray<FString> labels)
 {
 	for (int i = 0; i < QuestList.HuntingQuests.Num(); i++)
 	{
-		int idx = QuestList.HuntingQuests[i]->HuntingLists.IndexOfByPredicate([killclass](const FHuntingQuestForm& item) {return killclass == item.Huntee; });
+		int idx = QuestList.HuntingQuests[i]->HuntingLists.IndexOfByPredicate([labels](const FHuntingQuestForm& item) {
+			for (auto label : labels)
+			{
+				if (label == item.Huntee) return true;
+			}
+			return false;
+			});
 
 		if (idx >= 0)
 		{

@@ -73,4 +73,7 @@ public:
 	float PeripheralVisionAngleDegrees = 60.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Perception")
 	FAISenseAffiliationFilter DetectionByAffiliation = FAISenseAffiliationFilter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Label")
+	TArray<FString> Labels;
 };

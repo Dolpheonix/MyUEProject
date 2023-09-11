@@ -22,6 +22,8 @@ ASniper::ASniper()
 	WeaponMesh->AttachToComponent(GetMesh(), { EAttachmentRule::SnapToTarget, true }, FName("Rifle_Equip"));
 
 	AIControllerClass = ASniperController::StaticClass();
+
+	Labels.Add("Sniper");
 }
 
 void ASniper::BeginPlay()

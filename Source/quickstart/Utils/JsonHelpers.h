@@ -264,8 +264,7 @@ public:
 					TSharedPtr<FJsonObject> HuntForm = HuntingList[j]->AsObject();
 
 					FHuntingQuestForm HQ;
-					UClass* HunteeClass = FindObject<UClass>(ANY_PACKAGE, *HuntForm->GetStringField(TEXT("Huntee")));
-					HQ.Huntee = HunteeClass->StaticClass();
+					HQ.Huntee = HuntForm->GetStringField(TEXT("Huntee"));
 					HQ.HuntAmount = HuntForm->GetIntegerField(TEXT("Amount"));
 
 					SQ.HuntingLists.Add(HQ);

@@ -42,6 +42,8 @@ AEnemy::AEnemy()
 	DetectionAudioComponent->SetupAttachment(RootComponent);
 
 	AIControllerClass = AEnemyController::StaticClass();
+
+	Labels.Add("Enemy");
 }
 
 void AEnemy::BeginPlay()
@@ -92,7 +94,7 @@ void AEnemy::OnDead()
 
 	if (player)
 	{
-		player->ReportKill(StaticClass());
+		player->ReportKill(Labels);
 	}
 
 	FTimerHandle destroyhandle;

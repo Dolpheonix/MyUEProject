@@ -348,12 +348,13 @@ void UMainGameInstance::LoadLevel(FString MapName, bool isStart)
 	{
 		SaveCharacterMemory(Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)));
 		SaveToFile();
+		CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -1.0f);
 	}
 
 	if (MapName != "Intro_Empty")
 	{
 		CharacterMemory.CurrentMap = MapName;
-
+		
 		CurrentMapMemory = MapMemories.FindByPredicate([MapName](const FMapMemory MM) {
 			return MM.Name == MapName;
 			});

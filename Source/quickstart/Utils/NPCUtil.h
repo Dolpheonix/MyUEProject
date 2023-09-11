@@ -197,7 +197,7 @@ struct FHuntingQuestForm
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> Huntee;
+	FString Huntee;
 	UPROPERTY(EditAnywhere)
 	int HuntAmount;
 };

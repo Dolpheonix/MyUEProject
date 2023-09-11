@@ -172,7 +172,7 @@ public:
 	virtual void OnDead() override;
 
 // Quest checker
-	void ReportKill(TSubclassOf<AActor> killclass);
+	void ReportKill(TArray<FString> labels);
 	void ReportItem(FString itemname, int num);
 	void ReportArrival(FSingleQuest* quest);
 	ABeacon* RegisterDestinationFlagVolume(FSingleQuest* quest);

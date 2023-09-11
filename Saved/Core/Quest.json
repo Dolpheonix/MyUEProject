@@ -495,7 +495,47 @@
             ]
           }
         ],
-        "Finished": []
+        "Finished": [
+          {
+            "Index": 0,
+            "Speaker": "교관 NPC",
+            "Text": "하하, 놀라셨나요?",
+            "Responses": [
+              {
+                "Response": "...",
+                "IsEnd": false,
+                "Next": 1,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 1,
+            "Speaker": "교관 NPC",
+            "Text": "방금처럼 물이나, 구덩이 속으로 빠지게 되면 자동으로 이곳으로 이동하게 됩니다.",
+            "Responses": [
+              {
+                "Response": "그렇군요",
+                "IsEnd": false,
+                "Next": 2,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 2,
+            "Speaker": "교관 NPC",
+            "Text": "여하튼, 전투의 기본 방식까지 알게 되셨으니, 본격적인 게임 속으로 보내드려야겠군요",
+            "Responses": [
+              {
+                "Response": "...",
+                "IsEnd": true,
+                "Next": 3,
+                "Events": []
+              }
+            ]
+          }
+        ]
       }
     }
   ]

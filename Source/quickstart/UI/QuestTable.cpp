@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #define MAXCHAR_PER_LINE 25
 #define MAXQUEST 20
 
@@ -165,20 +165,23 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 	switch (subquest->Type)
 	{
 	case ESingleQuestType::Arrival:
-		str += "\n";
+		str += TEXT("빛나는 곳으로 이동");
+		if (subquest->Completed) str += TEXT("	(완료)");
 		break;
 	case ESingleQuestType::Hunt:
 	{
+		str += TEXT("해당 적을 처치");
+		if (subquest->Completed) str += TEXT("	(완료)");
 		str += "\n";
 		for (int i = 0; i < subquest->HuntingLists.Num(); i++)
 		{
 			FString oneline;
 			oneline += "\t";
-			oneline += subquest->HuntingLists[i].Huntee->GetName();
+			oneline += subquest->HuntingLists[i].Huntee;
 			oneline += "   ";
-			oneline += "(" + FString::FromInt(subquest->currAmounts[i]);
+			oneline += FString::FromInt(subquest->currAmounts[i]);
 			oneline += "/" + FString::FromInt(subquest->HuntingLists[i].HuntAmount);
-			oneline += ")";
+
 			str += oneline;
 			str += "\n";
 		}
@@ -186,6 +189,8 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 	}
 	case ESingleQuestType::Item:
 	{
+		str += TEXT("해당 아이템을 수집");
+		if (subquest->Completed) str += TEXT("	(완료)");
 		str += "\n";
 		for (int i = 0; i < subquest->ItemLists.Num(); i++)
 		{
@@ -193,16 +198,17 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 			oneline += "\t";
 			oneline += subquest->ItemLists[i].ItemName;
 			oneline += "   ";
-			oneline += "(" + FString::FromInt(subquest->currAmounts[i]);
+			oneline += FString::FromInt(subquest->currAmounts[i]);
 			oneline += "/" + FString::FromInt(subquest->ItemLists[i].ItemAmount);
-			oneline += ")";
+			
 			str += oneline;
 			str += "\n";
 		}
 		break;
 	}
 	case ESingleQuestType::Action:
-		str += "\n";
+		str += subquest->ActionInfo;
+		if (subquest->Completed) str += TEXT("	(완료)");
 		break;
 	default:
 		break;
