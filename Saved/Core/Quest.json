@@ -1,9 +1,4 @@
 {
-  "_comment0": "Quest 데이터를 기록하는 json 파일입니다. 이 파일을 Game Instance가 파싱해 Quest object를 생성합니다",
-  "_comment1": "Quests ==> Name, Explanation, Type, Instigator, Ender, Reward, SubQuests, Dialogues",
-  "_comment2": "SubQuests ==> Name, Type, Q_Destination(Destination, FXTemplate), Q_Hunt(Huntee, Amount), Q_Item, Q_Action",
-  "_comment3": "Rewards ==> Type, EXP, Money, Item",
-  "_comment4": "Dialogues ==> ",
   "Quests": [
     {
       "Index": 0,
@@ -248,11 +243,13 @@
           "Name": "다음 맵으로 이동하기",
           "Type": "Action",
           "Q_Action": {
-            "Code": 1
+            "Code": 1,
+            "Info": "다음 맵으로 이동해, 교관 NPC에게 말걸기"
           }
         }
       ],
       "Dialogues": {
+        "UnAvailable": [],
         "Available": [
           {
             "Index": 0,
@@ -356,30 +353,32 @@
       "Rewards": [],
       "SubQuests": [
         {
-          "Name": "Bighead 3마리 처치",
+          "Name": "몹 처치",
           "Type": "Hunt",
           "Q_Hunt": {
-            "Huntee": "Bighead",
-            "Amount": 3
-          }
-        },
-        {
-          "Name": "Sniper 처치",
-          "Type": "Hunt",
-          "Q_Hunt": {
-            "Huntee": "Sniper",
-            "Amount": 1
+            "List": [
+              {
+                "Huntee": "Bighead",
+                "Amount": 3
+              },
+              {
+                "Huntee": "Sniper",
+                "Amount": 1
+              }
+            ]
           }
         },
         {
           "Name": "레버 내리기",
           "Type": "Action",
           "Q_Action": {
-            "Code": 2
+            "Code": 2,
+            "Info": "레버 내리기"
           }
         }
       ],
       "Dialogues": {
+        "Unavailable": [],
         "Available": [
           {
             "Index": 0,
@@ -458,7 +457,7 @@
                 "Events": []
               }
             ]
-          }
+          },
           {
             "Index": 6,
             "Speaker": "교관 NPC",

@@ -36,7 +36,7 @@
     {
       "Index": 1,
       "Speaker": "교관 NPC",
-      "Text": "그럼 임무를 드리겠습니다.",
+      "Text": "그럼 임무를 드리겠습니다",
       "Responses": [
         {
           "Response": "네",
@@ -46,6 +46,39 @@
             {
               "Type": "OpenQuest",
               "QuestIndex": 3,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 2,
+      "Speaker": "교관 NPC",
+      "Text": "대화하기",
+      "Responses": [
+        {
+          "Response": "퀘스트 : 맵 돌파!",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenQuest",
+              "QuestIndex": 3,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        },
+        {
+          "Response": "상점",
+          "IsEnd": false,
+          "Next": 1,
+          "Events": [
+            {
+              "Type": "OpenShop",
+              "QuestIndex": -1,
               "ItemIndex": -1,
               "NextPhase": -1
             }

@@ -125,7 +125,7 @@ void UDialogueBox::OnPressed_EndLine(int index)
 					}
 					else
 					{
-						UE_LOG(LogTemp, Fatal, TEXT("NONONONONOO"));
+						UE_LOG(LogTemp, Fatal, TEXT("%d %d"), QuestIndex, GI->Quests.Num());
 					}
 				}
 				else
