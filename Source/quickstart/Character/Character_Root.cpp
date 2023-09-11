@@ -23,7 +23,7 @@ void ACharacter_Root::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HP < 0 && !bDead)
+	if (HP <= 0 && !bDead)
 	{
 		bDead = true;
 		OnDead();

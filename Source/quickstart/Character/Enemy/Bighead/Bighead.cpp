@@ -1,7 +1,7 @@
 #include "Bighead.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
-#include "../../Character_Root.h"
+#include "../../Main/MainCharacter.h"
 #include "../../../Utils/Helpers.h"
 
 ABighead::ABighead()
@@ -10,17 +10,31 @@ ABighead::ABighead()
 
 	auto MainMesh = GetMesh();
 	MainMesh->SetSkeletalMesh(Helpers::C_LoadObjectFromPath<USkeletalMesh>(TEXT("/Game/ShootingGame/Character/Enemy/Bighead/Mesh/SK_Bighead.SK_Bighead")));
-	Helpers::SetComponent<USkeletalMeshComponent>(&MainMesh, RootComponent, FVector::ZeroVector, FRotator::ZeroRotator);
+	Helpers::SetComponent<USkeletalMeshComponent>(&MainMesh, RootComponent, FVector::ZeroVector, FRotator(0.0f, -90.0f, 0.0f));
 
 	auto Capsule = GetCapsuleComponent();
-	Capsule->OnComponentHit.AddDynamic(this, &ABighead::OnHit);
+	Capsule->SetCapsuleHalfHeight(140.0f);
+	Capsule->SetCapsuleRadius(140.0f);
+
+	QuestionMarkComponent->SetRelativeLocation(FVector(115.0f, 0.0f, 115.0f));
+	ExclamationMarkComponent->SetRelativeLocation(FVector(115.0f, 0.0f, 115.0f));
+	HPWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+
+	BumpAuraComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Aura"));
+	BumpAuraComponent->SetupAttachment(RootComponent);
+	BumpAuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_healAura.P_ky_healAura")));
 }
 
-void ABighead::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void ABighead::BeginPlay()
 {
-	auto Hittee = Cast<ACharacter_Root>(OtherActor);
-	if (Hittee)
+	Super::BeginPlay();
+	BumpAuraComponent->Deactivate();
+}
+
+void ABighead::Bump(AActor* hittee)
+{
+	if (hittee)
 	{
-		UGameplayStatics::ApplyDamage(Hittee, BumpDamage, nullptr, this, NULL);
+		UGameplayStatics::ApplyDamage(hittee, BumpDamage, nullptr, this, NULL);
 	}
 }

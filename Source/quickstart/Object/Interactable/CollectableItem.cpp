@@ -19,7 +19,6 @@ ACollectableItem::ACollectableItem()
 	AuraComponent->SetupAttachment(RootComponent);
 	AuraComponent->SetTemplate(Helpers::C_LoadObjectFromPath<UParticleSystem>(TEXT("/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_healAura.P_ky_healAura")));
 	AuraComponent->SetRelativeScale3D(FVector(0.6f, 0.6f, 0.6f));
-	AuraComponent->Deactivate();
 
 	ClothTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"));
 	WeaponTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"));
@@ -29,6 +28,8 @@ ACollectableItem::ACollectableItem()
 void ACollectableItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AuraComponent->Deactivate();
 }
 
 void ACollectableItem::Tick(float DeltaTime)

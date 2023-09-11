@@ -6,7 +6,7 @@
   "_comment4": "Dialogues ==> ",
   "Quests": [
     {
-      "Index":  0,
+      "Index": 0,
       "Name": "인벤토리 열기",
       "Explanation": "첫 퀘스트입니다. I 키를 눌러 인벤토리를 연 후, NPC가 넣어둔 아이템을 확인해주세요",
       "Type": "Serial",
@@ -32,7 +32,11 @@
           "Type": "Action",
           "Q_Arrival": {
             "Map": "Tutorial",
-            "Destination": [ 0, 0, 0 ],
+            "Destination": [
+              0,
+              0,
+              0
+            ],
             "FXTemplate": "NULL"
           },
           "Q_Hunt": {
@@ -125,7 +129,6 @@
                     "NextPhase": 3
                   }
                 ]
-
               }
             ]
           }
@@ -146,7 +149,11 @@
           "Type": "Arrival",
           "Q_Arrival": {
             "Map": "Tutorial",
-            "Destination": [ -6415.0, -385.0, 675.0 ],
+            "Destination": [
+              -6415.0,
+              -385.0,
+              675.0
+            ],
             "FXTemplate": "/Game/ShootingGame/Particle/FX_VarietyPack/FX/P_ky_healAura.P_ky_healAura"
           },
           "Q_Hunt": {
@@ -329,7 +336,7 @@
           {
             "Index": 0,
             "Speaker": "교관 NPC",
-            "Text": "반갑습니다! 저는 플레이어님에게 어빌리티 시스템, 전투를 알려 줄 교관입니다",
+            "Text": "반갑습니다! 저는 플레이어님께 기본적인 전투를 알려 줄 교관입니다",
             "Responses": [
               {
                 "Response": "반갑습니다",
@@ -352,6 +359,146 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "Index": 3,
+      "Name": "맵 돌파!",
+      "Explanation": "장애물과 적들을 넘어, 안쪽의 레버를 내려 맵을 돌파하세요",
+      "Type": "Serial",
+      "Instigator": "교관 NPC",
+      "Ender": "관리자",
+      "Rewards": [],
+      "SubQuests": [
+        {
+          "Name": "Bighead 3마리 처치",
+          "Type": "Hunt",
+          "Q_Hunt": {
+            "Huntee": "Bighead",
+            "Amount": 3
+          }
+        },
+        {
+          "Name": "Sniper 처치",
+          "Type": "Hunt",
+          "Q_Hunt": {
+            "Huntee": "Sniper",
+            "Amount": 1
+          }
+        },
+        {
+          "Name": "레버 내리기",
+          "Type": "Action",
+          "Q_Action": {
+            "Code": 3
+          }
+        }
+      ],
+      "Dialogues": {
+        "Available": [
+          {
+            "Index": 0,
+            "Speaker": "교관 NPC",
+            "Text": "제 앞에는 플레이어님의 적응을 돕기 위해 여러 장애물과 몹들이 위치해 있습니다",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": false,
+                "Next": 1,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 1,
+            "Speaker": "교관 NPC",
+            "Text": "먼저, 다리를 건너 총을 쏘는 적을 피해 왼쪽 아래의 발판으로 이동해주세요",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": false,
+                "Next": 2,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 2,
+            "Speaker": "교관 NPC",
+            "Text": "내려간 후, 길을 따라가며 기어다니는 몹들을 처치해주세요. 닿지 안게 조심하세요!",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": false,
+                "Next": 3,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 3,
+            "Speaker": "교관 NPC",
+            "Text": "그 후, 길의 끝에 다다르면 올라탈 수 있는 사다리가 있습니다. 상호작용을 통해 사다리를 타고 올라가주세요",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": false,
+                "Next": 4,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 4,
+            "Speaker": "교관 NPC",
+            "Text": "올라가 적을 잡고 난 후, 앞의 방으로 이동해 레버를 내리게 되면 맵을 완료하게 됩니다. 이해되셨죠?",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": false,
+                "Next": 5,
+                "Events": []
+              }
+            ]
+          },
+          {
+            "Index": 5,
+            "Speaker": "교관 NPC",
+            "Text": "그럼, 행운을 빕니다!",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": true,
+                "Next": -1,
+                "Events": [
+                  {
+                    "Type": "Commit"
+                  },
+                  {
+                    "Type": "PhaseShift",
+                    "NextPhase": 2
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "InProgress": [
+          {
+            "Index": 0,
+            "Speaker": "교관 NPC",
+            "Text": "어서 완료해주세요!",
+            "Responses": [
+              {
+                "Response": "확인",
+                "IsEnd": true,
+                "Next": -1,
+                "Events": []
+              }
+            ]
+          }
+        ],
+        "Finished": []
       }
     }
   ]

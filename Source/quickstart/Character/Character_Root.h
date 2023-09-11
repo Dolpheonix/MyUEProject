@@ -47,7 +47,7 @@ public:
 	bool bDead = false;
 
 	// hurt event가 발생하면 경직시간이 필요하므로, hurt animation의 지속시간만큼 경직을 준다.
-	int hurtFrameStep = -1;
+	float HurtTimer = -1.0f;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bForced = false;

@@ -19,7 +19,7 @@ class QUICKSTART_API AEnemyController : public AAIController
 	GENERATED_BODY()
 	
 public:
-	AEnemyController();
+	AEnemyController(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay() override;

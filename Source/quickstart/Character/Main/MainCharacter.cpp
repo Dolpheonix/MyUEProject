@@ -133,29 +133,27 @@ void AMainCharacter::Tick(float DeltaTime)
 	else bFalling = false;
 
 	// Hurt 경직 효과
-	if (bHurt && hurtFrameStep < 0)
+	if (bHurt && HurtTimer < 0)
 	{
-		hurtFrameStep = 0;
+		HurtTimer = 0.0f;
 		Camera->PostProcessSettings.bOverride_SceneColorTint = true;
-		DisableInput(UGameplayStatics::GetPlayerController(this, 0));
 	}
-	if (hurtFrameStep >= 0)
+	if (HurtTimer >= 0)
 	{
 		// Red Filter ON
-		if (hurtFrameStep < 35)
+		if (HurtTimer < 1.0f)
 		{
-			float hurtIntensity = 1.5f * FMath::Sin(hurtFrameStep * (PI /30.0f)) + 1.0f; // 1.0f ~ 2.5f ~ 1.0f (0s ~ 3s)
+			float hurtIntensity = 1.5f * FMath::Sin(HurtTimer * PI) + 1.0f; // 1.0f ~ 2.5f ~ 1.0f (0s ~ 3s)
 			Camera->PostProcessSettings.SceneColorTint = FLinearColor(hurtIntensity, 1.0f, 1.0f);
-			hurtFrameStep++;
+			HurtTimer += DeltaTime;
 		}
 		// Red Filter OFF
-		else if (hurtFrameStep >= 35)
+		else if (HurtTimer >= 1.0f)
 		{
 			Camera->PostProcessSettings.SceneColorTint = FLinearColor(1.0f, 1.0f, 1.0f);
 			Camera->PostProcessSettings.bOverride_SceneColorTint = false;
-			hurtFrameStep = -1;
+			HurtTimer = -1.f;
 			bHurt = false;
-			EnableInput(UGameplayStatics::GetPlayerController(this, 0));
 		}
 	}
 
@@ -171,7 +169,7 @@ void AMainCharacter::Tick(float DeltaTime)
 	}
 
 	// Attack Phase
-	CheckEndMovement();
+	if(!bHurt) CheckEndMovement();
 	CheckEndAction();
 }
 
@@ -267,16 +265,19 @@ void AMainCharacter::LoadItemThumbnailAndMesh()
 
 void AMainCharacter::MoveForward(float val)
 {
-	// 사다리에 매달렸을 경우, Forward Axis를 사다리 방향으로 조정한다
-	if (LadderInfo.onLadder)
+	if (!bHurt)
 	{
-		FVector direction = GetActorForwardVector().RotateAngleAxis(-LadderInfo.Slope, GetActorRightVector());
-		AddMovementInput(direction, val);
-	}
-	else if(GetCurrentAction() == ECustomActionMode::IDLE)
-	{
-		FVector direction = GetActorForwardVector();
-		AddMovementInput(direction, val);
+		// 사다리에 매달렸을 경우, Forward Axis를 사다리 방향으로 조정한다
+		if (LadderInfo.onLadder)
+		{
+			FVector direction = GetActorForwardVector().RotateAngleAxis(-LadderInfo.Slope, GetActorRightVector());
+			AddMovementInput(direction, val);
+		}
+		else if (GetCurrentAction() == ECustomActionMode::IDLE)
+		{
+			FVector direction = GetActorForwardVector();
+			AddMovementInput(direction, val);
+		}
 	}
 }
 
@@ -327,10 +328,13 @@ void AMainCharacter::StopWalk()
 
 void AMainCharacter::MoveRight(float val)
 {
-	if (!LadderInfo.onLadder && GetCurrentAction() == ECustomActionMode::IDLE)
+	if (!bHurt)
 	{
-		FVector direction = GetActorRightVector();
-		AddMovementInput(direction, val);
+		if (!LadderInfo.onLadder && GetCurrentAction() == ECustomActionMode::IDLE)
+		{
+			FVector direction = GetActorRightVector();
+			AddMovementInput(direction, val);
+		}
 	}
 }
 
@@ -349,17 +353,20 @@ void AMainCharacter::LookUp(float val)
 
 void AMainCharacter::StartJump()
 {
-	if (LadderInfo.onLadder)
+	if (!bHurt)
 	{
-		LadderInfo.onLadder = false;
-		LadderInfo.dirty = true;
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-	}
-	else if (GetCurrentAction() == ECustomActionMode::IDLE && !bFalling && !bForced)
-	{
-		bPressedJump = true;
-		SetCurrentMovement(ECustomMovementMode::JUMP);
-		FootstepAudioComponent->Stop();
+		if (LadderInfo.onLadder)
+		{
+			LadderInfo.onLadder = false;
+			LadderInfo.dirty = true;
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		}
+		else if (GetCurrentAction() == ECustomActionMode::IDLE && !bFalling && !bForced)
+		{
+			bPressedJump = true;
+			SetCurrentMovement(ECustomMovementMode::JUMP);
+			FootstepAudioComponent->Stop();
+		}
 	}
 }
 
@@ -370,9 +377,12 @@ void AMainCharacter::StopJump()
 
 void AMainCharacter::Interact()
 {
-	if (GetCurrentMovement() == ECustomMovementMode::IDLE && GetCurrentAction() == ECustomActionMode::IDLE)
+	if (!bHurt)
 	{
-		SetCurrentAction(ECustomActionMode::INTERACT);
+		if (GetCurrentMovement() == ECustomMovementMode::IDLE && GetCurrentAction() == ECustomActionMode::IDLE)
+		{
+			SetCurrentAction(ECustomActionMode::INTERACT);
+		}
 	}
 }
 
@@ -503,79 +513,87 @@ void AMainCharacter::Equip()
 
 void AMainCharacter::Use()
 {
-	FItemForm* toUse = &Inventory[(uint8)ETypeTag::Item].ItemForms[Quickslots_Now[(uint8)ETypeTag::Item]];
-	if (GetCurrentAction() == ECustomActionMode::IDLE)
+	if (!bHurt)
 	{
-		FString Curr = toUse->ShortForm.NameTag;
+		FItemForm* toUse = &Inventory[(uint8)ETypeTag::Item].ItemForms[Quickslots_Now[(uint8)ETypeTag::Item]];
+		if (GetCurrentAction() == ECustomActionMode::IDLE)
+		{
+			FString Curr = toUse->ShortForm.NameTag;
 
-		if (Curr == "No Item")
-		{
-			NoItem();
-		}
-		else if (Curr == "Apple")
-		{
-			ThrowApple();
-		}
-		else if (Curr == "Seed")
-		{
-			ThrowSeed();
+			if (Curr == "No Item")
+			{
+				NoItem();
+			}
+			else if (Curr == "Apple")
+			{
+				ThrowApple();
+			}
+			else if (Curr == "Seed")
+			{
+				ThrowSeed();
+			}
 		}
 	}
 }
 
 void AMainCharacter::Attack()
 {
-	FItemForm* toUse = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Now[(uint8)ETypeTag::Weapon]];
-	if (WeaponCode != 0 && !toUse->MeshComponent->IsSimulatingPhysics())
+	if (!bHurt)
 	{
-		toUse->MeshComponent->SetSimulatePhysics(true);
-	}
-
-	if (CanAttack())
-	{
-		switch (WeaponCode)
+		FItemForm* toUse = &Inventory[(uint8)ETypeTag::Weapon].ItemForms[Quickslots_Now[(uint8)ETypeTag::Weapon]];
+		if (WeaponCode != 0 && !toUse->MeshComponent->IsSimulatingPhysics())
 		{
-		case 0:
-			Fist();
-			break;
-		case 1:
-			Fire();
-			break;
-		case 2:
-			Wield();
-			break;
-		default:
-			break;
+			toUse->MeshComponent->SetSimulatePhysics(true);
+		}
+
+		if (CanAttack())
+		{
+			switch (WeaponCode)
+			{
+			case 0:
+				Fist();
+				break;
+			case 1:
+				Fire();
+				break;
+			case 2:
+				Wield();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }
 
 void AMainCharacter::SubAttack()
 {
-	switch (WeaponCode)
+	if (!bHurt)
 	{
-	case 0:
-		if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+		switch (WeaponCode)
 		{
-			SetCurrentAction(ECustomActionMode::GUARD);
-		}
-		break;
-	case 1:
-	{
-		Camera->SetRelativeLocation(FVector(-62.0f, -15.0f, 95.0f), true);
-		GameMode->SniperMode(true);
-		break;
-	}
-	case 2:
-		if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+		case 0:
+			if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+			{
+				SetCurrentAction(ECustomActionMode::GUARD);
+			}
+			break;
+		case 1:
 		{
-			SetCurrentAction(ECustomActionMode::GUARD);
+			Camera->SetRelativeLocation(FVector(-62.0f, -15.0f, 95.0f), true);
+			GameMode->SniperMode(true);
+			break;
 		}
-		break;
-	default:
-		break;
+		case 2:
+			if (GetCurrentAction() == ECustomActionMode::IDLE && GetCurrentMovement() != ECustomMovementMode::JUMP && !bFalling)
+			{
+				SetCurrentAction(ECustomActionMode::GUARD);
+			}
+			break;
+		default:
+			break;
+		}
 	}
-
 }
 
 void AMainCharacter::unSubAttack()
@@ -749,6 +767,16 @@ void AMainCharacter::OpenQuestUI()
 void AMainCharacter::OpenMenu()
 {
 	GameMode->ChangeMenuWidget(GameMode->InGameMenuUI);
+}
+
+void AMainCharacter::OpenShowroom()
+{
+	if (!GameMode->bShowroom)
+	{
+		GameMode->ChangeMenuWidget(GameMode->ShowroomUI);
+		GameMode->bShowroom = true;
+		UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
+	}
 }
 
 ECustomMovementMode AMainCharacter::GetCurrentMovement()

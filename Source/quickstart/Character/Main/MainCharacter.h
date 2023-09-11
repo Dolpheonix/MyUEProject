@@ -107,7 +107,7 @@ public:
 	void RollItems();
 	UFUNCTION()
 	void RollWeapons();
-	UFUNCTION(BlueprintImplementableEvent, Category="test")
+	UFUNCTION()
 	void OpenShowroom();
 	UFUNCTION()
 	void OpenQuestUI();

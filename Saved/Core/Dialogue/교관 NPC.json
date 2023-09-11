@@ -6,7 +6,7 @@
       "Text": "퀘스트 : 교관 NPC 찾기",
       "Responses": [
         {
-          "Response": "확인인",
+          "Response": "확인",
           "IsEnd": false,
           "Next": -1,
           "Events": [
@@ -23,7 +23,7 @@
     {
       "Index": 1,
       "Speaker": "교관 NPC",
-      "Text": "그럼 첫번째 임무를 드리겠습니다.",
+      "Text": "그럼 임무를 드리겠습니다.",
       "Responses": [
         {
           "Response": "확인",
@@ -32,7 +32,9 @@
           "Events": [
             {
               "Type": "OpenQuest",
-              "QuestIndex": 3
+              "QuestIndex": 3,
+              "ItemIndex": -1,
+              "NextPhase": -1
             }
           ]
         }
