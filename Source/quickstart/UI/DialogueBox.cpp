@@ -123,6 +123,10 @@ void UDialogueBox::OnPressed_EndLine(int index)
 						QuestDialogueLine = TriggeredQuest->GetStartLine(InteractedNPC->DisplayName);
 						RefreshDialogue();
 					}
+					else
+					{
+						UE_LOG(LogTemp, Fatal, TEXT("NONONONONOO"));
+					}
 				}
 				else
 				{

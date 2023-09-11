@@ -30,21 +30,6 @@
         {
           "Name": "인벤토리 열기",
           "Type": "Action",
-          "Q_Arrival": {
-            "Map": "Tutorial",
-            "Destination": [
-              0,
-              0,
-              0
-            ],
-            "FXTemplate": "NULL"
-          },
-          "Q_Hunt": {
-            "List": []
-          },
-          "Q_Item": {
-            "List": []
-          },
           "Q_Action": {
             "Code": 0,
             "Info": "인벤토리를 열어주세요"
@@ -106,7 +91,7 @@
             "Text": "감사합니다!",
             "Responses": [
               {
-                "Response": "",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": -1,
                 "Events": [
@@ -248,7 +233,7 @@
     {
       "Index": 2,
       "Name": "교관 NPC 찾기",
-      "Explanation": "길을 따라 이동 후, 붉은 나무를 찾아 상호작용 후, 다음 맵에서 교관 NPC에게 말을 걸어주세요",
+      "Explanation": "나무 터에 씨앗을 뿌려 자라난 나무와 상호작용한 후, 앞에 있을 교관 NPC에게 말을 걸어주세요",
       "Type": "Serial",
       "Instigator": "튜토리얼 NPC",
       "Ender": "교관 NPC",
@@ -285,7 +270,7 @@
           {
             "Index": 1,
             "Speaker": "튜토리얼 NPC",
-            "Text": "바로 옆의 언덕길을 따라가게 되면, 붉은 색 나무가 있을 겁니다. 나무에 가까이 가 상호작용하게 되면 다음 맵으로 이동하게 됩니다. 그 후, 바로 앞의 교관 NPC에게 말을 걸어주세요",
+            "Text": "바로 옆의 언덕길을 따라가게 되면, 붉은 빛을 띠는 나무 터가 보일 겁니다. 그 곳에 아까 드린 씨앗을 뿌리면 나무가 자라날텐데, 그 나무와 상호작용하게 되면 다음 맵으로 이동하게 됩니다. 그 후, 바로 앞의 교관 NPC에게 말을 걸어주세요",
             "Responses": [
               {
                 "Response": "알겠어요",
@@ -301,7 +286,7 @@
             "Text": "그럼, 행운을 빕니다!",
             "Responses": [
               {
-                "Response": "감사합니다!",
+                "Response": "감사합니다",
                 "IsEnd": true,
                 "Next": -1,
                 "Events": [
@@ -402,7 +387,7 @@
             "Text": "제 앞에는 플레이어님의 적응을 돕기 위해 여러 장애물과 몹들이 위치해 있습니다",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": 1,
                 "Events": []
@@ -415,7 +400,7 @@
             "Text": "먼저, 다리를 건너 총을 쏘는 적을 피해 왼쪽 아래의 발판으로 이동해주세요",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": 2,
                 "Events": []
@@ -428,7 +413,7 @@
             "Text": "내려간 후, 길을 따라가며 기어다니는 몹들을 처치해주세요. 닿지 안게 조심하세요!",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": 3,
                 "Events": []
@@ -441,7 +426,7 @@
             "Text": "그 후, 길의 끝에 다다르면 올라탈 수 있는 사다리가 있습니다. 상호작용을 통해 사다리를 타고 올라가주세요",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": 4,
                 "Events": []
@@ -454,7 +439,7 @@
             "Text": "올라가 적을 잡고 난 후, 앞의 방으로 이동해 레버를 내리게 되면 맵을 완료하게 됩니다. 이해되셨죠?",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": false,
                 "Next": 5,
                 "Events": []
@@ -464,10 +449,23 @@
           {
             "Index": 5,
             "Speaker": "교관 NPC",
+            "Text": "그 전에, 몹들을 잡기 위해선 무기가 필요하겠죠? 저에게 다시 말을 걸어 상점을 열어 총을 구매해서 사용해주세요",
+            "Responses": [
+              {
+                "Response": "네",
+                "IsEnd": false,
+                "Next": 6,
+                "Events": []
+              }
+            ]
+          }
+          {
+            "Index": 6,
+            "Speaker": "교관 NPC",
             "Text": "그럼, 행운을 빕니다!",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "네",
                 "IsEnd": true,
                 "Next": -1,
                 "Events": [
@@ -490,7 +488,7 @@
             "Text": "어서 완료해주세요!",
             "Responses": [
               {
-                "Response": "확인",
+                "Response": "...",
                 "IsEnd": true,
                 "Next": -1,
                 "Events": []

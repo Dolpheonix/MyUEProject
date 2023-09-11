@@ -21,7 +21,7 @@
         {
           "Response": "상점",
           "IsEnd": false,
-          "Next": -1,
+          "Next": 1,
           "Events": [
             {
               "Type": "OpenShop",
@@ -39,7 +39,7 @@
       "Text": "그럼 임무를 드리겠습니다.",
       "Responses": [
         {
-          "Response": "확인",
+          "Response": "네",
           "IsEnd": false,
           "Next": -1,
           "Events": [

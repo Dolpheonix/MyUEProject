@@ -36,10 +36,10 @@
     {
       "Index": 2,
       "Speaker": "튜토리얼 NPC",
-      "Text": "퀘스트 : 인벤토리 열기",
+      "Text": "대화하기",
       "Responses": [
         {
-          "Response": "확인하기",
+          "Response": "퀘스트 : 인벤토리 열기",
           "IsEnd": false,
           "Next": -1,
           "Events": [
@@ -76,10 +76,10 @@
     {
       "Index": 4,
       "Speaker": "튜토리얼 NPC",
-      "Text": "퀘스트 : 이동",
+      "Text": "대화하기",
       "Responses": [
         {
-          "Response": "확인하기",
+          "Response": "퀘스트 : 이동",
           "IsEnd": false,
           "Next": -1,
           "Events": [
@@ -114,10 +114,10 @@
     {
       "Index": 6,
       "Speaker": "튜토리얼 NPC",
-      "Text": "퀘스트 : 교관 NPC 찾기",
+      "Text": "대화하기",
       "Responses": [
         {
-          "Response": "확인하기",
+          "Response": "퀘스트 : 교관 NPC 찾기",
           "IsEnd": true,
           "Next": -1,
           "Events": [
