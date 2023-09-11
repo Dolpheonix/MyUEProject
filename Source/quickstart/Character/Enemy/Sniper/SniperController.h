@@ -11,7 +11,7 @@ class QUICKSTART_API ASniperController : public AEnemyController
 	GENERATED_BODY()
 
 public:
-	ASniperController();
+	ASniperController(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay() override;

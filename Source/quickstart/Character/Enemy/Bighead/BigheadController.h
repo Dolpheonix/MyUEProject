@@ -10,7 +10,7 @@ class QUICKSTART_API ABigheadController : public AEnemyController
 {
 	GENERATED_BODY()
 public:
-	ABigheadController();
+	ABigheadController(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay() override;

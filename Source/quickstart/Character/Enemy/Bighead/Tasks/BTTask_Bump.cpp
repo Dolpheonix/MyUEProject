@@ -31,11 +31,14 @@ EBTNodeResult::Type UBTTask_Bump::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	if (Target)
 	{
 		OwnerBighead = Cast<ABighead>(Controller->GetCharacter());
-		Impulse = (Target->GetActorLocation() - OwnerBighead->GetActorLocation()).GetSafeNormal2D() * 0.2f;
-		Impulse.Z += 0.03f;
-		OwnerBighead->BumpAuraComponent->Activate(true);
-		OwnerBighead->Bump(Target);
-		return EBTNodeResult::InProgress;
+		if (FVector::Dist2D(Target->GetActorLocation(), OwnerBighead->GetActorLocation()) <= AttackRange)
+		{
+			Impulse = (Target->GetActorLocation() - OwnerBighead->GetActorLocation()).GetSafeNormal2D() * 0.2f;
+			Impulse.Z += 0.03f;
+			OwnerBighead->BumpAuraComponent->Activate(true);
+			OwnerBighead->Bump(Target);
+			return EBTNodeResult::InProgress;
+		}
 	}
 
 	return EBTNodeResult::Failed;

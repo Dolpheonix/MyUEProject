@@ -3,16 +3,29 @@
     {
       "Index": 0,
       "Speaker": "교관 NPC",
-      "Text": "퀘스트 : 교관 NPC 찾기",
+      "Text": "대화하기",
       "Responses": [
         {
-          "Response": "확인",
+          "Response": "퀘스트 : 교관 NPC 찾기",
           "IsEnd": false,
           "Next": -1,
           "Events": [
             {
               "Type": "OpenQuest",
               "QuestIndex": 2,
+              "ItemIndex": -1,
+              "NextPhase": -1
+            }
+          ]
+        },
+        {
+          "Response": "상점",
+          "IsEnd": false,
+          "Next": -1,
+          "Events": [
+            {
+              "Type": "OpenShop",
+              "QuestIndex": -1,
               "ItemIndex": -1,
               "NextPhase": -1
             }

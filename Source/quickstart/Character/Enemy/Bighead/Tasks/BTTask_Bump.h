@@ -25,6 +25,8 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, Category="BlackboardKey")
 	FBlackboardKeySelector DetectionModeKey;
+	UPROPERTY(EditAnywhere, Category="Range")
+	float AttackRange = 30.0f;
 
 	AAIController* Controller;
 	ABighead* OwnerBighead;

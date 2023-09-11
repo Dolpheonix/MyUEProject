@@ -3,7 +3,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "../../../Utils/Helpers.h"
 
-ABigheadController::ABigheadController()
+ABigheadController::ABigheadController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

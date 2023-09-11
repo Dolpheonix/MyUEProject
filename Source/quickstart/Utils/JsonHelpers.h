@@ -105,7 +105,7 @@ public:
 				Eve.EventType = EDialogueEventType::PHASESHIFT;
 				Eve.NextPhaseIndex = Event->GetIntegerField(TEXT("NextPhase"));
 			}
-			else if (TypeStr == "OPENSHOP")
+			else if (TypeStr == "OpenShop")
 			{
 				Eve.EventType = EDialogueEventType::OPENSHOP;
 			}

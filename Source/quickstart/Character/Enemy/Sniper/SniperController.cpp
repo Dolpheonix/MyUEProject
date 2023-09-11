@@ -3,7 +3,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "../../../Utils/Helpers.h"
 
-ASniperController::ASniperController()
+ASniperController::ASniperController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
