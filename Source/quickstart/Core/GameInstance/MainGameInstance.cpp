@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MainGameInstance.h"
 #include "../../quickstart.h"
 #include "../SaveObject/GameSaver.h"
@@ -17,12 +14,17 @@ UMainGameInstance::UMainGameInstance()
 void UMainGameInstance::Init()
 {
 	Super::Init();
+
+	// Init() 함수가 여러번 호출되는 경우가 있어, 최초 호출 시에만 바인딩 및 로딩을 진행
 	if (!bApplyBound)
 	{
-		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadNPC);
-		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadItems);
-		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadObjects);
-		JsonLoader::LoadQuests(Quests);
+		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadNPC);			// 맵 로드시 NPC 데이터를 적용
+		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadItems);		// 맵 로드시 루팅 아이템 데이터를 적용
+		FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UMainGameInstance::LoadObjects);		// 맵 로드시 다이내믹 오브젝트를 스폰
+
+		JsonLoader::LoadQuests(Quests); // 퀘스트 파일 로딩
+
+		// 서브퀘스트들이 메인 퀘스트의 포인터를 가져야 함. json 형식으로 저장이 불가능해 로딩시 적용
 		for (int i = 0; i < Quests.Num(); i++)
 		{
 			for (int j = 0; j < Quests[i].SubQuests.Num(); j++)
@@ -30,6 +32,7 @@ void UMainGameInstance::Init()
 				Quests[i].SubQuests[j].Owner = &Quests[i];
 			}
 		}
+
 		bApplyBound = true;
 	}
 }
@@ -41,9 +44,10 @@ void UMainGameInstance::Shutdown()
 
 void UMainGameInstance::InitializeCharacterMemory(FString Name)
 {
+	// 캐릭터 관련 기본 데이터 생성
 	CharacterMemory.DisplayName = Name;
-	CharacterMemory.CurrentMap = "Tutorial";
-	CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -100.0f); // Impossible region ==> start at Level's PlayerStart region
+	CharacterMemory.CurrentMap = "Tutorial"; // 튜토리얼 맵부터 시작
+	CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -100.0f); // 
 	CharacterMemory.CurrentHP = 100.0f;
 	CharacterMemory.CurrentMoney = 10000;
 
@@ -115,6 +119,7 @@ void UMainGameInstance::SaveCharacterMemory(AMainCharacter* character)
 	CharacterMemory_Quest = character->QuestList;
 }
 
+// 세이브 파일을 인스턴스로 로드
 void UMainGameInstance::LoadFromFile(FString SlotName)
 {
 	FString JsonString;
@@ -124,9 +129,9 @@ void UMainGameInstance::LoadFromFile(FString SlotName)
 	FJsonSerializer::Deserialize(Reader, JsonObject);
 
 	SlotIndex = JsonObject->GetIntegerField(TEXT("SlotIndex"));
-	JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), CharacterMemory);
-	JsonLoader::LoadMapMemories(JsonObject->GetArrayField(TEXT("MapMemories")), MapMemories);
-	LoadQuestStatus(JsonLoader::LoadQuestStatus(JsonObject->GetArrayField(TEXT("QuestStatus"))));
+	JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), CharacterMemory); // 캐릭터 메모리 불러오기
+	JsonLoader::LoadMapMemories(JsonObject->GetArrayField(TEXT("MapMemories")), MapMemories); // 전체 맵 메모리 불러오기
+	LoadQuestStatus(JsonLoader::LoadQuestStatus(JsonObject->GetArrayField(TEXT("QuestStatus")))); // 퀘스트 진행도 불러오기
 }
 
 void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
@@ -215,24 +220,25 @@ void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
 	}
 }
 
+// 게임 진행도를 파일로 저장
 bool UMainGameInstance::SaveToFile()
 {
-	SaveLevel();
-	TArray<FQuestStatus> QuestStatus = SaveQuestStatus();
+	SaveLevel(); // 현재 레벨의 NPC, 아이템 상태를 저장
+	TArray<FQuestStatus> QuestStatus = SaveQuestStatus(); // 퀘스트 진행도를 json 오브젝트로 변환
 
 	FString FilePath = *(FPaths::ProjectSavedDir() + "SaveGames/" + CharacterMemory.DisplayName + ".json");
 	TSharedPtr<FJsonObject> Obj = MakeShareable(new FJsonObject());
 	Obj->SetNumberField(TEXT("Slotindex"), SlotIndex);
-	Obj->SetObjectField(TEXT("CharacterMemory"), JsonSaver::SaveCharacterMemory(CharacterMemory));
+	Obj->SetObjectField(TEXT("CharacterMemory"), JsonSaver::SaveCharacterMemory(CharacterMemory)); // 캐릭터 메모리 저장
 	TArray<TSharedPtr<FJsonValue>> MMS;
 	for (int i = 0; i < MapMemories.Num(); i++)
 	{
-		MMS.Add(MakeShareable(new FJsonValueObject(JsonSaver::SaveMapMemory(MapMemories[i]))));
+		MMS.Add(MakeShareable(new FJsonValueObject(JsonSaver::SaveMapMemory(MapMemories[i])))); // 전체 맵 메모리 저장
 	}
 	Obj->SetArrayField(TEXT("MapMemories"), MMS);
-	Obj->SetArrayField(TEXT("QuestStatus"), JsonSaver::SaveQuestStatuses(QuestStatus));
+	Obj->SetArrayField(TEXT("QuestStatus"), JsonSaver::SaveQuestStatuses(QuestStatus)); // 퀘스트 진행도 저장
 
-	return JsonSaver::SaveObjectToJson(Obj, FilePath);
+	return JsonSaver::SaveObjectToJson(Obj, FilePath); // 전체 세이브파일 저장
 }
 
 TArray<FQuestStatus> UMainGameInstance::SaveQuestStatus()

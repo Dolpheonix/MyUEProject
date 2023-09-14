@@ -224,6 +224,7 @@ void UIntro::StartNewGame()
 		{
 			GI->InitializeCharacterMemory(Name);
 			int alloced = GI->AllocateSlotIndex();
+			// 세이브 슬롯을 생성할 수 없는 경우
 			if (alloced < 0)
 			{
 				AIntroGameMode* IntroGM = Cast<AIntroGameMode>(UGameplayStatics::GetGameMode(GetWorld()));

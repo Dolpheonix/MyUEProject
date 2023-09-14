@@ -38,7 +38,7 @@ void ABeacon::OnOverlapped_Arrival(UPrimitiveComponent* HitComponent, AActor* Ot
 
 	if (MainCharacter)
 	{
-		if(Ownerquest) MainCharacter->ReportArrival(Ownerquest);
+		if(Ownerquest) MainCharacter->ReportArrival(Ownerquest); // 도착을 알림
 		Destroy();
 	}
 }

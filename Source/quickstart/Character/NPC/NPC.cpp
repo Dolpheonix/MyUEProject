@@ -60,26 +60,6 @@ void ANPC::BeginPlay()
 
 		ShopItems.Add(registerform);
 	}
-
-	for (FQuest quest : Quests)
-	{
-		for (FSingleQuest subquest : quest.SubQuests)
-		{
-			if (subquest.Type == ESingleQuestType::Action)
-			{
-				AMainGameMode* gamemode = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
-				if (!gamemode->ActionCodeTable[subquest.ActionCode])
-				{
-					gamemode->ActionCodeTable[subquest.ActionCode] = true;
-				}
-				else
-				{
-					UE_LOG(ErrQuest, Error, TEXT("Action Code Conflict at %i"), subquest.ActionCode);
-				}
-			}
-		}
-	}
 }
 
 void ANPC::Tick(float DeltaTime)

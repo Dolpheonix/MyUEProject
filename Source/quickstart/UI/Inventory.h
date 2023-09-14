@@ -81,9 +81,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	UButton* ExitButton;
 
-	UClass* PopupClass;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PopUp")
+	TSubclassOf<UPopUp> PopupClass;
+
 	UPopUp* DeletePopup;
 
 	USoundCue* SelectSound;

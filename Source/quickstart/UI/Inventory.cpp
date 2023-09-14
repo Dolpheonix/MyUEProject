@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Inventory.h"
@@ -28,7 +28,6 @@ void UInventory::NativePreConstruct()
 		DefaultFont.OutlineSettings.OutlineSize = 1;
 		DefaultFont.Size = 24.0f;
 
-		PopupClass = StaticLoadClass(UUserWidget::StaticClass(), this, TEXT("/Game/ShootingGame/Blueprint/UI/PopUpUI.PopUpUI_C"));
 		DeletePopup = nullptr;
 
 		InfoText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Info")));
@@ -214,7 +213,7 @@ void UInventory::RefreshSlots()
 			ItemNumbers[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		CurrMoneyText->SetText(FText::FromString(TEXT("º¸À¯ : ") + FString::FromInt(Player->CurrMoney)));
+		CurrMoneyText->SetText(FText::FromString(TEXT("ë³´ìœ  : ") + FString::FromInt(Player->CurrMoney)));
 	}
 }
 
@@ -326,7 +325,7 @@ void UInventory::OnReleased_Delete()
 	FVector2D Pos = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
 	if (isCaptured)
 	{
-		if (Pos.X > 740.0f && Pos.X < 940.0f && Pos.Y > 770.0f && Pos.Y < 970.0f && CapturedInfo.index > 0)
+		if (Pos.X > 1556.0f && Pos.X < 1756.0f && Pos.Y > 420.0f && Pos.Y < 698.0f && CapturedInfo.index > 0)
 		{
 			OpenPopup();
 			UGameplayStatics::PlaySound2D(this, PopupSound);

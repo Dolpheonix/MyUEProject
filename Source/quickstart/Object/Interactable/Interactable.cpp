@@ -65,15 +65,15 @@ void AInteractable::Tick(float DeltaTime)
 	BP.Normalize();
 	FVector FP = Player->GetActorForwardVector();
 
-	if (bActive && dist < InteractRadius && FMath::Acos(FVector::DotProduct(BP, InteractForward)) < (InteractRange / 2))
+	if (bActive && dist < InteractRadius && FMath::Acos(FVector::DotProduct(BP, InteractForward)) < (InteractRange / 2)) // 상호작용이 가능
 	{
-		if (!bInteractable)
+		if (!bInteractable) // 처음 반경에 들어왔다면
 		{
 			Player->InteractionFlag++;
 			bInteractable = true;
 		}
 
-		if (Player->GetCurrentAction() == ECustomActionMode::INTERACT)
+		if (Player->GetCurrentAction() == ECustomActionMode::INTERACT) // 플레이어가 상호작용을 걸었다면
 		{
 			Interact();
 		}

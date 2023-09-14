@@ -44,19 +44,16 @@ public:
 	AAIController* AIController;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FDialogueTree DialogueTree;
+	FDialogueTree DialogueTree; // 대화 트리
 
 	UPROPERTY(BlueprintReadWrite)
 	AMainCharacter* Player;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shop")
-	TArray<FShopItemShortForm> ShopItemsInfo;
+	TArray<FShopItemShortForm> ShopItemsInfo; // 상점 아이템 정보
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Acquisition")
-	TArray<FItemShortForm> AcquireItemsInfo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quest")
-	TArray<FQuest> Quests;
+	TArray<FItemShortForm> AcquireItemsInfo; // 상점 외의 보유 아이템 정보
 
 	TArray<FShopItemForm> ShopItems;
 	TArray<FItemForm> AcquireItems;

@@ -25,11 +25,11 @@ struct FDialogueEvent
 	UPROPERTY(EditAnywhere)
 	EDialogueEventType EventType;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EventType == EDialogueEventType::OPENQUEST"))
-	int QuestIndex;
+	int QuestIndex;		// 불러올 퀘스트 번호
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EventType == EDialogueEventType::GIVEITEM"))
-	int ItemIndex;
+	int ItemIndex;		// 아이템 인덱스
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EventType == EDialogueEventType::PHASESHIFT"))
-	int NextPhaseIndex;
+	int NextPhaseIndex; // 시프트할 대화 인덱스
 };
 
 USTRUCT(BlueprintType)
@@ -38,13 +38,13 @@ struct FDialogueResponse
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere)
-	FString Response;
+	FString Response;	// 응답 내용
 	UPROPERTY(EditAnywhere)
-	bool IsEnd;
+	bool IsEnd;			// 다이얼로그 창을 닫을것인가?
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!IsEnd"))
-	int NextIndex;
+	int NextIndex;		// 다음 대화 인덱스
 	UPROPERTY(EditAnywhere)
-	TArray<FDialogueEvent> Events;
+	TArray<FDialogueEvent> Events;	// 대화 이벤트
 };
 
 USTRUCT(BlueprintType)
@@ -54,11 +54,11 @@ struct FDialogueLine
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FString Speaker;
+	FString Speaker;	// 화자(NPC)
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FString TextLine;
+	FString TextLine;	// NPC의 대화 내용
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<FDialogueResponse> Responses;
+	TArray<FDialogueResponse> Responses; // 플레이어의 응답 목록
 };
 
 USTRUCT(BlueprintType)
@@ -98,11 +98,11 @@ struct FQuestDialogueEvent
 	UPROPERTY(EditAnywhere)
 	EQuestDialogueEventType EventType;
 	UPROPERTY(EditAnywhere)
-	int ItemIndex;
+	int ItemIndex;	// 아이템 인덱스
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EventType == EQuestDialogueEventType::BACKTODIALOGUE"))
-	int BacktoDialogueIndex;
+	int BacktoDialogueIndex; // 돌아갈 대화 인덱스
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "EventType == EQuestDialogueEventType::PHASESHIFT"))
-	int NextPhaseIndex;
+	int NextPhaseIndex; // 시프트할 대화 인덱스
 };
 
 USTRUCT(BlueprintType)
@@ -128,7 +128,7 @@ struct FQuestDialogueLine
 
 public:
 	UPROPERTY(EditAnywhere)
-	FString Speaker;
+	FString Speaker;	// 화자
 	UPROPERTY(EditAnywhere)
 	FString TextLine;
 	UPROPERTY(EditAnywhere)
@@ -239,31 +239,28 @@ struct FSingleQuest
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-	ESingleQuestType Type;
+	ESingleQuestType Type;		// 타입
 
 	UPROPERTY(BlueprintReadWrite)
-	FString Name;
-
+	FString Name;				// 이름
+	// Arrival
 	UPROPERTY(BlueprintReadWrite)
-	FString MapName;
-
+	FString MapName;			// 맵 이름
 	UPROPERTY(BlueprintReadWrite)
-	FVector Destination;
-
+	FVector Destination;		// 도착 위치
 	UPROPERTY(BlueprintReadWrite)
-	UParticleSystem* FXTemplate = nullptr;
-
+	UParticleSystem* FXTemplate = nullptr; // 위치를 표시할 파티클
+	// Hunt
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FHuntingQuestForm> HuntingLists;
-
+	// Item
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FItemQuestForm> ItemLists;
-
+	// Action
 	UPROPERTY(BlueprintReadWrite)
-	int ActionCode;
-
+	int ActionCode;				// 코드
 	UPROPERTY(BlueprintReadWrite)
-	FString ActionInfo;
+	FString ActionInfo;			// 설명
 
 	FQuest* Owner;
 
@@ -280,29 +277,22 @@ struct FQuest
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere)
-	int32 Index;
-
+	int32 Index;			// 식별번호
 	UPROPERTY(EditAnywhere)
-	FString Name;
-
+	FString Name;			// 이름
 	UPROPERTY(EditAnywhere, meta=(MultiLine="true"))
-	FString Info;
-
+	FString Info;			// 설명
 	UPROPERTY(EditAnywhere)
-	EQuestType Type;
-
+	EQuestType Type;		// 타입
 	UPROPERTY(EditAnywhere)
-	TArray<FSingleQuest> SubQuests;
-
+	TArray<FSingleQuest> SubQuests;	// 서브퀘스트
 	UPROPERTY(EditAnywhere)
-	FString Instigator;
-
+	FString Instigator;		// 맡긴 NPC
 	UPROPERTY(EditAnywhere)
-	FString Ender;
-
+	FString Ender;			// 완료 NPC
 	UPROPERTY(EditAnywhere)
-	EQuestProgress Progress;
-
+	EQuestProgress Progress;// 진행 상황
+	// 진행도에 따른 대화 목록
 	UPROPERTY(EditAnywhere)
 	FQuestDialogueTree DialogueTree_Unavailable;
 	UPROPERTY(EditAnywhere)
@@ -311,7 +301,7 @@ struct FQuest
 	FQuestDialogueTree DialogueTree_InProgress;
 	UPROPERTY(EditAnywhere)
 	FQuestDialogueTree DialogueTree_Finished;
-
+	// 보상
 	UPROPERTY(EditAnywhere)
 	TArray<FReward> Rewards;
 

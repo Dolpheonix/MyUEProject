@@ -182,35 +182,32 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("Move_Forward", this, &AMainCharacter::MoveForward);                       // W,S
-	PlayerInputComponent->BindAction("Move_W", IE_Pressed, this, &AMainCharacter::MoveStart);
-	PlayerInputComponent->BindAction("Move_A", IE_Pressed, this, &AMainCharacter::MoveStart);
-	PlayerInputComponent->BindAction("Move_S", IE_Pressed, this, &AMainCharacter::MoveStart);
-	PlayerInputComponent->BindAction("Move_D", IE_Pressed, this, &AMainCharacter::MoveStart);
-	PlayerInputComponent->BindAction("Move_End", IE_Released, this, &AMainCharacter::MoveEnd);
+	PlayerInputComponent->BindAxis("Move_Forward", this, &AMainCharacter::MoveForward);                       // W,S 축매핑
+	PlayerInputComponent->BindAxis("Move_Right", this, &AMainCharacter::MoveRight);                           // D,A 축매핑
+	PlayerInputComponent->BindAction("Move_Start", IE_Pressed, this, &AMainCharacter::MoveStart);			  // W,A,S,D 눌림 
+	PlayerInputComponent->BindAction("Move_End", IE_Released, this, &AMainCharacter::MoveEnd);				  // W,A,S,D 뗌
 
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMainCharacter::StartRun);                     // left Alt
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMainCharacter::StopRun);                   
-	PlayerInputComponent->BindAction("Walk", IE_Pressed, this, &AMainCharacter::StartWalk);                   // left Shift
-	PlayerInputComponent->BindAction("Walk", IE_Released, this, &AMainCharacter::StopWalk);
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMainCharacter::StartRun);                     // 왼쪽 Alt 눌림
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMainCharacter::StopRun);                     // 왼쪽 Alt 뗌
+	PlayerInputComponent->BindAction("Walk", IE_Pressed, this, &AMainCharacter::StartWalk);                   // 왼쪽 Shift 눌림
+	PlayerInputComponent->BindAction("Walk", IE_Released, this, &AMainCharacter::StopWalk);					  // 왼쪽 Shift 뗌
 
-	PlayerInputComponent->BindAxis("Move_Right", this, &AMainCharacter::MoveRight);                           // D,A
-	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);                                      // Mouse LR
-	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);                                  // Mouse FB
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);                   // Spacebar press
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJump);                   // Spacebar release
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMainCharacter::Interact);                // E press
+	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);                                      // 마우스 X축
+	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);                                  // 마우스 Y축
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);                   // Spacebar 눌림
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJump);                   // Spacebar 뗌
 
-	PlayerInputComponent->BindAction("RollItems", IE_Pressed, this, &AMainCharacter::RollItems);			  // R
-	PlayerInputComponent->BindAction("RollWeapons", IE_Pressed, this, &AMainCharacter::RollWeapons);          // T
-	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::Use);                          // F
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainCharacter::Attack);                    // Mouse Left
-	PlayerInputComponent->BindAction("SubAttack", IE_Pressed, this, &AMainCharacter::SubAttack);              // Mouse Right
-	PlayerInputComponent->BindAction("SubAttack", IE_Released, this, &AMainCharacter::unSubAttack);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMainCharacter::Interact);                // E 눌림
+	PlayerInputComponent->BindAction("RollItems", IE_Pressed, this, &AMainCharacter::RollItems);			  // R 눌림
+	PlayerInputComponent->BindAction("RollWeapons", IE_Pressed, this, &AMainCharacter::RollWeapons);          // T 눌림
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::Use);                          // F 눌림
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainCharacter::Attack);                    // 마우스 왼쪽 눌림
+	PlayerInputComponent->BindAction("SubAttack", IE_Pressed, this, &AMainCharacter::SubAttack);              // 마우스 오른쪽 눌림
+	PlayerInputComponent->BindAction("SubAttack", IE_Released, this, &AMainCharacter::unSubAttack);			  // 마우스 오른쪽 눌림
 
-	PlayerInputComponent->BindAction("OpenShowroom", IE_Pressed, this, &AMainCharacter::OpenShowroom);        // I
-	PlayerInputComponent->BindAction("OpenQuestUI", IE_Pressed, this, &AMainCharacter::OpenQuestUI);		  // Q
-	PlayerInputComponent->BindAction("OpenMenu", IE_Pressed, this, &AMainCharacter::OpenMenu);				  // ESC
+	PlayerInputComponent->BindAction("OpenShowroom", IE_Pressed, this, &AMainCharacter::OpenShowroom);        // I 눌림
+	PlayerInputComponent->BindAction("OpenQuestUI", IE_Pressed, this, &AMainCharacter::OpenQuestUI);		  // Q 눌림
+	PlayerInputComponent->BindAction("OpenMenu", IE_Pressed, this, &AMainCharacter::OpenMenu);				  // ESC 눌림
 }
 
 void AMainCharacter::LoadItemThumbnailAndMesh()
@@ -420,18 +417,20 @@ void AMainCharacter::Register(FItemShortForm iteminfo)
 	FString name = iteminfo.NameTag;
 	int index = Inventory[(uint8)iteminfo.TypeTag].ItemForms.IndexOfByPredicate([name](const FItemForm& itemform) {return itemform.ShortForm.NameTag == name; });
 
-	if (index >= 0)
-	{
+	if (index >= 0)	// 이미 인벤토리에 존재한다면, 개수만 늘려줌 
+	{	
 		Inventory[(uint8)iteminfo.TypeTag].ItemForms[index].ShortForm.Num += iteminfo.Num;
 	}
-	else
+	else			// 새로 등록해야 함
 	{
-		FItemForm registerform(iteminfo);
+		FItemForm registerform(iteminfo);		
 
+		// 썸네일 로드
 		registerform.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetNormalThumbnailFromName(iteminfo.NameTag));
 		registerform.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetHoveredThumbnailFromName(iteminfo.NameTag));
 		registerform.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(*Helpers::GetSelectedThumbnailFromName(iteminfo.NameTag));
-		if (iteminfo.TypeTag != ETypeTag::Item)
+		// 무기, 의상은 장착시에 매시를 적용해야 함
+		if (iteminfo.TypeTag != ETypeTag::Item)			
 		{
 			registerform.MeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), FName(iteminfo.NameTag + "Mesh"));
 			registerform.MeshComponent->SetStaticMesh(Helpers::LoadObjectFromPath<UStaticMesh>(*Helpers::GetMeshFromName(iteminfo.NameTag)));
@@ -440,7 +439,8 @@ void AMainCharacter::Register(FItemShortForm iteminfo)
 			registerform.MeshComponent->RegisterComponent();
 		}
 		Inventory[(uint8)(iteminfo.TypeTag)].ItemForms.Add(registerform);
-		if (iteminfo.TypeTag == ETypeTag::Weapon)
+
+		if (iteminfo.TypeTag == ETypeTag::Weapon)		// 무기 매시에 히트 함수 바인드
 		{
 			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Last().MeshComponent->OnComponentHit.AddDynamic(this, &AMainCharacter::OnHit);
 			Inventory[(uint8)(ETypeTag::Weapon)].ItemForms.Last().MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapped);
@@ -830,14 +830,14 @@ void AMainCharacter::ReportKill(TArray<FString> labels)
 		int idx = QuestList.HuntingQuests[i]->HuntingLists.IndexOfByPredicate([labels](const FHuntingQuestForm& item) {
 			for (auto label : labels)
 			{
-				if (label == item.Huntee) return true;
+				if (label == item.Huntee) return true; // 라벨이 일치한다면?
 			}
 			return false;
 			});
 
 		if (idx >= 0)
 		{
-			QuestList.HuntingQuests[i]->currAmounts[idx]++;
+			QuestList.HuntingQuests[i]->currAmounts[idx]++; // 처치 횟수 증가
 
 			if (!QuestList.HuntingQuests[i]->Completed)
 			{

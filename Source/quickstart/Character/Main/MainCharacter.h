@@ -185,21 +185,21 @@ public:
 
 // Character State
 	UPROPERTY(BlueprintReadOnly)
-	bool bRunning=false;
+	bool bRunning=false;			// 뛰는중인가?
 	UPROPERTY(BlueprintReadOnly)
-	bool bWalking=false;
+	bool bWalking=false;			// 걷는중인가?
+	UPROPERTY(BlueprintReadWrite)
+	bool bHurt = false;				// 경직중인가?
 	UPROPERTY(BlueprintReadOnly)
 	int32 MoveKeyPressed = 0;
 	UPROPERTY(BlueprintReadWrite)
-	bool bContinueAttack = false;
+	bool bContinueAttack = false;	
 	UPROPERTY(BlueprintReadWrite)
 	bool bFalling = false;
 	UPROPERTY(BlueprintReadWrite)
 	int AttackPhase = -1;
 	UPROPERTY(BlueprintReadWrite)
 	bool bAttackBlocked = false;
-	UPROPERTY(BlueprintReadWrite)
-	bool bHurt = false;
 	UPROPERTY(BlueprintReadWrite)
 	bool bInteracting = false;
 	UPROPERTY(BlueprintReadWrite)
@@ -232,8 +232,9 @@ public:
 // Weapon 관련
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapons")
 	UPhysicsConstraintComponent* WeaponJoint;
+
 	UPROPERTY(BlueprintReadOnly)
-	int32 WeaponCode=0;
+	int32 WeaponCode=0;			// 무기의 코드번호
 
 // Item 관련
 	UPROPERTY(BlueprintReadWrite)

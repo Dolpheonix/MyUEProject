@@ -19,22 +19,22 @@ void AMainCharacter::Fire()
 		SetCurrentAction(ECustomActionMode::ATTACK);
 		AttackPhase = 0;
 		if (FireAudio)
-		{
-			FireAudio->Play();
+		{	
+			FireAudio->Play();	// 발포 소리 재생
 		}
 
-		FVector MuzzleLocation = GetMesh()->GetSocketLocation(TEXT("Rifle_Muzzle"));
+		FVector MuzzleLocation = GetMesh()->GetSocketLocation(TEXT("Rifle_Muzzle"));	// 총구의 위치
 		UWorld* World = GetWorld();
 		if (World)
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
-			SpawnParams.Instigator = GetInstigator(); // instigator : spawn을 trigger한 주체
-			ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, FRotator(0,0,0), SpawnParams); // world에 actor를 스폰
+			SpawnParams.Instigator = GetInstigator();
+			ABullet* Projectile = World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, FRotator(0,0,0), SpawnParams); // 발사체 스폰
 			if (Projectile)
 			{
 				FVector LaunchDirection = GetControlRotation().Vector();
-				Projectile->FireInDirection(LaunchDirection); // 발사체 velocity 결정
+				Projectile->FireInDirection(LaunchDirection); // 발사체 속도 결정
 			}
 		}
 	}

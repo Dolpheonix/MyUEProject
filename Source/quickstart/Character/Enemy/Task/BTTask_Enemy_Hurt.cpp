@@ -38,6 +38,7 @@ void UBTTask_Enemy_Hurt::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	auto isEnded = !OwnerEnemy->GetMesh()->GetSingleNodeInstance()->IsPlaying();
 	if (isEnded)
 	{
+		// DetectionMode를 CacheMode의 값으로 돌려놓음
 		Controller->GetBlackboardComponent()->SetValueAsEnum(DetectionModeKey.SelectedKeyName, Controller->GetBlackboardComponent()->GetValueAsEnum(CacheModeKey.SelectedKeyName));
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

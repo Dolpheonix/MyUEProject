@@ -69,35 +69,35 @@ void AEnemyController::Tick(float DeltaTime)
 
 void AEnemyController::OnTargetPerceptionUpdate(AActor* SourceActor, FAIStimulus Stimulus)
 {
-	if (SourceActor == MainPlayer)
+	if (SourceActor == MainPlayer) // 플레이어의 감지 상태가 변함
 	{
-		EEnemyDetectionMode currDetection = EEnemyDetectionMode(GetBlackboardComponent()->GetValueAsEnum("DetectionMode"));
-		if (Stimulus.WasSuccessfullySensed())
+		EEnemyDetectionMode currDetection = EEnemyDetectionMode(GetBlackboardComponent()->GetValueAsEnum("DetectionMode")); // 현재 감지모드
+		if (Stimulus.WasSuccessfullySensed()) // 감지 상태가 감지된 것으로 변함
 		{
-			if (currDetection == EEnemyDetectionMode::PATROL)
+			if (currDetection == EEnemyDetectionMode::PATROL) // Patrol 상태
 			{
-				GetBlackboardComponent()->SetValueAsEnum("DetectionMode", uint8(EEnemyDetectionMode::CAUTION));
-				GetWorld()->GetTimerManager().SetTimer(CautionToDetectedTimer, this, &AEnemyController::CautionToDetected, 0.5f, false, 2.0f);
-				GetBlackboardComponent()->SetValueAsObject(PlayerKeyName, MainPlayer);
+				GetBlackboardComponent()->SetValueAsEnum("DetectionMode", uint8(EEnemyDetectionMode::CAUTION)); // Caution 모드로 변환
+				GetWorld()->GetTimerManager().SetTimer(CautionToDetectedTimer, this, &AEnemyController::CautionToDetected, 0.5f, false, 2.0f); // 타이머 등록
+				GetBlackboardComponent()->SetValueAsObject(PlayerKeyName, MainPlayer); // 플레이어를 블랙보드에 등록
 
 				OwnerEnemy->QuestionMarkComponent->SetVisibility(true);
 				OwnerEnemy->PlayDetectSound(true);
 			}
-			else if (currDetection == EEnemyDetectionMode::DETECTED)
+			else if (currDetection == EEnemyDetectionMode::DETECTED) // Detected 상태인데 시야에 다시 들어옴
 			{
 				GetWorld()->GetTimerManager().ClearTimer(TargetHoldTimer);
 			}
 		}
-		else
+		else // 감지 상태가 감지되지 않은 것으로 변함
 		{
 			if (currDetection == EEnemyDetectionMode::CAUTION)
 			{
 				GetBlackboardComponent()->SetValueAsEnum("DetectionMode", uint8(EEnemyDetectionMode::PATROL));
-				GetWorld()->GetTimerManager().ClearTimer(CautionToDetectedTimer);
+				GetWorld()->GetTimerManager().ClearTimer(CautionToDetectedTimer); // 타이머 삭제
 
 				OwnerEnemy->QuestionMarkComponent->SetVisibility(false);
 			}
-			else if (currDetection == EEnemyDetectionMode::DETECTED)
+			else if (currDetection == EEnemyDetectionMode::DETECTED) // Detected 상태인데 시야에서 벗어남
 			{
 				GetWorld()->GetTimerManager().SetTimer(TargetHoldTimer, this, &AEnemyController::IsTargetValid, 0.2f, false, 5.0f);
 			}

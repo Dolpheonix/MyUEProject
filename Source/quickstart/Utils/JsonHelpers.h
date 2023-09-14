@@ -625,19 +625,20 @@ public:
 		return OutVal;
 	}
 
+	// 캐릭터 메모리 불러오기
 	static void LoadCharacterMemory(TSharedPtr<FJsonObject> CharacterMemory, FCharacterMemory& OutVal)
 	{
-		OutVal.DisplayName = CharacterMemory->GetStringField(TEXT("DisplayName"));
-		OutVal.CurrentLevel = CharacterMemory->GetIntegerField(TEXT("CurrentLevel"));
-		OutVal.CurrentMap = CharacterMemory->GetStringField(TEXT("CurrentMap"));
-		OutVal.CurrentPos = LoadVector(CharacterMemory->GetArrayField(TEXT("CurrentPos")));
-		OutVal.CurrentRot = LoadRotator(CharacterMemory->GetObjectField(TEXT("CurrentRot")));
-		OutVal.CurrentHP = CharacterMemory->GetIntegerField(TEXT("CurrentHP"));
-		OutVal.CurrentMoney = CharacterMemory->GetIntegerField(TEXT("CurrentMoney"));
-		OutVal.Inventory = LoadInventory(CharacterMemory->GetObjectField(TEXT("Inventory")));
-		OutVal.Quickslots_Before = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Before")));
-		OutVal.Quickslots_Now = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Now")));
-		OutVal.Quickslots_Next = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Next")));
+		OutVal.DisplayName = CharacterMemory->GetStringField(TEXT("DisplayName")); // 이름
+		OutVal.CurrentLevel = CharacterMemory->GetIntegerField(TEXT("CurrentLevel")); // 레벨
+		OutVal.CurrentMap = CharacterMemory->GetStringField(TEXT("CurrentMap")); // 위치한 맵
+		OutVal.CurrentPos = LoadVector(CharacterMemory->GetArrayField(TEXT("CurrentPos"))); // 위치
+		OutVal.CurrentRot = LoadRotator(CharacterMemory->GetObjectField(TEXT("CurrentRot"))); // 회전 상태
+		OutVal.CurrentHP = CharacterMemory->GetIntegerField(TEXT("CurrentHP")); // 체력
+		OutVal.CurrentMoney = CharacterMemory->GetIntegerField(TEXT("CurrentMoney")); // 돈
+		OutVal.Inventory = LoadInventory(CharacterMemory->GetObjectField(TEXT("Inventory"))); // 인벤토리
+		OutVal.Quickslots_Before = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Before"))); // 퀵슬롯-이전
+		OutVal.Quickslots_Now = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Now"))); // 퀵슬록-현재
+		OutVal.Quickslots_Next = LoadQuickslot(CharacterMemory->GetObjectField(TEXT("Quickslot_Next"))); // 퀵슬록-다음
 	}
 };
 
@@ -783,21 +784,22 @@ public:
 		return QuickslotObj;
 	}
 
+	// 캐릭터 메모리를 저장
 	static TSharedPtr<FJsonObject> SaveCharacterMemory(FCharacterMemory CharacterMemory)
 	{
 		TSharedPtr<FJsonObject> ChMemObj = MakeShareable(new FJsonObject());
 
-		ChMemObj->SetStringField(TEXT("DisplayName"), CharacterMemory.DisplayName);
-		ChMemObj->SetNumberField(TEXT("CurrentLevel"), CharacterMemory.CurrentLevel);
-		ChMemObj->SetStringField(TEXT("CurrentMap"), CharacterMemory.CurrentMap);
-		ChMemObj->SetArrayField(TEXT("CurrentPos"), SaveVector(CharacterMemory.CurrentPos));
-		ChMemObj->SetObjectField(TEXT("CurrentRot"), SaveRotator(CharacterMemory.CurrentRot));
-		ChMemObj->SetNumberField(TEXT("CurrentHP"), CharacterMemory.CurrentHP);
-		ChMemObj->SetNumberField(TEXT("CurrentMoney"), CharacterMemory.CurrentMoney);
-		ChMemObj->SetObjectField(TEXT("Inventory"), SaveInventory(CharacterMemory.Inventory));
-		ChMemObj->SetObjectField(TEXT("Quickslot_Before"), SaveQuickSlot(CharacterMemory.Quickslots_Before));
-		ChMemObj->SetObjectField(TEXT("Quickslot_Now"), SaveQuickSlot(CharacterMemory.Quickslots_Now));
-		ChMemObj->SetObjectField(TEXT("Quickslot_Next"), SaveQuickSlot(CharacterMemory.Quickslots_Next));
+		ChMemObj->SetStringField(TEXT("DisplayName"), CharacterMemory.DisplayName); // 이름
+		ChMemObj->SetNumberField(TEXT("CurrentLevel"), CharacterMemory.CurrentLevel); // 레벨
+		ChMemObj->SetStringField(TEXT("CurrentMap"), CharacterMemory.CurrentMap); // 위치한 맵
+		ChMemObj->SetArrayField(TEXT("CurrentPos"), SaveVector(CharacterMemory.CurrentPos)); // 위치
+		ChMemObj->SetObjectField(TEXT("CurrentRot"), SaveRotator(CharacterMemory.CurrentRot)); // 회전 상태
+		ChMemObj->SetNumberField(TEXT("CurrentHP"), CharacterMemory.CurrentHP); // 체력
+		ChMemObj->SetNumberField(TEXT("CurrentMoney"), CharacterMemory.CurrentMoney); // 돈
+		ChMemObj->SetObjectField(TEXT("Inventory"), SaveInventory(CharacterMemory.Inventory)); // 인벤토리
+		ChMemObj->SetObjectField(TEXT("Quickslot_Before"), SaveQuickSlot(CharacterMemory.Quickslots_Before)); // 퀵슬롯-이전
+		ChMemObj->SetObjectField(TEXT("Quickslot_Now"), SaveQuickSlot(CharacterMemory.Quickslots_Now)); // 퀵슬록-현재
+		ChMemObj->SetObjectField(TEXT("Quickslot_Next"), SaveQuickSlot(CharacterMemory.Quickslots_Next)); // 퀵슬록-다음
 		
 		return ChMemObj;
 	}

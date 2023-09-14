@@ -76,6 +76,7 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::OnHurt()
 {
+	// 원래 모드를 CacheMode로 임시 저장
 	AIController->GetBlackboardComponent()->SetValueAsEnum("CacheMode", AIController->GetBlackboardComponent()->GetValueAsEnum("DetectionMode"));
 	AIController->GetBlackboardComponent()->SetValueAsEnum("DetectionMode", uint8(EEnemyDetectionMode::HURT));
 }
