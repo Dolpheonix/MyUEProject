@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_Fire.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -26,14 +23,14 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(Target.SelectedKeyName));
 
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(Blackboard->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;
+	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;	// 현재 감지 모드가 Detected가 아닐 경우 태스크 실패 처리
 
-	FVector dir = (TargetActor->GetActorLocation() - OwnerSniper->GetActorLocation()).GetSafeNormal();
-	FRotator rot = FRotationMatrix::MakeFromX(dir).Rotator();
+	FVector dir = (TargetActor->GetActorLocation() - OwnerSniper->GetActorLocation()).GetSafeNormal();	// 오너 -> 타겟
+	FRotator rot = FRotationMatrix::MakeFromX(dir).Rotator();	// Rotator
 
-	OwnerSniper->SetActorRotation(rot);
+	OwnerSniper->SetActorRotation(rot);	// 타겟 방향으로 몸을 돌림
 
-	OwnerSniper->Fire();
+	OwnerSniper->Fire();	// 공격
 
 	return EBTNodeResult::InProgress;
 }
@@ -42,7 +39,7 @@ void UBTTask_Fire::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 {
 	auto isEnded = !OwnerSniper->GetMesh()->GetSingleNodeInstance()->IsPlaying();
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(Controller->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (isEnded || Mode != EEnemyDetectionMode::DETECTED)
+	if (isEnded || Mode != EEnemyDetectionMode::DETECTED)	// 공격(발포) 애니메이션이 끝나거나, 감지 모드가 변경됐을 경우 종료
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

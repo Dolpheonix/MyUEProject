@@ -18,7 +18,7 @@ EBTNodeResult::Type UBTTask_NPC_Stroll::ExecuteTask(UBehaviorTreeComponent& Owne
 	auto res = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	bool interacted = OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool(InteractKey.SelectedKeyName);
-	if (interacted) return EBTNodeResult::Failed;
+	if (interacted) return EBTNodeResult::Failed;	// 상호작용 중이면 실패 처리
 	return res;
 }
 
@@ -28,6 +28,6 @@ void UBTTask_NPC_Stroll::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	if (OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool(InteractKey.SelectedKeyName))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);	// 상호작용을 시작하면 태스크 실패 처리
 	}
 }

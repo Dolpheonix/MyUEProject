@@ -1,12 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Lever.h"
 
 ALever::ALever()
 {
-	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
 	LeverCase = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeverCase"));
 	LeverCase->SetStaticMesh(Helpers::C_LoadObjectFromPath<UStaticMesh>(TEXT("/Game/ShootingGame/Asset/Prop/StaticMesh/Lever_Case.Lever_Case")));
 	LeverCase->SetupAttachment(RootComponent);

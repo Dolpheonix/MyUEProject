@@ -26,9 +26,9 @@ EBTNodeResult::Type UBTTask_Enemy_Hurt::ExecuteTask(UBehaviorTreeComponent& Owne
 	auto Blackboard = Controller->GetBlackboardComponent();
 
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(Blackboard->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::HURT) return EBTNodeResult::Failed;
+	if (Mode != EEnemyDetectionMode::HURT) return EBTNodeResult::Failed;	// 현재 감지모드가 Hurt가 아닐 경우 실패 처리
 
-	Controller->StopMovement();
+	Controller->StopMovement();	// 현재 이동 명령(MoveTo, Patrol 등)을 종료
 
 	return EBTNodeResult::InProgress;
 }
@@ -36,7 +36,7 @@ EBTNodeResult::Type UBTTask_Enemy_Hurt::ExecuteTask(UBehaviorTreeComponent& Owne
 void UBTTask_Enemy_Hurt::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	auto isEnded = !OwnerEnemy->GetMesh()->GetSingleNodeInstance()->IsPlaying();
-	if (isEnded)
+	if (isEnded)	// Hurt 경직 애니메이션이 끝날 경우 태스크 종료
 	{
 		// DetectionMode를 CacheMode의 값으로 돌려놓음
 		Controller->GetBlackboardComponent()->SetValueAsEnum(DetectionModeKey.SelectedKeyName, Controller->GetBlackboardComponent()->GetValueAsEnum(CacheModeKey.SelectedKeyName));

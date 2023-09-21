@@ -1,3 +1,6 @@
+// ABigheadController
+// ABighead 전용 AI 컨트롤러
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,5 +19,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// 컨트롤러의 오너 액터
 	ABighead* OwnerBighead;
 };

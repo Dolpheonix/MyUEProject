@@ -1,5 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Behavior Tree Task - Surveillance Wait
+// 일정 시간동안 멈춰 있는 태스크
+// 감지 모드가 변경되면 태스크 실패
 #pragma once
 
 #include "CoreMinimal.h"
@@ -20,7 +21,7 @@ protected:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 public:
-
+	// 현재 감지 모드
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector DetectionModeKey;
 };

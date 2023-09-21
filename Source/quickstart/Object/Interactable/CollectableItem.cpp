@@ -1,13 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CollectableItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../quickstart.h"
 #include "../../Core/GameMode/MainGameMode.h"
 #include "../../Utils/Helpers.h"
 #include "../../Data/DataTables.h"
-
 
 ACollectableItem::ACollectableItem()
 {
@@ -36,7 +32,7 @@ void ACollectableItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bInteractable)
+	if (bInteractable)	// 상호작용 가능한 상태면
 	{
 		AuraComponent->Activate();
 	}
@@ -45,7 +41,7 @@ void ACollectableItem::Tick(float DeltaTime)
 		AuraComponent->Deactivate();
 	}
 
-	MeshComponent->AddRelativeRotation(FRotator(0.0f, 0.5f, 0.0f));
+	MeshComponent->AddRelativeRotation(FRotator(0.0f, 0.5f, 0.0f));	// 틱마다 회전
 }
 
 void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -118,7 +114,7 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 
 void ACollectableItem::Interact()
 {
-	Player->Register(ItemInfo);
+	Player->Register(ItemInfo);	// 플레이어에 아이템을 추가
 	Player->InteractionFlag--;
-	Destroy();
+	Destroy();	// 액터 삭제
 }

@@ -1,5 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// AI Controller - NPC Controller
+// NPC 전용 AI 컨트롤러
+// 비헤이비어 트리, 블랙보드 로드 및 키 등록
 #pragma once
 
 #include "CoreMinimal.h"

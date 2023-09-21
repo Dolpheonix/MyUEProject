@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_Surveillance.h"
 #include "AIController.h"
 #include "../EnemyController.h"
@@ -17,7 +14,7 @@ UBTTask_Surveillance::UBTTask_Surveillance(const FObjectInitializer& ObjectIniti
 EBTNodeResult::Type UBTTask_Surveillance::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::PATROL)
+	if (Mode != EEnemyDetectionMode::PATROL)	// 현재 감지 모드가 Patrol이 아닐 경우 태스크 실패 처리
 	{
 		return EBTNodeResult::Failed;
 	}

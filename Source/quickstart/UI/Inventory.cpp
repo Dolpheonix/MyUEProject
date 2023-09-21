@@ -104,10 +104,9 @@ void UInventory::Exit()
 {
 	UGameplayStatics::PlaySound2D(this, ExitSound);
 
-	Player->GameMode->bShowroom = false;
 	Controller->SetShowMouseCursor(false);
 	Controller->SetInputMode(FInputModeGameOnly());
-	Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
+	Player->GameMode->ChangeCurrentWidget(Player->GameMode->MainUI);
 }
 
 void UInventory::InitializeSlots()

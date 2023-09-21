@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Behavior Tree Task - Enemy Hurt
+// Enemy 캐릭터가 데미지를 입을 시 실행되는 태스크
 
 #pragma once
 
@@ -7,9 +8,6 @@
 #include "../Enemy.h"
 #include "BTTask_Enemy_Hurt.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class QUICKSTART_API UBTTask_Enemy_Hurt : public UBTTaskNode
 {
@@ -22,8 +20,10 @@ protected:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 public:
+	// 현재 감지 모드
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector DetectionModeKey;
+	// 데미지를 입어 Hurt 상태가 되기 전, 마지막의 감지 모드
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector CacheModeKey;
 

@@ -1,29 +1,22 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character_Root.h"
 
-// Sets default values
 ACharacter_Root::ACharacter_Root()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
 void ACharacter_Root::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void ACharacter_Root::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HP <= 0 && !bDead)
+	if (HP <= 0 && !bDead)	// 체력이 0 이하가 되면 사망 함수 호출
 	{
 		bDead = true;
 		OnDead();
@@ -31,16 +24,9 @@ void ACharacter_Root::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void ACharacter_Root::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 float ACharacter_Root::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-
+	// 체력을 깎고, Hurt 함수 호출
 	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	HP -= damage;
 
@@ -51,9 +37,11 @@ float ACharacter_Root::TakeDamage(float DamageAmount, struct FDamageEvent const&
 
 void ACharacter_Root::OnHurt()
 {
+	// 하위 클래스에서 구현
 }
 
 void ACharacter_Root::OnDead()
 {
+	// 하위 클래스에서 구현
 }
 

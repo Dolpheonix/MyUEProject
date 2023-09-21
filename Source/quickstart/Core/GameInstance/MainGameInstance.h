@@ -38,7 +38,7 @@ public:
 	// 게임인스턴스의 게임 데이터를 세이브파일에 저장
 	bool SaveToFile();
 	// 퀘스트 상태를 FQuestStatus 구조체 형식으로 변환
-	TArray<FQuestStatus> SaveQuestStatus();
+	TArray<FQuestStatus> ConvertToQuestStatus();
 	// 맵 상태를 저장
 	void SaveLevel();
 	// 맵의 NPC 상태를 저장
@@ -49,7 +49,8 @@ public:
 	// 파일로부터 게임 데이터를 불러옴
 	void LoadFromFile(FString Slotname);
 	// 퀘스트 진행 상황을 퀘스트 오브젝트에 적용
-	void LoadQuestStatus(TArray<FQuestStatus> QuestStatus);
+	// QuestStatus : 파일로부터 불러온 퀘스트 진행상황
+	void ApplyQuestStatus(TArray<FQuestStatus> QuestStatus);
 	// 맵 데이터와 함께 맵을 불러옴
 	UFUNCTION(BlueprintCallable)
 	void LoadLevel(FString MapName, bool isStart);

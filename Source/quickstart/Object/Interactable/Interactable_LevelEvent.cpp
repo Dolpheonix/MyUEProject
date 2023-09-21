@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interactable_LevelEvent.h"
 #include "../../Utils/Helpers.h"
 
@@ -24,5 +21,5 @@ void AInteractable_LevelEvent::PostEditChangeProperty(struct FPropertyChangedEve
 
 void AInteractable_LevelEvent::Interact()
 {
-	LevelEvent.Broadcast();
+	LevelEvent.Broadcast();	// 상호작용 시, 레벨 이벤트를 Broadcast
 }

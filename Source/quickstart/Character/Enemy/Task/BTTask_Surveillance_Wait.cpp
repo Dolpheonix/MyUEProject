@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_Surveillance_Wait.h"
 #include "AIController.h"
 #include "../EnemyController.h"
@@ -26,7 +23,7 @@ void UBTTask_Surveillance_Wait::TickTask(UBehaviorTreeComponent& OwnerComp, uint
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::PATROL)
+	if (Mode != EEnemyDetectionMode::PATROL)	// 현재 감지 모드가 Patrol에서 벗어날 경우 태스크 실패 처리
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 	}

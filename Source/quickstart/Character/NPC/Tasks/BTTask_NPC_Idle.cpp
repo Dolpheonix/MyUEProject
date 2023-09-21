@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_NPC_Idle.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
@@ -18,7 +15,7 @@ EBTNodeResult::Type UBTTask_NPC_Idle::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	auto res = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	bool interacted = OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool(InteractKey.SelectedKeyName);
-	if (interacted) return EBTNodeResult::Failed;
+	if (interacted) return EBTNodeResult::Failed;	// 상호작용 중인 경우 실패 처리
 	return res;
 }
 
@@ -28,6 +25,6 @@ void UBTTask_NPC_Idle::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 	if (OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool(InteractKey.SelectedKeyName))
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);	// 플레이어가 상호작용하면 실패 처리
 	}
 }

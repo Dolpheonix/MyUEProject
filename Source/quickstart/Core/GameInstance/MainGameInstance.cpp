@@ -47,11 +47,12 @@ void UMainGameInstance::InitializeCharacterMemory(FString Name)
 	// 캐릭터 관련 기본 데이터 생성
 	CharacterMemory.DisplayName = Name;
 	CharacterMemory.CurrentMap = "Tutorial"; // 튜토리얼 맵부터 시작
-	CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -100.0f); // 
+	CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -100.0f); // 기본 스폰 위치에서 시작
 	CharacterMemory.CurrentHP = 100.0f;
 	CharacterMemory.CurrentMoney = 10000;
 
-	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist"));
+	// 기본 아이템 데이터 생성
+	FItemForm fist = FItemForm(FItemShortForm(ETypeTag::Weapon, "Fist")); 
 	FItemForm noitem = FItemForm(FItemShortForm(ETypeTag::Item, "NoItem"));
 	FItemForm nocloth = FItemForm(FItemShortForm(ETypeTag::Cloth, "NoCloth"));
 	fist.ShortForm.InfoTag = "Fist";
@@ -61,7 +62,7 @@ void UMainGameInstance::InitializeCharacterMemory(FString Name)
 	noitem.ShortForm.bIsSellable = false;
 	nocloth.ShortForm.InfoTag = "NoCloth";
 	nocloth.ShortForm.bIsSellable = false;
-
+	// 썸네일 로드
 	fist.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/Fist_Normal.Fist_Normal"));
 	fist.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/Fist_Hovered.Fist_Hovered"));
 	fist.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/Fist_Selected.Fist_Selected"));
@@ -71,14 +72,14 @@ void UMainGameInstance::InitializeCharacterMemory(FString Name)
 	nocloth.Thumbnail_N = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Normal/NoCloth_Normal.NoCloth_Normal"));
 	nocloth.Thumbnail_H = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Hovered/NoCloth_Hovered.NoCloth_Hovered"));
 	nocloth.Thumbnail_S = Helpers::LoadObjectFromPath<UTexture2D>(TEXT("/Game/ShootingGame/Image/WidgetImage/Selected/NoCloth_Selected.NoCloth_Selected"));
-
+	// 인벤토리에 추가
 	CharacterMemory.Inventory.Add(FWrappedItemForm()); // Weapons
 	CharacterMemory.Inventory.Add(FWrappedItemForm()); // Items
 	CharacterMemory.Inventory.Add(FWrappedItemForm()); // Clothes
 	CharacterMemory.Inventory[uint8(ETypeTag::Weapon)].ItemForms.Add(fist);
 	CharacterMemory.Inventory[uint8(ETypeTag::Item)].ItemForms.Add(noitem);
 	CharacterMemory.Inventory[uint8(ETypeTag::Cloth)].ItemForms.Add(nocloth);
-
+	//퀵슬롯 설정
 	CharacterMemory.Quickslots_Before = TArray<int>({ 0,0,0 });
 	CharacterMemory.Quickslots_Now = TArray<int>({ 0,0,0 });
 	CharacterMemory.Quickslots_Next = TArray<int>({ 0,0,0 });
@@ -88,7 +89,7 @@ void UMainGameInstance::ApplyCharacterMemory(AMainCharacter* character)
 {
 	character->CurrLevel = CharacterMemory.CurrentLevel;
 	character->DisplayName = CharacterMemory.DisplayName;
-	if (CharacterMemory.CurrentPos.Z > 0)
+	if (CharacterMemory.CurrentPos.Z > 0)							// Z <= 0이면 초기 스폰 위치에서 시작
 	{
 		character->SetActorLocation(CharacterMemory.CurrentPos);
 		character->SetActorRotation(CharacterMemory.CurrentRot);
@@ -119,22 +120,22 @@ void UMainGameInstance::SaveCharacterMemory(AMainCharacter* character)
 	CharacterMemory_Quest = character->QuestList;
 }
 
-// 세이브 파일을 인스턴스로 로드
 void UMainGameInstance::LoadFromFile(FString SlotName)
 {
+	// 세이브파일 로드
 	FString JsonString;
 	FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + "SaveGames/" + SlotName + ".json"));
 	TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(JsonString);
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 	FJsonSerializer::Deserialize(Reader, JsonObject);
 
-	SlotIndex = JsonObject->GetIntegerField(TEXT("SlotIndex"));
+	SlotIndex = JsonObject->GetIntegerField(TEXT("SlotIndex"));	// 슬롯 인덱스 불러오기
 	JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), CharacterMemory); // 캐릭터 메모리 불러오기
 	JsonLoader::LoadMapMemories(JsonObject->GetArrayField(TEXT("MapMemories")), MapMemories); // 전체 맵 메모리 불러오기
-	LoadQuestStatus(JsonLoader::LoadQuestStatus(JsonObject->GetArrayField(TEXT("QuestStatus")))); // 퀘스트 진행도 불러오기
+	ApplyQuestStatus(JsonLoader::LoadQuestStatus(JsonObject->GetArrayField(TEXT("QuestStatus")))); // 퀘스트 진행도 불러오기
 }
 
-void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
+void UMainGameInstance::ApplyQuestStatus(TArray<FQuestStatus> QuestStatus)
 {
 	for (int i = 0; i < QuestStatus.Num(); i++)
 	{
@@ -153,7 +154,7 @@ void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
 			Quest->CurrPhase = QS.CurrPhase;
 			Quest->Remains = QS.Remains;
 
-			if (Quest->Type == EQuestType::Serial)
+			if (Quest->Type == EQuestType::Serial)	// Serial 퀘스트
 			{
 				for (int j = 0; j < Quest->SubQuests.Num(); j++)
 				{
@@ -161,7 +162,7 @@ void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
 					SubQuest->Completed = QS.SubStatus[j].Completed;
 					SubQuest->currAmounts = QS.SubStatus[j].CurrAmount;
 
-					if (j <= Quest->CurrPhase)
+					if (j <= Quest->CurrPhase)	// 현재 진행중인 subquest까지만 캐릭터에 등록
 					{
 						if (SubQuest->Type == ESingleQuestType::Arrival)
 						{
@@ -186,7 +187,7 @@ void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
 					}
 				}
 			}
-			else
+			else									// Parallel 퀘스트
 			{
 				for (int j = 0; j < QS.SubStatus.Num(); j++)
 				{
@@ -220,11 +221,10 @@ void UMainGameInstance::LoadQuestStatus(TArray<FQuestStatus> QuestStatus)
 	}
 }
 
-// 게임 진행도를 파일로 저장
 bool UMainGameInstance::SaveToFile()
 {
 	SaveLevel(); // 현재 레벨의 NPC, 아이템 상태를 저장
-	TArray<FQuestStatus> QuestStatus = SaveQuestStatus(); // 퀘스트 진행도를 json 오브젝트로 변환
+	TArray<FQuestStatus> QuestStatus = ConvertToQuestStatus(); // 퀘스트 진행도를 json 오브젝트로 변환
 
 	FString FilePath = *(FPaths::ProjectSavedDir() + "SaveGames/" + CharacterMemory.DisplayName + ".json");
 	TSharedPtr<FJsonObject> Obj = MakeShareable(new FJsonObject());
@@ -241,7 +241,7 @@ bool UMainGameInstance::SaveToFile()
 	return JsonSaver::SaveObjectToJson(Obj, FilePath); // 전체 세이브파일 저장
 }
 
-TArray<FQuestStatus> UMainGameInstance::SaveQuestStatus()
+TArray<FQuestStatus> UMainGameInstance::ConvertToQuestStatus()
 {
 	TArray<FQuestStatus> QSS;
 	for (int i = 0; i < CharacterMemory_Quest.WorkingQuests.Num(); i++)
@@ -262,7 +262,6 @@ TArray<FQuestStatus> UMainGameInstance::SaveQuestStatus()
 			SQS.CurrAmount = SingleQuest->currAmounts;
 
 			QS.SubStatus.Add(SQS);
-			UE_LOG(LogTemp, Log, TEXT("Added!"));
 		}
 
 		QSS.Add(QS);
@@ -275,30 +274,30 @@ void UMainGameInstance::SaveLevel()
 {
 	if (CurrentMapMemory)
 	{
-		SaveNPC();
-		SaveItems();
+		SaveNPC();		// NPC 저장
+		SaveItems();	// 루팅 아이템 저장
 	}
 }
 
 void UMainGameInstance::SaveNPC()
 {
 	TArray<AActor*> NPCList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter_Root::StaticClass(), NPCList);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANPC::StaticClass(), NPCList);	// 현재 레벨의 NPC 액터 리스트
 
-	for (int i = 0; i < CurrentMapMemory->LocalNPCMemory.Num(); i++)
+	for (int i = 0; i < CurrentMapMemory->LocalNPCMemory.Num(); i++)					// 맵 메모리의 NPC 리스트
 	{
 		FNPCMemory* NPCMem = &CurrentMapMemory->LocalNPCMemory[i];
 		FString ActorName = NPCMem->ActorMemory.Name;
 		UE_LOG(LogTemp, Log, TEXT("CurrentMapMemory has %s"), *ActorName);
 
-		AActor** FoundPtr = NPCList.FindByPredicate([ActorName](const AActor* actor) {
+		AActor** FoundPtr = NPCList.FindByPredicate([ActorName](const AActor* actor) {	// 맵 메모리의 NPC에 상응하는 NPC 액터 리턴
 			return actor->GetName() == ActorName;
 			});
 
 		if (FoundPtr)
 		{
 			ANPC* NPC = Cast<ANPC>(*FoundPtr);
-			if (NPC)
+			if (NPC)	// 아직 맵에 존재한다면
 			{
 				NPCMem->ActorMemory.IsValid = true;
 				NPCMem->ActorMemory.CurrentPos = NPC->GetActorLocation();
@@ -309,7 +308,7 @@ void UMainGameInstance::SaveNPC()
 		}
 		else
 		{
-			NPCMem->ActorMemory.IsValid = false;
+			NPCMem->ActorMemory.IsValid = false;	// 맵에서 사라짐 ==> Invalid 상태
 		}
 	}
 }
@@ -317,7 +316,7 @@ void UMainGameInstance::SaveNPC()
 void UMainGameInstance::SaveItems()
 {
 	TArray<AActor*> CollectableItemList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACollectableItem::StaticClass(), CollectableItemList);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACollectableItem::StaticClass(), CollectableItemList);	// 현재 레벨의 루팅 아이템 리스트
 
 	for (int i = 0; i < CurrentMapMemory->OriginActorMemory_CollectableItem.Num(); i++)
 	{
@@ -350,22 +349,22 @@ void UMainGameInstance::Start()
 
 void UMainGameInstance::LoadLevel(FString MapName, bool isStart)
 {
-	if (!isStart)
+	if (!isStart)	// 게임 시작이 아님 ==> 게임 플레이 중 맵 전환이 발생
 	{
-		SaveCharacterMemory(Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)));
-		SaveToFile();
-		CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -1.0f);
+		SaveCharacterMemory(Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)));	// 맵 전환 전에 캐릭터 정보를 임시저장
+		SaveToFile();	// 파일에 자동저장
+		CharacterMemory.CurrentPos = FVector(0.0f, 0.0f, -1.0f);	// Z < 0 : 기본 위치에 스폰
 	}
 
-	if (MapName != "Intro_Empty")
+	if (MapName != "Intro_Empty")	// 인트로 맵이 아닌 경우(일반적인 게임 상황)
 	{
 		CharacterMemory.CurrentMap = MapName;
 		
-		CurrentMapMemory = MapMemories.FindByPredicate([MapName](const FMapMemory MM) {
+		CurrentMapMemory = MapMemories.FindByPredicate([MapName](const FMapMemory MM) {	// 불러올 맵의 메모리
 			return MM.Name == MapName;
 			});
 
-		if (!CurrentMapMemory)
+		if (!CurrentMapMemory)	// 맵 메모리가 존재하지 않음(처음 불러오는 맵)
 		{
 			FMapMemory newMM;
 			newMM.Name = MapName;
@@ -386,11 +385,11 @@ void UMainGameInstance::LoadLevel(FString MapName, bool isStart)
 int32 UMainGameInstance::AllocateSlotIndex()
 {
 	TArray<FString> SlotList;
-	if (JsonLoader::LoadSlotList(SlotList))
+	if (JsonLoader::LoadSlotList(SlotList))	// 슬롯 정보를 저장한 리스트
 	{
 		for (int i = 0; i < MAX_SAVE_SLOTS; i++)
 		{
-			if (SlotList[i] == "")
+			if (SlotList[i] == "")	// 빈자리 발견
 			{
 				SlotList[i] = CharacterMemory.DisplayName;
 				SlotIndex = i;
@@ -398,15 +397,15 @@ int32 UMainGameInstance::AllocateSlotIndex()
 				JsonSaver::SaveSlotList(SlotList);
 				return i;
 			}
-			else if (SlotList[i] == CharacterMemory.DisplayName)
+			else if (SlotList[i] == CharacterMemory.DisplayName)	// 이미 존재하는 이름
 			{
 				return -1;
 			}
 		}
 
-		return -2;
+		return -2;	// 슬롯이 꽉참
 	}
-	else
+	else // 슬롯 리스트가 존재하지 않음 ==> 새로 생성 후 0번에 할당
 	{
 		SlotList.Empty();
 		SlotList.SetNum(MAX_SAVE_SLOTS);
@@ -420,11 +419,11 @@ int32 UMainGameInstance::AllocateSlotIndex()
 void UMainGameInstance::LoadNPC(UWorld* world)
 {
 	TArray<AActor*> NPCList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANPC::StaticClass(), NPCList);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANPC::StaticClass(), NPCList);	// 현재 레벨의 NPC 리스트
 
-	JsonLoader::LoadNPCDialogue(NPCList);
+	JsonLoader::LoadNPCDialogue(NPCList);	// 대화 데이터를 NPC 액터에 적용
 
-	if (bToInitializeMapMemory)
+	if (bToInitializeMapMemory)	// 맵 메모리를 초기화하지 않음 ==> 현재 NPC 리스트 모두 메모리에 추가
 	{
 		for (int i = 0; i < NPCList.Num(); i++)
 		{
@@ -445,13 +444,13 @@ void UMainGameInstance::LoadNPC(UWorld* world)
 		for (FNPCMemory NPCMem : CurrentMapMemory->LocalNPCMemory)
 		{
 			FString NPCName = NPCMem.ActorMemory.Name;
-			AActor** FoundPtr = NPCList.FindByPredicate([NPCName](const AActor* actor) {
+			AActor** FoundPtr = NPCList.FindByPredicate([NPCName](const AActor* actor) {	// NPC 메모리에 상응하는 NPC 액터
 				return actor->GetName() == NPCName;
 				});
 
 			if (FoundPtr)
 			{
-				if (NPCMem.ActorMemory.IsValid)
+				if (NPCMem.ActorMemory.IsValid)	// 아직 존재하는 NPC
 				{
 					ANPC* NPC = Cast<ANPC>(*FoundPtr);
 					NPC->DialogueTree.StartIndex = NPCMem.DialoguePhase;
@@ -459,7 +458,7 @@ void UMainGameInstance::LoadNPC(UWorld* world)
 					NPC->GenerateShopItems();
 					NPC->SetActorLocationAndRotation(NPCMem.ActorMemory.CurrentPos, NPCMem.ActorMemory.CurrentRot);
 				}
-				else
+				else // Invalid NPC ==> 삭제
 				{
 					(*FoundPtr)->Destroy();
 				}
@@ -471,9 +470,9 @@ void UMainGameInstance::LoadNPC(UWorld* world)
 void UMainGameInstance::LoadItems(UWorld* world)
 {
 	TArray<AActor*> CollectableItemList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACollectableItem::StaticClass(), CollectableItemList);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACollectableItem::StaticClass(), CollectableItemList);	// 현재 레벨의 루팅 아이템 리스트
 
-	if (bToInitializeMapMemory)
+	if (bToInitializeMapMemory)	// 루팅 아이템 전부 메모리에 추가
 	{
 		for (AActor* ActorPtr : CollectableItemList)
 		{
@@ -509,18 +508,17 @@ void UMainGameInstance::LoadItems(UWorld* world)
 
 void UMainGameInstance::LoadObjects(UWorld* world)
 {
-	//UGameplayStatics::GetCurrentLevelName(GetWorld());
-
+	// case 0 : 도착 퀘스트의 도착지 Indicator
 	AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	if (Player)
 	{
-		for (int i = 0; i < Player->QuestList.ArrivalQuests.Num(); i++)
+		for (int i = 0; i < Player->QuestList.ArrivalQuests.Num(); i++)	// 플레이어가 진행중인 도착 퀘스트
 		{
 			FSingleQuest* sq = Player->QuestList.ArrivalQuests[i];
 			if (sq && sq->MapName == CurrentMapMemory->Name && !sq->Completed)
 			{
-				Player->RegisterDestinationFlagVolume(sq);
+				Player->RegisterDestinationFlagVolume(sq);	// 도착지 비콘 액터 스폰
 			}
 		}
 	}

@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Behavior Tree Task - Fire
+// Sniper 캐릭터의 공격 태스크
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,9 +8,6 @@
 #include "../Sniper.h"
 #include "BTTask_Fire.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class QUICKSTART_API UBTTask_Fire : public UBTTaskNode
 {
@@ -24,14 +21,16 @@ protected:
 
 public:
 
-	// 타겟 오브젝트
+	// 타겟 액터의 블랙보드 키
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector Target;
+	// Sniper의 현재 감지 모드
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector DetectionModeKey;
-
-	float MuzzlePoint;
+	// Target Actor
 	AActor* TargetActor;
+	// Task Owner
 	ASniper* OwnerSniper;
+	// Task Controller
 	AAIController* Controller;
 };

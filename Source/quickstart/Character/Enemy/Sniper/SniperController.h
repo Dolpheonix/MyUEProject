@@ -1,3 +1,6 @@
+// Enemy Controller - Sniper Controller
+// Sniper 전용 AI Controller
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,5 +20,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// 컨트롤러 오너
 	ASniper* OwnerSniper;
 };

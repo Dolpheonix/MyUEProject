@@ -6,12 +6,14 @@ void AMainCharacter::NoItem()
 
 void AMainCharacter::ThrowApple()
 {
+	// 던지는 위치 : 캐릭터 살짝 앞
 	FVector ThrowPoint = GetActorLocation() + FVector(0.0f, 0.0f, 60.0f) + 15.0f * GetActorForwardVector();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = GetInstigator();
 
+	// 사과 오브젝트를 스폰하고, 정면으로 발사
 	AThrowable* Apple = GetWorld()->SpawnActor<AThrowable>(AThrowable::StaticClass(), ThrowPoint, FRotator(0.0f, 0.0f, 0.0f), SpawnParams);
 	if (Apple)
 	{
@@ -28,12 +30,14 @@ void AMainCharacter::ThrowApple()
 
 void AMainCharacter::ThrowSeed()
 {
+	// 던지는 위치 : 캐릭터 살짝 앞
 	FVector ThrowPoint = GetActorLocation() + FVector(0.0f, 0.0f, 60.0f) + 15.0f * GetActorForwardVector();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = GetInstigator();
 
+	// 씨앗 오브젝트를 스폰하고, 정면으로 발사
 	AThrowable* Seed = GetWorld()->SpawnActor<AThrowable>(AThrowable::StaticClass(), ThrowPoint, FRotator(0.0f, 0.0f, 0.0f), SpawnParams);
 	if (Seed)
 	{

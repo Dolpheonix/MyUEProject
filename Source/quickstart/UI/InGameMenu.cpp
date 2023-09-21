@@ -80,7 +80,7 @@ void UInGameMenu::ReturnToGame()
 	}
 
 	AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-	Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
+	Player->GameMode->ChangeCurrentWidget(Player->GameMode->MainUI);
 }
 
 void UInGameMenu::SaveGame()

@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Interactable - Collectable Item
+// 플레이어가 상호작용을 통해 루팅할 수 있는 아이템
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,9 +7,6 @@
 #include "Interactable.h"
 #include "CollectableItem.generated.h"
 
-/*
- If player interact with this actor, actor destroyed. But class of this item is added to player's inventory.
- */
 UCLASS()
 class QUICKSTART_API ACollectableItem : public AInteractable
 {
@@ -25,18 +22,20 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 public:
+	// Mesh Component
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mesh")
 	UStaticMeshComponent* MeshComponent;
-
+	// 아이템 메시
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMesh* ItemMesh;
-
+	// 범위에 들어왔을 때 켜지는 FX
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* AuraComponent;
-
+	// 아이템 정보
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemInfo")
 	FItemShortForm ItemInfo;
 
+	// 아이템 데이터
 	class UDataTable* ItemTable;
 	class UDataTable* WeaponTable;
 	class UDataTable* ClothTable;

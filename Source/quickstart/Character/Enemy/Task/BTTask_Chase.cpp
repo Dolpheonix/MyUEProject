@@ -19,7 +19,7 @@ EBTNodeResult::Type UBTTask_Chase::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;
+	if (Mode != EEnemyDetectionMode::DETECTED) return EBTNodeResult::Failed;	// 현재 감지 모드가 Detected가 아닐 경우 실패 처리
 
 
 	return result;
@@ -30,7 +30,7 @@ void UBTTask_Chase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	EEnemyDetectionMode Mode = EEnemyDetectionMode(OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsEnum(DetectionModeKey.SelectedKeyName));
-	if (Mode != EEnemyDetectionMode::DETECTED)
+	if (Mode != EEnemyDetectionMode::DETECTED)	// 감지 모드가 Detected를 벗어날 경우 중도 실패 처리
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 	}

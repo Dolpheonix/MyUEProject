@@ -11,13 +11,13 @@ AMainGameMode::AMainGameMode()
     ClothTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"));
     WeaponTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"));
     ItemTable = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Item_Sheet.Item_Sheet"));
-
-    ActionCodeTable.SetNum(MAXACTIONCODE);
 }
 
 void AMainGameMode::BeginPlay()
 {
     Super::BeginPlay();
+
+    // 지정된 UI 클래스 기반으로 UI 생성
     MainUI = CreateWidget(GetWorld(), MainWidgetClass);
     InGameMenuUI = CreateWidget(GetWorld(), InGameMenuWidgetClass);
     ShowroomUI = CreateWidget(GetWorld(), ShowroomWidgetClass);
@@ -26,23 +26,19 @@ void AMainGameMode::BeginPlay()
     ShopUI = CreateWidget(GetWorld(), ShopWidgetClass);
     QuestUI = CreateWidget(GetWorld(), QuestWidgetClass);
 
-    ChangeMenuWidget(MainUI);
+    // 인게임 위젯으로 초기 설정
+    ChangeCurrentWidget(MainUI);
 }
 
-void AMainGameMode::StartPlay()
+void AMainGameMode::ChangeCurrentWidget(UUserWidget* TargetUI)
 {
-    Super::StartPlay();
-}
-
-void AMainGameMode::ChangeMenuWidget(UUserWidget* TargetUI)
-{
-    if (CurrentUI != nullptr)
+    if (CurrentUI != nullptr)   // 현재 UI가 존재한다면 미리 뷰포트에서 제거
     {
         CurrentUI->RemoveFromViewport();
         CurrentUI = nullptr;
     }
 
-    if (TargetUI != nullptr)
+    if (TargetUI != nullptr)    // 타켓 UI를 뷰포트에 추가 후 현재 UI로 지정
     {
         CurrentUI = TargetUI;
         CurrentUI->AddToViewport();
@@ -51,6 +47,7 @@ void AMainGameMode::ChangeMenuWidget(UUserWidget* TargetUI)
 
 void AMainGameMode::SniperMode(bool turnOn)
 {
+    // 조준 모드는 기존의 인게임 UI를 제거하지 않고 추가만 함
     if (turnOn) SniperUI->AddToViewport();
     else SniperUI->RemoveFromViewport();
 }

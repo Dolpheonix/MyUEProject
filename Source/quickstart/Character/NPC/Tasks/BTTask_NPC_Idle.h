@@ -1,5 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Behavior Tree Task - NPC Idle
+// NPC의 Wait 태스크
+// 플레이어가 상호작용할 시 실패 처리
 #pragma once
 
 #include "CoreMinimal.h"
@@ -21,6 +22,7 @@ protected:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 public:
+	// 상호작용 여부를 확인하는 블랙보드 키
 	UPROPERTY(EditAnywhere, Category = "BlackboardKey")
 	FBlackboardKeySelector InteractKey;
 };

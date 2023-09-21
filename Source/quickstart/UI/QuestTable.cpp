@@ -119,7 +119,7 @@ FReply UQuestTable::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent
 	{
 		Controller->SetShowMouseCursor(false);
 		Controller->SetInputMode(FInputModeGameOnly());
-		Player->GameMode->ChangeMenuWidget(Player->GameMode->MainUI);
+		Player->GameMode->ChangeCurrentWidget(Player->GameMode->MainUI);
 	}
 
 	return FReply::Handled();

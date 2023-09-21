@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interactable.h"
 #include "Components/ArrowComponent.h"
 #include "../../Utils/Helpers.h"
@@ -8,19 +5,18 @@
 #include "Blueprint/WidgetTree.h"
 #include <Kismet/GameplayStatics.h>
 
-// Sets default values
 AInteractable::AInteractable()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
+	// 상호작용 범위 관련 초기화
 	InteractPoint = FVector::ZeroVector;
 	InteractForward = GetActorForwardVector();
 	InteractRadius = 200.0f;
 	InteractRange = 90.0f;
-
+	
+	// 범위 시각화
 	FVector axis = InteractForward.RotateAngleAxis(90.0f, FVector(1.0f, 0.0f, 0.0f));
 	FRotator forward = InteractForward.Rotation();
 	FRotator range_L = InteractForward.RotateAngleAxis(InteractRange / 2, axis).Rotation();
@@ -43,18 +39,15 @@ AInteractable::AInteractable()
 	InteractionRangeArrow_R->ArrowLength = InteractRadius;
 }
 
-// Called when the game starts or when spawned
 void AInteractable::BeginPlay()
 {
 	Super::BeginPlay();
 
 	Player = (AMainCharacter*)UGameplayStatics::GetPlayerPawn(this, 0);
 
-	InteractPoint = GetActorLocation();
-	InteractForward = GetActorForwardVector();
+	InteractPoint += GetActorLocation();	// 월드 스페이스로 기준점 이동
 }
 
-// Called every frame
 void AInteractable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -67,7 +60,7 @@ void AInteractable::Tick(float DeltaTime)
 
 	if (bActive && dist < InteractRadius && FMath::Acos(FVector::DotProduct(BP, InteractForward)) < (InteractRange / 2)) // 상호작용이 가능
 	{
-		if (!bInteractable) // 처음 반경에 들어왔다면
+		if (!bInteractable) // 처음 범위에 들어왔다면
 		{
 			Player->InteractionFlag++;
 			bInteractable = true;
@@ -78,7 +71,7 @@ void AInteractable::Tick(float DeltaTime)
 			Interact();
 		}
 	}
-	else if(bInteractable)
+	else if(bInteractable)	// 플레이어가 범위에서 빠져나옴
 	{
 		Player->InteractionFlag--;
 		bInteractable = false;
@@ -90,16 +83,16 @@ void AInteractable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	FString Name = PropertyChangedEvent.Property->GetName();
-	if (Name == TEXT("X") || Name == TEXT("Y") || Name == TEXT("Z"))
+	if (Name == TEXT("X") || Name == TEXT("Y") || Name == TEXT("Z"))	// 벡터 프로퍼티가 변경됨
 	{
 		FString VectorName = PropertyChangedEvent.MemberProperty->GetName();
-		if (VectorName == TEXT("InteractPoint"))
+		if (VectorName == TEXT("InteractPoint"))	// 변경 내용에 맞게 Arrow Component 변경
 		{
 			InteractionForwardArrow->SetRelativeLocation(InteractPoint);
 			InteractionRangeArrow_L->SetRelativeLocation(InteractPoint);
 			InteractionRangeArrow_R->SetRelativeLocation(InteractPoint);
 		}
-		else if (VectorName == TEXT("InteractForward"))
+		else if (VectorName == TEXT("InteractForward"))	// 변경 내용에 맞게 Arrow Component 변경
 		{
 			InteractForward.Normalize();
 			FVector right = InteractForward.RotateAngleAxis(90.0f, FVector(0.0f, 0.0f, 1.0f));
@@ -114,7 +107,7 @@ void AInteractable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 			InteractionRangeArrow_R->SetRelativeRotation(range_R);
 		}
 	}
-	else if (Name == TEXT("InteractRange"))
+	else if (Name == TEXT("InteractRange"))	// 바뀐 범위각에 맞게 Arrow Component 변경
 	{
 		FVector right = InteractForward.RotateAngleAxis(90.0f, FVector(0.0f, 0.0f, 1.0f));
 		FVector axis = FVector::CrossProduct(InteractForward, right);
@@ -125,7 +118,7 @@ void AInteractable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 		InteractionRangeArrow_L->SetRelativeRotation(range_L);
 		InteractionRangeArrow_R->SetRelativeRotation(range_R);
 	}
-	else if (Name == TEXT("InteractRadius"))
+	else if (Name == TEXT("InteractRadius"))	// 바뀐 반경에 맞게 Arrow Component 변경
 	{
 		InteractionForwardArrow->ArrowLength = InteractRadius;
 		InteractionRangeArrow_L->ArrowLength = InteractRadius;
