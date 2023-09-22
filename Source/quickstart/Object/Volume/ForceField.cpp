@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ForceField.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
@@ -11,7 +8,6 @@
 AForceField::AForceField()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
 
 	GetBrushComponent()->SetCollisionProfileName("Volume");
 
@@ -25,7 +21,7 @@ void AForceField::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedE
 	auto propName = PropertyChangedEvent.MemberProperty->GetFName();
 	if (propName == "ForceDirection")
 	{
-		Arrow->SetRelativeRotation(ForceDirection);
+		Arrow->SetRelativeRotation(ForceDirection);	// Force Direction 프로퍼티에 맞춰서 화살표 방향 변경
 	}
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -42,6 +38,7 @@ void AForceField::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 내부에 들어온 Object/Character들에게 힘 적용
 	for (int i = 0; i < CharacterEntry.Num(); i++)
 	{
 		CharacterEntry[i].EnteredActor->GetCharacterMovement()->AddInputVector(ForceVector * ForceMagnitude);
@@ -57,8 +54,7 @@ void AForceField::ActorEnteredVolume(AActor* other)
 {
 	APhysicsVolume::ActorEnteredVolume(other);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("ENTER??"));
-
+	// 리스트에 Character/Object 추가
 	auto character = Cast<ACharacter_Root>(other);
 	if (character)
 	{
@@ -85,8 +81,8 @@ void AForceField::ActorEnteredVolume(AActor* other)
 void AForceField::ActorLeavingVolume(AActor* other)
 {
 	APhysicsVolume::ActorLeavingVolume(other);
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("LEAVE??"));
 
+	// 리스트에서 Character/Object 제거
 	auto character = Cast<ACharacter_Root>(other);
 	if (character)
 	{

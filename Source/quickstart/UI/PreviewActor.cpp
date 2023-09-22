@@ -1,15 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PreviewActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "../Utils/Helpers.h"
 #include "../Data/DataTables.h"
 
-// Sets default values
 APreviewActor::APreviewActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	USceneComponent* root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -20,6 +15,7 @@ APreviewActor::APreviewActor()
 	Helpers::SetComponent<USkeletalMeshComponent>(&MainMesh, RootComponent, FVector(0.f, 0.f, -88.f), FRotator(0.0f, -90.0f, 0.f));
 	MainMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	
+	// 모든 무기와 의상을 로드한 후, 우선 보이지 않게 설정
 	auto ClothNames = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Cloth_Sheet.Cloth_Sheet"))->GetRowNames();
 	auto WeaponNames = Helpers::C_LoadObjectFromPath<UDataTable>(TEXT("/Game/ShootingGame/Data/Weapon_Sheet.Weapon_Sheet"))->GetRowNames();
 
@@ -44,29 +40,24 @@ APreviewActor::APreviewActor()
 		PreviewWeapons.Add(name, weapon);
 	}
 
+	// 카메라 컴포넌트 설정
 	PreviewCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PreviewCamera"));
 	PreviewCamera->TextureTarget = Helpers::C_LoadObjectFromPath<UTextureRenderTarget2D>(TEXT("/Game/ShootingGame/Blueprint/UI/Preview.Preview"));
 	PreviewCamera->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 	Helpers::SetComponent<USceneCaptureComponent2D>(&PreviewCamera, RootComponent, FVector(50.0f, 0.0f, 0.0f), FRotator(0.0f, 180.0f, 0.0f));
 }
 
-// Called when the game starts or when spawned
 void APreviewActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
-	SyncEvent.AddDynamic(this, &APreviewActor::Sync_to_Character);
-}
-
-// Called every frame
-void APreviewActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	SyncEvent.AddDynamic(this, &APreviewActor::Sync_to_Character);	// 동기화 이벤트에 바인딩
 }
 
 void APreviewActor::Sync_to_Character()
 {
+	// 현재 플레이어가 보유한 무기만 보이게 하고, 선택된 무기만 장착 상태로 표시
 	Weapon_Now = Player->Quickslots_Now[(uint8)ETypeTag::Weapon];
 	for (int i = 0; i < Player->Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num(); i++)
 	{
@@ -96,14 +87,11 @@ void APreviewActor::Sync_to_Character()
 
 void APreviewActor::Delete_and_Sync(ETypeTag type, FString tag)
 {
+	// 무기가 삭제되었으면, 프리뷰 액터에서 보이지 않게 설정
 	if (type == ETypeTag::Weapon)
 	{
 		auto toHide = PreviewWeapons[tag];
 		toHide->SetVisibility(false);
-	}
-	else if(type == ETypeTag::Cloth)
-	{
-
 	}
 
 	Sync_to_Character();

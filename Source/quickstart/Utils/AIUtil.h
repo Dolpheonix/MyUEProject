@@ -4,10 +4,12 @@
 #include "NavigationSystem.h"
 #include "NavigationData.h"
 
+// AI 관련 Helper Funciton 모음
 class AIHelper
 {
 public:
-	static bool isValidPath(UWorld* World, FVector start, FVector end, ANavigationData* NavData = nullptr)
+	// 해당 경로가 네비게이션상 유효한지 판단
+	static bool isValidPath(UWorld* World, FVector start, FVector end, ANavigationData* NavData = nullptr)	
 	{
 		auto NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
 

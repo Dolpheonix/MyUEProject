@@ -5,6 +5,7 @@
 void UPopUp::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+
 	bIsFocusable = true;
 	if (!Bounded)
 	{
@@ -34,16 +35,17 @@ void UPopUp::InitializeNumber(int max)
 {
 	check(IncreaseButton && DecreaseButton && ConfirmButton && CancleButton && NumberInput);
 
+	// CurrNum은 1, MaxNum은 선택된 아이템의 개수로 설정
 	CurrNum = 1;
 	MaxNum = max;
-	NumberInput->SetText(FText::FromString(FString::FromInt(CurrNum)));
+	NumberInput->SetText(FText::FromString(FString::FromInt(CurrNum)));	// 숫자 입력란에 CurrNum 적용
 
 	Refresh();
 }
 
 void UPopUp::Refresh()
 {
-	if (CurrNum < 2)
+	if (CurrNum < 2)	// 더 줄일 수 없음
 	{
 		DecreaseButton->SetIsEnabled(false);
 	}
@@ -52,7 +54,7 @@ void UPopUp::Refresh()
 		DecreaseButton->SetIsEnabled(true);
 	}
 
-	if (CurrNum >= MaxNum)
+	if (CurrNum >= MaxNum)	// 더 늘릴 수 없음
 	{
 		IncreaseButton->SetIsEnabled(false);
 	}
@@ -80,29 +82,27 @@ void UPopUp::Decrease()
 	UGameplayStatics::PlaySound2D(this, DecreaseSound);
 }
 
-// Just playing sound. Add additional event to ConfimButton in ParentUI
 void UPopUp::Confirm()
 {
 	UGameplayStatics::PlaySound2D(this, ConfirmSound);
 }
 
-// Remove from parent
 void UPopUp::Cancle()
 {
 	UGameplayStatics::PlaySound2D(this, CancleSound);
-	RemoveFromParent();
+	RemoveFromParent();	// 팝업창 삭제
 }
 
 void UPopUp::ApplyInput(const FText& Text, ETextCommit::Type CommitMethod)
 {
 	FString str = Text.ToString();
-	if (str.IsNumeric())
+	if (str.IsNumeric())	// 입력이 숫자이므로 유효 ==> CurrNum에 적용
 	{
 		int32 num = FCString::Atoi(*str);
 		CurrNum = num;
 		Refresh();
 	}
-	else
+	else	// 입력이 숫자가 아니므로 다시 원래대로 돌려놓음
 	{
 		NumberInput->SetText(FText::FromString(FString::FromInt(CurrNum)));
 	}

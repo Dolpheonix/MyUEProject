@@ -23,10 +23,10 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	// 레버 이벤트
+	// 레버 이벤트 (레벨 블루프린트 이벤트를 바인딩)
 	UPROPERTY(BlueprintAssignable, Category="Event")
 	FLeverTriggerEvent OnLeverTriggered;
-	// 레버 발동 시 호출되는 함수
+	// 레버 발동 시 호출되는 함수 (블루프린트로 확장 시에 구현)
 	UFUNCTION(BlueprintImplementableEvent)
 	void Lever_On();
 	// 레버의 케이스 메시
@@ -35,6 +35,6 @@ public:
 	// 레버의 지렛대 메시
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* LeverBody;
-	// 레버를 당겨진 상태인가?
+	// 레버가 다 내려갔는가?
 	bool bLeverDown = false;
 };

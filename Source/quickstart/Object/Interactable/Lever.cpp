@@ -27,27 +27,28 @@ void ALever::Tick(float DeltaTime)
 	{
 		if (LeverBody->GetRelativeRotation().Pitch <= -40.0f)
 		{
-			bLeverDown = false;
+			bLeverDown = false;	// 레버가 다 내려감 ==> 다시 올라가야 함
 		}
 		else
 		{
-			LeverBody->AddRelativeRotation(FRotator(-1.0f, 0.0f, 0.0f));
+			LeverBody->AddRelativeRotation(FRotator(-1.0f, 0.0f, 0.0f));	// 레버를 내림
 		}
 	}
 	else if (bWait)
 	{
 		if (LeverBody->GetRelativeRotation().Pitch >= 40.0f)
 		{
-			bWait = false;
+			bWait = false;	// 레버가 내려갔다 올라옴 ===> 다시 상호작용할 준비 완료
 		}
 		else
 		{
-			LeverBody->AddRelativeRotation(FRotator(1.0f, 0.0f, 0.0f));
+			LeverBody->AddRelativeRotation(FRotator(1.0f, 0.0f, 0.0f));	// 레버를 올림
 		}
 	}
 
 	if (bInteractable)
 	{
+		// 윤곽선 머터리얼 표시
 		LeverBody->SetRenderCustomDepth(true);
 		LeverCase->SetRenderCustomDepth(true);
 		LeverBody->SetCustomDepthStencilValue(0);
@@ -62,9 +63,9 @@ void ALever::Tick(float DeltaTime)
 
 void ALever::Interact()
 {
-	bLeverDown = true;
-	bWait = true;
-	Lever_On();
+	bLeverDown = true;	// 레버가 내려간 상태
+	bWait = true;		// 다시 올라올 때까지 기다려야 함
 
+	Lever_On();
 	OnLeverTriggered.Broadcast();
 }

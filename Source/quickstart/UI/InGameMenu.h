@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// UI - In Game Menu
+// 게임 플레이 중의 메뉴 UI
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,9 +7,6 @@
 #include "Components/Button.h"
 #include "InGameMenu.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class QUICKSTART_API UInGameMenu : public UUserWidget
 {
@@ -23,10 +20,13 @@ public:
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	
 public:
+	// 게임 플레이로 돌아감
 	UFUNCTION()
 	void ReturnToGame();
+	// 현재 상태를 저장
 	UFUNCTION()
 	void SaveGame();
+	// 인트로 화면으로 돌아감
 	UFUNCTION()
 	void ReturnToIntro();
 
@@ -35,5 +35,6 @@ public:
 	UButton* SaveGameButton;
 	UButton* IntroButton;
 
+	// PreConstruct()가 처음 불렸을 때만 변수를 초기화하기 위해 사용
 	bool bBounded = false;
 };

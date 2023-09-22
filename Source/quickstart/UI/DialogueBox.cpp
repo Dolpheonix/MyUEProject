@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "DialogueBox.h"
 #include "../quickstart.h"
 #include "../Core/GameMode/MainGameMode.h"
@@ -11,7 +8,9 @@
 void UDialogueBox::NativePreConstruct()
 {
 	UUserWidget::NativePreConstruct();
+
 	bIsFocusable = true;
+
 	if (!Bounded)
 	{
 		DialogueText = Cast<UTextBlock>(GetWidgetFromName(TEXT("DialogueText")));
@@ -58,6 +57,7 @@ void UDialogueBox::OpenUI(ANPC* interacted)
 	Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	Controller = Cast<APlayerController>(Player->GetController());
 
+	// 스크린 가운데에 마우스 커서 표시
 	int X, Y;
 	Controller->GetViewportSize(X, Y);
 	Controller->SetMouseLocation(X / 2, Y / 2);
@@ -67,9 +67,9 @@ void UDialogueBox::OpenUI(ANPC* interacted)
 
 	InteractedNPC = interacted;
 
-	IsQuestDialogue = false;
-	DialogueLine = InteractedNPC->DialogueTree.GetStartLine();
-	RefreshDialogue();
+	IsQuestDialogue = false;	// 처음에는 NPC Dialogue 모드
+	DialogueLine = InteractedNPC->DialogueTree.GetStartLine();	// 시작 Dialogue line을 불러옴
+	RefreshDialogue();	// 불러온 Dialogue line을 출력
 }
 
 void UDialogueBox::GetDialogue(int index)
@@ -80,6 +80,7 @@ void UDialogueBox::GetDialogue(int index)
 
 void UDialogueBox::GetQuestDialogue(int index)
 {
+	// Quest 진행도에 따라 대화 내용이 다름
 	switch (TriggeredQuest->Progress)
 	{
 	case EQuestProgress::Unavailable:
@@ -103,10 +104,10 @@ void UDialogueBox::GetQuestDialogue(int index)
 
 void UDialogueBox::OnPressed_EndLine(int index)
 {
-	if (!IsQuestDialogue)
+	if (!IsQuestDialogue)	// NPC Dialogue
 	{
-		FDialogueResponse Pressed = DialogueLine.Responses[index];
-		for (FDialogueEvent e : Pressed.Events)
+		FDialogueResponse Pressed = DialogueLine.Responses[index];	// 눌린 버튼에 맞는 응답
+		for (FDialogueEvent e : Pressed.Events)	// 응답의 이벤트를 적용
 		{
 			switch (e.EventType)
 			{
@@ -116,16 +117,12 @@ void UDialogueBox::OnPressed_EndLine(int index)
 				if (GI)
 				{
 					QuestIndex = e.QuestIndex;
-					TriggeredQuest = GI->GetQuest(QuestIndex);
+					TriggeredQuest = GI->GetQuest(QuestIndex);	// QuestIndex에 맞는 퀘스트 로드
 					if (TriggeredQuest)
 					{
 						IsQuestDialogue = true;
 						QuestDialogueLine = TriggeredQuest->GetStartLine(InteractedNPC->DisplayName);
 						RefreshDialogue();
-					}
-					else
-					{
-						UE_LOG(LogTemp, Fatal, TEXT("%d %d"), QuestIndex, GI->Quests.Num());
 					}
 				}
 				else
@@ -135,25 +132,25 @@ void UDialogueBox::OnPressed_EndLine(int index)
 				break;
 			}
 			case EDialogueEventType::GIVEITEM:
-				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);
+				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);	// 아이템 등록
 				break;
 			case EDialogueEventType::PHASESHIFT:
-				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;
+				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;	// 다이얼로그의 Phase 전환
 				break;
 			case EDialogueEventType::OPENSHOP:
-				InteractedNPC->OpenShop();
+				InteractedNPC->OpenShop();	// 상점 UI를 엶
 				break;
 			default:
 				break;
 			}
 		}
-		if (Pressed.IsEnd) // End Dialogue
+		if (Pressed.IsEnd) // 대화 상자를 닫아야 함
 		{
 			Controller->SetShowMouseCursor(false);
 			Controller->SetInputMode(FInputModeGameOnly());
 			InteractedNPC->UnInteract();
 		}
-		else if(!IsQuestDialogue) // OPENQUEST 이벤트에 의해 다이얼로그가 이미 바뀌었는지 체크	
+		else if(!IsQuestDialogue) // OPENQUEST 이벤트에 의해 모드가 바뀌지 않은 경우
 		{
 			GetDialogue(Pressed.NextIndex);
 		}
@@ -166,33 +163,33 @@ void UDialogueBox::OnPressed_EndLine(int index)
 			switch (e.EventType)
 			{
 			case EQuestDialogueEventType::COMMIT:
-				Player->RegisterQuest(*TriggeredQuest);
+				Player->RegisterQuest(*TriggeredQuest);	// 퀘스트를 플레이어에 등록
 				break;
 			case EQuestDialogueEventType::COMPLETE:
-				Player->EndQuest(*TriggeredQuest);
+				Player->EndQuest(*TriggeredQuest);	// 퀘스트를 완료 처리
 				break;
 			case EQuestDialogueEventType::GIVEITEM:
-				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);
+				Player->Register(InteractedNPC->AcquireItemsInfo[e.ItemIndex]);	// 아이템을 등록
 				break;
 			case EQuestDialogueEventType::BACKTODIALOGUE:
 				IsQuestDialogue = false;
-				DialogueLine = InteractedNPC->DialogueTree.DialogueLines[e.BacktoDialogueIndex];
+				DialogueLine = InteractedNPC->DialogueTree.DialogueLines[e.BacktoDialogueIndex];	// NPC Dialogue로 돌아옴
 				RefreshDialogue();
 				break;
 			case EQuestDialogueEventType::PHASESHIFT:
-				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;
+				InteractedNPC->DialogueTree.StartIndex = e.NextPhaseIndex;	// NPC Dialogue의 Phase를 전환
 				break;
 			default:
 				break;
 			}
 		}
-		if (Pressed.IsEnd) // End Dialogue
+		if (Pressed.IsEnd)
 		{
 			Controller->SetShowMouseCursor(false);
 			Controller->SetInputMode(FInputModeGameOnly());
 			InteractedNPC->UnInteract();
 		}
-		else if(IsQuestDialogue)
+		else if(IsQuestDialogue)	// Back to Dialogue 이벤트가 적용되지 않은 경우
 		{
 			GetQuestDialogue(Pressed.NextIndex);
 		}

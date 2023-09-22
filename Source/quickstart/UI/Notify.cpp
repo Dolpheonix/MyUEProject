@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Notify.h"
+﻿#include "Notify.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanelSlot.h"
 #include "GameFramework/Character.h"
@@ -45,6 +42,7 @@ void UNotifyAcquire::InitializeNotifications(TArray<FReward> notifications)
 	ACharacter* Player = Cast<ACharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	APlayerController* Controller = Cast<APlayerController>(Player->GetController());
 
+	// 화면 중앙에 마우스 커서 표시
 	int X, Y;
 	Controller->GetViewportSize(X, Y);
 	Controller->SetMouseLocation(X / 2, Y / 2);
@@ -53,8 +51,9 @@ void UNotifyAcquire::InitializeNotifications(TArray<FReward> notifications)
 	Controller->SetInputMode(FInputModeGameAndUI());
 
 	Notifications = notifications;
+	// 첫 리워드부터 표시
 	currIndex = 0;
-	SetNotification();
+	SetNotification();	
 }
 
 void UNotifyAcquire::SetNotification()
@@ -88,7 +87,7 @@ void UNotifyAcquire::SetNotification()
 void UNotifyAcquire::OnPressed_Confirm()
 {
 	currIndex++;
-	if (currIndex == Notifications.Num())
+	if (currIndex == Notifications.Num())	// 모든 리워드를 표시했으므로, 알림창 삭제
 	{
 		ACharacter* Player = Cast<ACharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 		APlayerController* Controller = Cast<APlayerController>(Player->GetController());

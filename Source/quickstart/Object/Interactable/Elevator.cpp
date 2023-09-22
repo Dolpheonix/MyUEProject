@@ -1,13 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Elevator.h"
 #include <Kismet/KismetMathLibrary.h>
 
-// Sets default values
 AElevator::AElevator()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	ElevatorBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ElevatorBody"));
@@ -36,43 +31,40 @@ AElevator::AElevator()
 	ElevatorLight->SetIntensity(8.0f);
 	ElevatorLight->SetAttenuationRadius(1000.0f);
 	ElevatorLight->SetMobility(EComponentMobility::Movable);
-
 }
 
-// Called when the game starts or when spawned
 void AElevator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InteractPoint += ElevatorExternalSwitch->GetRelativeLocation();
+	InteractPoint += ElevatorExternalSwitch->GetRelativeLocation();	// 상호작용 위치를 외부 스위치 앞으로 설정
 	InteractForward = -ElevatorExternalSwitch->GetForwardVector();
 
 	HeightStamp = GetActorLocation().Z;
 }
 
-// Called every frame
 void AElevator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector playerLocal = UKismetMathLibrary::InverseTransformLocation(GetTransform(), Player->GetActorLocation());
+	FVector playerLocal = UKismetMathLibrary::InverseTransformLocation(GetTransform(), Player->GetActorLocation());	// 플레이어 위치를 엘레베이터의 로컬 좌표계로 변환
 
-	if (!bInside && playerLocal.Y > 10.0f)
+	if (!bInside && playerLocal.Y > 10.0f)	// 내부로 들어옴
 	{
 		bInside = true;
-		InteractPoint = GetActorLocation() + ElevatorInternalSwitch->GetRelativeLocation();
+		InteractPoint = GetActorLocation() + ElevatorInternalSwitch->GetRelativeLocation();	// 상호작용 위치를 내부 스위치 앞으로 전환
 		InteractForward = -InteractForward;
 	}
-	else if(bInside && playerLocal.Y < -10.0f)
+	else if(bInside && playerLocal.Y < -10.0f)	// 외부로 나감
 	{
 		bInside = false;
 		InteractPoint = GetActorLocation() + ElevatorExternalSwitch->GetRelativeLocation();
 		InteractForward = -InteractForward;
 	}
 
-	if (bElevating)
+	if (bElevating)	// 엘레베이터가 상승중
 	{
-		if (HeightStamp + Distance > GetActorLocation().Z)
+		if (HeightStamp + Distance > GetActorLocation().Z)	// 아직 도착하지 않음
 		{
 			AddActorWorldOffset(FVector(0.0f, 0.0f, 1.0f));
 		}
@@ -82,10 +74,10 @@ void AElevator::Tick(float DeltaTime)
 			bElevated = true;
 			HeightStamp = GetActorLocation().Z;
 
-			bOpening = true;
+			bOpening = true;	// 문을 엶
 		}
 	}
-	else if (bDropping)
+	else if (bDropping)	// 엘레베이터가 하강중
 	{
 		if (HeightStamp - Distance < GetActorLocation().Z)
 		{
@@ -100,7 +92,7 @@ void AElevator::Tick(float DeltaTime)
 			bOpening = true;
 		}
 	}
-	else if (bOpening)
+	else if (bOpening)	// 엘레베이터 문을 여는중
 	{
 		if (ElevatorDoor->GetRelativeLocation().X > 10.0f)
 		{
@@ -108,16 +100,16 @@ void AElevator::Tick(float DeltaTime)
 		}
 		else if (OpenedTime < 3.0f)
 		{
-			OpenedTime += DeltaTime;
+			OpenedTime += DeltaTime;	// 열리는 시간을 측정
 		}
 		else
 		{
 			OpenedTime = 0.0f;
 			bOpening = false;
-			bClosing = true;
+			bClosing = true;	// 문을 닫음
 		}
 	}
-	else if (bClosing)
+	else if (bClosing)	// 엘레베이터 문을 닫는중
 	{
 		if (ElevatorDoor->GetRelativeLocation().X < 140.0f)
 		{

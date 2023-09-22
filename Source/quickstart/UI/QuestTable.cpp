@@ -1,5 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-#define MAXCHAR_PER_LINE 25
+﻿#define MAXCHAR_PER_LINE 25
 #define MAXQUEST 20
 
 #include "QuestTable.h"
@@ -68,7 +67,7 @@ void UQuestTable::NativePreConstruct()
 		{
 			if (QuestSlotButtons[i])
 			{
-				QuestSlotButtons[i]->ClickedEvent.AddDynamic(this, &UQuestTable::OpenQuestInfo);
+				QuestSlotButtons[i]->ClickedEvent.AddDynamic(this, &UQuestTable::OpenQuestInfo);	// 슬롯 클릭시에 퀘스트 정보를 불러옴
 				QuestSlotButtons[i]->Index = i;
 			}
 		}
@@ -132,6 +131,7 @@ void UQuestTable::InitQuestUI(AActor* Instigator)
 	Player = Cast<AMainCharacter>(Instigator);
 	Controller = Cast<APlayerController>(Player->GetController());
 
+	// 화면 중앙에 마우스 커서 표시
 	int X, Y;
 	Controller->GetViewportSize(X, Y);
 	Controller->SetMouseLocation(X / 2, Y / 2);
@@ -144,14 +144,14 @@ void UQuestTable::InitQuestUI(AActor* Instigator)
 
 void UQuestTable::RefreshBlocks()
 {
-	for (int i = 0; i < Player->QuestList.WorkingQuests.Num(); i++)
+	for (int i = 0; i < Player->QuestList.WorkingQuests.Num(); i++)	// 현재 진행중인 퀘스트 이름을 퀘스트 슬롯에 표시
 	{
 		QuestSlotButtons[i]->SetVisibility(ESlateVisibility::Visible);
 		QuestSlotButtons[i]->QuestSlotNameText->SetText(FText::FromString(Player->QuestList.WorkingQuests[i]->Name));
 	}
 	for (int i = Player->QuestList.WorkingQuests.Num(); i < MAXQUEST; i++)
 	{
-		QuestSlotButtons[i]->SetVisibility(ESlateVisibility::Collapsed);
+		QuestSlotButtons[i]->SetVisibility(ESlateVisibility::Collapsed);	// 버튼을 숨김
 	}
 
 	QuestNameText->SetText(FText::GetEmpty());
@@ -162,18 +162,18 @@ void UQuestTable::RefreshBlocks()
 FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 {
 	FString str;
-	switch (subquest->Type)
+	switch (subquest->Type)	// 서브 퀘스트의 타입별로 다른 설명을 표시
 	{
-	case ESingleQuestType::Arrival:
+	case ESingleQuestType::Arrival:	// 도착 퀘스트
 		str += TEXT("빛나는 곳으로 이동");
-		if (subquest->Completed) str += TEXT("	(완료)");
+		if (subquest->Completed) str += TEXT("	(완료)");	// 완료 여부 표시
 		break;
 	case ESingleQuestType::Hunt:
 	{
 		str += TEXT("해당 적을 처치");
 		if (subquest->Completed) str += TEXT("	(완료)");
 		str += "\n";
-		for (int i = 0; i < subquest->HuntingLists.Num(); i++)
+		for (int i = 0; i < subquest->HuntingLists.Num(); i++)	// 처치할 리스트 별로 (처치한 수 / 처치할 수) 표시
 		{
 			FString oneline;
 			oneline += "\t";
@@ -192,7 +192,7 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 		str += TEXT("해당 아이템을 수집");
 		if (subquest->Completed) str += TEXT("	(완료)");
 		str += "\n";
-		for (int i = 0; i < subquest->ItemLists.Num(); i++)
+		for (int i = 0; i < subquest->ItemLists.Num(); i++)	// 획득할 리스트 별로 (획득한 수 / 획득할 수) 표시
 		{
 			FString oneline;
 			oneline += "\t";
@@ -207,7 +207,7 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 		break;
 	}
 	case ESingleQuestType::Action:
-		str += subquest->ActionInfo;
+		str += subquest->ActionInfo;	// Action Quest는 설명을 따로 기술해 놓았으므로, 이를 출력
 		if (subquest->Completed) str += TEXT("	(완료)");
 		break;
 	default:
@@ -218,13 +218,13 @@ FString UQuestTable::GetSubQuestText(FSingleQuest* subquest)
 
 void UQuestTable::OpenQuestInfo(int index)
 {
-	// Slot Selection
-	if (SelectedSlotIndex >= 0)
+	if (SelectedSlotIndex >= 0)	// 이전에 선택되었던 슬롯의 색을 원래대로 돌려놓음
 	{
 		FSlateBrush NormalBrush = QuestSlotButtons[SelectedSlotIndex]->QuestSlotButton->WidgetStyle.Normal;
 		NormalBrush.TintColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f));
 		QuestSlotButtons[SelectedSlotIndex]->QuestSlotButton->WidgetStyle.SetNormal(NormalBrush);
 	}
+	// 선택한 슬롯의 색을 푸른색으로 변경
 	SelectedSlotIndex = index;
 	FSlateBrush SelectedBrush = QuestSlotButtons[SelectedSlotIndex]->QuestSlotButton->WidgetStyle.Normal;
 	SelectedBrush.TintColor = FSlateColor(FLinearColor(0.0f, 0.0f, 1.0f));
@@ -232,6 +232,7 @@ void UQuestTable::OpenQuestInfo(int index)
 	
 	FQuest* Selected = Player->QuestList.WorkingQuests[index];
 
+	// 퀘스트의 이름과 설명, 서브퀘스트 표시
 	QuestNameText->SetText(FText::FromString("\n" + Selected->Name));
 	QuestInfoText->SetText(FText::FromString(Selected->Info));
 

@@ -1,8 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-///////////////////////////TODO///////////////////////
-///////Sell, Buy 기능 추가//////////////
-
-#include "Shop.h"
+﻿#include "Shop.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Kismet/GameplayStatics.h"
@@ -213,15 +209,12 @@ void UShop::SetEvents()
 	if(EndButton) EndButton->OnClicked.AddDynamic(this, &UShop::EndShop);
 }
 
-// Player와의 대화를 통해 상점 인터페이스가 열릴 때 호출됨
-// 마우스 커서, 입력 모드 설정
-// 상점 슬롯, 캐릭터 슬롯 초기화
-// 버튼, 수량, 가격 등 초기화
 void UShop::InitShop(ANPC* Interacted)
 {
 	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	Controller = Cast<APlayerController>(MainCharacter->GetController());
 
+	// 화면 중앙에 마우스 커서 표시
 	int X, Y;
 	Controller->GetViewportSize(X, Y);
 	Controller->SetMouseLocation(X / 2, Y / 2);
@@ -240,10 +233,9 @@ void UShop::InitShop(ANPC* Interacted)
 	RefreshIncDec();
 }
 
-// 상점 슬롯 초기화, 버튼 활성화 여부 결정
 void UShop::InitShopSlots()
 {
-	for (int i = 0; i < InteractedNPC->ShopItems.Num(); i++)
+	for (int i = 0; i < InteractedNPC->ShopItems.Num(); i++)	// 상점 아이템을 상점 슬롯에 표시
 	{
 		FSlateBrush brush_N, brush_H;
 		brush_N.SetResourceObject(InteractedNPC->ShopItems[i].ItemForm.Thumbnail_N);
@@ -256,7 +248,7 @@ void UShop::InitShopSlots()
 		ShopSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
 	}
 
-	for (int i = InteractedNPC->ShopItems.Num(); i < ShopSlots.Num(); i++)
+	for (int i = InteractedNPC->ShopItems.Num(); i < ShopSlots.Num(); i++)	// 이외의 슬롯은 비활성화
 	{
 		ShopSlots[i]->SetStyle(DefaultStyle);		
 		ShopSlots[i]->SetIsEnabled(false);
@@ -265,12 +257,10 @@ void UShop::InitShopSlots()
 	}
 }
 
-// 캐릭터 슬롯 초기화, 버튼 활성화 여부 결정
-// 의상 탭으로 초기화
 void UShop::InitCharacterSlots()
 {
-	TArray<FItemForm>* Initslot = &MainCharacter->Inventory[(uint8)ETypeTag::Cloth].ItemForms;
-	for (int i = 0; i < Initslot->Num(); i++)
+	TArray<FItemForm>* Initslot = &MainCharacter->Inventory[(uint8)ETypeTag::Cloth].ItemForms;	// 초기화 시, 현재 탭은 의상 탭으로 설정
+	for (int i = 0; i < Initslot->Num(); i++)	// 인벤토리 아이템을 아이템 슬롯에 표시
 	{
 		FSlateBrush brush_N, brush_H;
 		brush_N.SetResourceObject((*Initslot)[i].Thumbnail_N);
@@ -284,7 +274,7 @@ void UShop::InitCharacterSlots()
 		CharacterSlotNumbers[i]->SetVisibility(ESlateVisibility::Visible);
 	}
 
-	for (int i = Initslot->Num(); i < CharacterSlots.Num(); i++)
+	for (int i = Initslot->Num(); i < CharacterSlots.Num(); i++)	// 이외의 슬롯은 비활성화
 	{
 		CharacterSlots[i]->SetStyle(DefaultStyle);
 		CharacterSlots[i]->SetIsEnabled(false);
@@ -295,18 +285,15 @@ void UShop::InitCharacterSlots()
 	CurrTab = ETypeTag::Cloth;
 }
 
-// 탭 버튼을 눌렀을 때 호출됨.
-// 캐릭터 슬롯을 눌린 탭 타입의 아이템들로 초기화
-// 만약 캐릭터 슬롯을 선택 중이었다면 바뀐 탭의 첫번째 아이템을 선택시킴 (단, Unselect할 필요는 없으므로 CurrIndex는 -1로 설정 후 선택)
 void UShop::TabCharacterSlot(int index, ETypeTag type)
 {
-	if (type == CurrTab)
+	if (type == CurrTab)	// 현재 탭을 누르면 아무 일도 일어나지 않음
 	{
 		return;
 	}
 	else
 	{
-		TArray<FItemForm>* Currslot = &MainCharacter->Inventory[(uint8)type].ItemForms;
+		TArray<FItemForm>* Currslot = &MainCharacter->Inventory[(uint8)type].ItemForms;	// 선택된 탭에 맞게 슬롯 수정
 		for (int i = 0; i < Currslot->Num(); i++)
 		{
 			FSlateBrush brush_N, brush_H;
@@ -333,15 +320,13 @@ void UShop::TabCharacterSlot(int index, ETypeTag type)
 
 	CurrTab = type;
 
-	if (!bIsBuying)
+	if (!bIsBuying)	// 판매 모드였다면, 인벤토리 슬롯의 첫 아이템을 판매 아이템으로 선택
 	{
 		CurrIndex = -1;
 		SelectSellItem(0, type);
 	}
 }
 
-// 증가 버튼을 눌렀을 때 호출
-// 수량을 증가시킨 후, RefreshIncDec()호출
 void UShop::Increase()
 {
 	CurrNum++;
@@ -349,8 +334,6 @@ void UShop::Increase()
 	UGameplayStatics::PlaySound2D(this, IncreaseSound);
 }
 
-// 감소 버튼을 눌렀을 때 호출
-// 수량을 감소시킨 후, RefreshIncDec()호출
 void UShop::Decrease()
 {
 	CurrNum--;
@@ -358,83 +341,64 @@ void UShop::Decrease()
 	UGameplayStatics::PlaySound2D(this, DecreaseSound);
 }
 
-// 상점 슬롯을 눌렀을 때 호출
-// 기존에 선택되었던 아이템 Unselect
-// SelectedItem 설정 후 버튼 이미지 변경
-// 수량을 1로 조정 후 RefreshIncDec() 호출
 void UShop::SelectBuyItem(int index, ETypeTag type)
 {
-	// Unselect
+	// 선택된 아이템이 있었다면, 선택을 취소
 	if(CurrIndex >= 0) Unselect();
 
-	// Select
+	// 누른 슬롯의 아이템을 선택
 	SelectedItem = &InteractedNPC->ShopItems[index].ItemForm;
 	FSlateBrush brush_N;
 	brush_N.SetResourceObject(SelectedItem->Thumbnail_S);
 	ShopSlots[index]->WidgetStyle.SetNormal(brush_N);
 
-	// Current State Transition
+	// 구매 모드로 변경
 	bIsBuying = true;
 	CurrIndex = index;
 
+	// 개수 초기화
 	CurrNum = 1;
 	RefreshIncDec();
 	BuySellText->SetText(FText::FromString(TEXT("구매")));
 }
 
-// 캐릭터 슬롯을 눌렀을 때 호출
-// 기존에 선택되었던 아이템 Unselect
-// SelectedItem 설정 후 버튼 이미지 변경
-// 수량을 1로 조정 후 RefreshIncDec() 호출
 void UShop::SelectSellItem(int index, ETypeTag type)
 {
+	// 선택한 아이템이 있었다면, 선택을 취소
 	if (CurrIndex >= 0) Unselect();
 
-	SelectedItem = &MainCharacter->Inventory[(uint8)type].ItemForms[index];
+	SelectedItem = &MainCharacter->Inventory[(uint8)type].ItemForms[index];	// 누른 슬롯의 아이템을 선택
 
 	FSlateBrush brush_N;
 	brush_N.SetResourceObject(SelectedItem->Thumbnail_S);
 	CharacterSlots[index]->WidgetStyle.SetNormal(brush_N);
 
+	// 판매 모드로 변경
 	bIsBuying = false;
 	CurrIndex = index;
 	CurrTab = type;
 
+	// 개수 초기화
 	CurrNum = 1;
 	RefreshIncDec();
 	BuySellText->SetText(FText::FromString(TEXT("판매")));
 }
 
-// 구매/판매 버튼을 눌렀을 때 호출
-// 구매
-//		플레이어의 돈에서 차감
-//		가지고 있던 아이템이면 보유 개수만 변경, 아니면 인벤토리에 추가
-//		상점 슬롯에서 보유 수량 변경 후 0이면 슬롯에서 제거
-//		슬롯에 변경점 있으면 RefreshSlot() 아니면 ChangeNumber()
-// 판매
-//		플레이어의 돈에 추가
-//		인벤토리에서 보유 수량 차감 후 0이면 인벤토리에서 제거
-//		슬롯에 변경점 있으면 RefreshSlot() 아니면 ChangeNumber()
-// 선택된 슬롯이 제거됨 --> SelectedItem nullptr 지정
-// 제거되지 않음 --> 구매/판매 수량 1로 재지정
-// RefreshIncDec() 호출
 void UShop::Deal()
 {
 	bool removed = false;
-	if (bIsBuying)
+	if (bIsBuying)	// 구매
 	{
-		///BUY
-		if (CurrPrice > MainCharacter->CurrMoney)
+		if (CurrPrice > MainCharacter->CurrMoney)	// 돈이 부족함
 		{
 			UE_LOG(LogTemp, Error, TEXT("No Money!"));
 		}
 		else
 		{
-			// MainCharacter 지불
 			FString name = SelectedItem->ShortForm.NameTag;
-			MainCharacter->CurrMoney -= CurrPrice;
+			MainCharacter->CurrMoney -= CurrPrice;	// 플레이어의 돈을 차감
 
-			// MainCharacter에 구매한 아이템 추가
+			// 플레이어의 인벤토리 로드
 			ETypeTag type = SelectedItem->ShortForm.TypeTag;
 			TArray<FItemForm>* Buyslot = &MainCharacter->Inventory[(uint8)type].ItemForms;
 
@@ -444,7 +408,7 @@ void UShop::Deal()
 					return (item.ShortForm.NameTag == name);
 				});
 
-			// 새로 생기는 아이템 -> 인벤토리 끝에 추가 후 캐릭터 슬롯 Refresh
+			// 새로 생기는 아이템 -> 인벤토리 끝에 추가 후 캐릭터 슬롯 새로고침
 			if (index < 0)
 			{
 				index = Buyslot->Num();
@@ -464,7 +428,7 @@ void UShop::Deal()
 
 			// NPC 슬롯에서 차감
 			SelectedItem->ShortForm.Num -= CurrNum;
-			// 보유 수량 0이면 제거 후 캐릭터 슬롯 초기화
+			// 보유 수량 0이면 제거 후 캐릭터 슬롯 새로고침
 			if (SelectedItem->ShortForm.Num == 0)
 			{
 				InteractedNPC->ShopItems.RemoveAt(CurrIndex);
@@ -479,21 +443,21 @@ void UShop::Deal()
 			}
 		}
 	}
-	else
+	else	// 판매
 	{
-		MainCharacter->CurrMoney += CurrPrice;
+		MainCharacter->CurrMoney += CurrPrice;	// 플레이어의 돈 증가
 
-		SelectedItem->ShortForm.Num -= CurrNum;
+		SelectedItem->ShortForm.Num -= CurrNum;	// 아이템 개수 차감
 		int32 num = SelectedItem->ShortForm.Num;
 
-		if (num == 0)
+		if (num == 0)	// 아이템을 전부 팔았다면, 해당 아이템 인벤토리에서 삭제 후 캐릭터 슬롯 새로고침
 		{
 			MainCharacter->DeleteItem(CurrTab, CurrIndex);
 			removed = true;
 
 			RefreshCharacterSlots(CurrTab, CurrIndex);
 		}
-		else
+		else	// 남아있으면 개수만 변경
 		{
 			ChangeNumber(false, CurrIndex);
 		}
@@ -514,27 +478,25 @@ void UShop::Deal()
 	UGameplayStatics::PlaySound2D(this, BuySellSound);
 }
 
-// Exit 버튼 눌렀을 때 호출
-// NPC와의 상호작용을 종료
 void UShop::EndShop()
 {
 	UGameplayStatics::PlaySound2D(this, ExitSound);
 	InteractedNPC->UnInteract();
 }
 
-// Select() 호출 시에 이전에 선택된 슬롯을 Unselect
 void UShop::Unselect()
 {
 	FItemForm unselected;
 
-	if (bIsBuying)
+	if (bIsBuying)	// 구매 모드 ==> 선택한 아이템이 상점 슬롯에 있음
 	{
+		// 선택되었던 슬롯의 썸네일을 일반 썸네일로 변경 (선택 틀이 씌워지지 않은 썸네일)
 		unselected = InteractedNPC->ShopItems[CurrIndex].ItemForm;
 		FSlateBrush brush_N;
 		brush_N.SetResourceObject(unselected.Thumbnail_N);
 		ShopSlots[CurrIndex]->WidgetStyle.SetNormal(brush_N);
 	}
-	else
+	else	// 판매 모드 ==> 선택한 아이템이 캐릭터 슬롯에 있음
 	{
 		unselected = MainCharacter->Inventory[(uint8)CurrTab].ItemForms[CurrIndex];
 		FSlateBrush brush_N;
@@ -543,14 +505,11 @@ void UShop::Unselect()
 	}
 }
 
-// SelectedItem에 따라
-// Increase, Decrease, Confirmation Button의 활성 여부와
-// Buy number, Price, Wallet의 값을 변경
 void UShop::RefreshIncDec()
 {
-	if (SelectedItem)
+	if (SelectedItem)	// 선택한 아이템이 있다면
 	{
-		if (!SelectedItem->ShortForm.bIsSellable)
+		if (!SelectedItem->ShortForm.bIsSellable)	// 사고 팔 수 없는 아이템인 경우 ==> 개수 0으로 설정 후 버튼 비활성화
 		{
 			CurrNum = 0;
 			CurrPrice = 0;
@@ -560,24 +519,24 @@ void UShop::RefreshIncDec()
 		}
 		else
 		{
-			if (SelectedItem->ShortForm.Num < 1) // No Item left
+			if (SelectedItem->ShortForm.Num < 1) // 아이템의 개수가 0개 ==> 버튼 비활성화
 			{
 				CurrNum = 0;
 				IncreaseButton->SetIsEnabled(false);
 				DecreaseButton->SetIsEnabled(false);
 			}
-			else if (SelectedItem->ShortForm.Num == 1)
+			else if (SelectedItem->ShortForm.Num == 1)	// 아이템의 개수가 1개 ==> 증가/감소 버튼 비활성화
 			{
 				CurrNum = 1;
 				IncreaseButton->SetIsEnabled(false);
 				DecreaseButton->SetIsEnabled(false);
 			}
-			else if (CurrNum == 1)
+			else if (CurrNum == 1)	// 현재 설정 개수가 1개 ==> 감소 버튼을 비활성화 
 			{
 				IncreaseButton->SetIsEnabled(true);
 				DecreaseButton->SetIsEnabled(false);
 			}
-			else if (SelectedItem->ShortForm.Num == CurrNum)
+			else if (SelectedItem->ShortForm.Num == CurrNum)	// 현재 설정 개수가 최대 개수 ==> 증가 버튼을 비활성화
 			{
 				IncreaseButton->SetIsEnabled(false);
 				DecreaseButton->SetIsEnabled(true);
@@ -588,13 +547,14 @@ void UShop::RefreshIncDec()
 				DecreaseButton->SetIsEnabled(true);
 			}
 
-			// Price
+			// 가격 설정
 			if (bIsBuying)
 			{
 				CurrPrice = CurrNum * InteractedNPC->ShopItems[CurrIndex].Price;
 			}
 			else
 			{
+				// 판매의 경우, 아이템 종류에 따라 일괄 가격 설정
 				switch (CurrTab)
 				{
 				case ETypeTag::Cloth:
@@ -611,7 +571,7 @@ void UShop::RefreshIncDec()
 				}
 			}
 
-			// Payable
+			// 살 수 있는 가격이면 구매 버튼 활성화
 			if (bIsBuying && MainCharacter->CurrMoney < CurrPrice)
 			{
 				ConfirmationButton->SetIsEnabled(false);
@@ -638,7 +598,7 @@ void UShop::RefreshIncDec()
 
 void UShop::RefreshShopSlots(int changed)
 {
-	// 재고가 떨어진 아이템을 array에서 제거하고, 슬롯을 재정렬
+	// 재고가 떨어진 아이템을 배열에서 제거하고, 슬롯을 재정렬
 	for (int i = changed; i < InteractedNPC->ShopItems.Num(); i++)
 	{
 		FSlateBrush brush_N, brush_H;
@@ -689,6 +649,7 @@ void UShop::RefreshCharacterSlots(ETypeTag type, int changed)
 
 void UShop::ChangeNumber(bool isShopslot, int index)
 {
+	// 아이템 개수 텍스트를 변경
 	if (isShopslot)
 	{
 		ShopSlotNumbers[index]->SetText(FText::FromString(FString::FromInt(InteractedNPC->ShopItems[index].ItemForm.ShortForm.Num)));

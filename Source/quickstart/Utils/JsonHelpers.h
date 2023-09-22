@@ -5,6 +5,7 @@
 #include "../Character/NPC/NPC.h"
 #include "UObject/Object.h"
 
+// Json 파일을 구조체에 로드
 class JsonLoader
 {
 public:

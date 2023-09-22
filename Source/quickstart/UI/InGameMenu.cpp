@@ -36,6 +36,7 @@ void UInGameMenu::NativeConstruct()
 	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
 	if (Controller)
 	{
+		// 화면 중앙에 마우스 커서가 나타남
 		int X, Y;
 		Controller->GetViewportSize(X, Y);
 		Controller->SetMouseLocation(X / 2, Y / 2);
@@ -80,7 +81,7 @@ void UInGameMenu::ReturnToGame()
 	}
 
 	AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-	Player->GameMode->ChangeCurrentWidget(Player->GameMode->MainUI);
+	Player->GameMode->ChangeCurrentWidget(Player->GameMode->MainUI);	// 다시 인게임 UI로 변경
 }
 
 void UInGameMenu::SaveGame()
@@ -90,7 +91,7 @@ void UInGameMenu::SaveGame()
 	{
 		AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 		GI->SaveCharacterMemory(Player);
-		GI->SaveToFile();
+		GI->SaveToFile();	// 세이브 파일에 덮어쓰기
 	}
 }
 
@@ -99,6 +100,6 @@ void UInGameMenu::ReturnToIntro()
 	UMainGameInstance* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{
-		GI->LoadLevel("Intro_Empty", false);
+		GI->LoadLevel("Intro_Empty", false);	// 인트로 화면으로 돌아감
 	}
 }

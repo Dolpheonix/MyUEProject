@@ -409,6 +409,8 @@ void AMainCharacter::RollWeapons()
 
 void AMainCharacter::RefreshInventory(ETypeTag type)
 {
+	// 퀵슬롯의 이전/다음 아이템 변경
+	Quickslots_Before[(uint8)type] = MathUtil::CircularMinus(Quickslots_Now[(uint8)type], Inventory[(uint8)type].ItemForms.Num());
 	Quickslots_Next[(uint8)type] = MathUtil::CircularPlus(Quickslots_Now[(uint8)type], Inventory[(uint8)type].ItemForms.Num());
 	Cast<UMainWidget>(GameMode->MainUI)->RefreshQuickslot();	// 메인 UI의 퀵슬롯을 업데이트
 }

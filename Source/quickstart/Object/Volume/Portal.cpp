@@ -1,15 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Portal.h"
 #include "../../Utils/Helpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PawnMovementComponent.h"
 
-// Sets default values
 APortal::APortal()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -30,20 +25,6 @@ APortal::APortal()
 	Volume->OnComponentBeginOverlap.AddDynamic(this, &APortal::OnOverlapped_Teleport);
 }
 
-// Called when the game starts or when spawned
-void APortal::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void APortal::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void APortal::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -51,45 +32,45 @@ void APortal::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent
 	auto prop = PropertyChangedEvent.Property;
 	auto name = prop->GetName();
 
-	if (name == "Pair")
+	if (name == "Pair")	// Pair 포탈이 바뀜
 	{
 		if (Pair == this)
 		{
-			Pair = Oldpair;
+			Pair = Oldpair;	// 자기 자신을 선택했을 경우, 이전 Pair로 다시 되돌림
 		}
-		else if(Pair != Oldpair)
+		else if(Pair != Oldpair)	// Pair를 바꾼 경우 OR 삭제한 경우
 		{
-			if (Pair) Pair->UpdatePair(this);
-			if (Oldpair) Oldpair->UpdatePair(nullptr);
+			if (Pair) Pair->UpdatePair(this);	// 새로운 Pair의 Pair를 이 포탈로 변경
+			if (Oldpair) Oldpair->UpdatePair(nullptr);	// 이전 Pair의 Pair를 삭제
 
 			if (Pair)
 			{
-				Connect();
+				Connect();	// 새로운 Pair와 연결
 			}
 			else
 			{
-				Disconnect();
+				Disconnect();	// Pair와의 연결을 끊음
 			}
 
 			Oldpair = Pair;
 		}
 	}
-	else if (name == "bPairing")
+	else if (name == "bPairing")	// Pairing 상태가 변경
 	{
-		if (bPairing && Pair)
+		if (bPairing && Pair)	// 설정된 Pair와의 연결을 재개
 		{
 			Connect();
 			Pair->bPairing = true;
 			if(Pair->Pair) Pair->Connect();
 		}
-		else if(Pair)
+		else if(Pair)	// Pair와의 연결을 끊음
 		{
 			Disconnect();
 			Pair->bPairing = false;
 			Pair->Disconnect();
 		}
 	}
-	else if (name == "PortalFX")
+	else if (name == "PortalFX")	// 포탈의 FX가 변경
 	{
 		FXComponent->SetTemplate(PortalFX);
 	}
@@ -136,7 +117,6 @@ void APortal::UpdatePair(APortal* newpair)
 
 void APortal::Connect()
 {
-	//Destination->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	Destination->AttachToComponent(nullptr, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 	Destination->SetWorldLocation(Pair->GetActorLocation() + Pair->GetActorForwardVector() * Pair->Volume->GetScaledBoxExtent().Size());
 	Destination->AttachToComponent(Pair->Volume, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
@@ -145,7 +125,6 @@ void APortal::Connect()
 
 void APortal::Disconnect()
 {
-	//Destination->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	Destination->AttachToComponent(nullptr, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 	Destination->SetWorldLocation(GetActorLocation() + GetActorForwardVector() * Volume->GetScaledBoxExtent().Size());
 	Destination->AttachToComponent(Volume, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));

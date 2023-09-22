@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Intro.h"
+﻿#include "Intro.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Notify.h"
@@ -16,6 +13,7 @@
 void USlotButton::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+
 	bIsFocusable = true;
 
 	if (!Bounded)
@@ -125,6 +123,7 @@ void UIntro::NativeConstruct()
 	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
 	if (Controller)
 	{
+		// 화면 중앙에 마우스 커서 표시
 		int X, Y;
 		Controller->GetViewportSize(X, Y);
 		Controller->SetMouseLocation(X / 2, Y / 2);
@@ -148,27 +147,29 @@ void UIntro::NativeDestruct()
 
 void UIntro::OpenNewGameUI()
 {
+	// 캔버스 패널 전환
 	Intro_Canvas->SetVisibility(ESlateVisibility::Collapsed);
 	NewGame_Canvas->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UIntro::OpenLoadGameUI()
 {
+	// 캔버스 패널 전환
 	Intro_Canvas->SetVisibility(ESlateVisibility::Collapsed);
 	LoadGame_Canvas->SetVisibility(ESlateVisibility::Visible);
 	LoadGame_SaveSlotsScrollBox->SetVisibility(ESlateVisibility::Visible);
 
 	TArray<FString> SlotList;
-	if (JsonLoader::LoadSlotList(SlotList))
+	if (JsonLoader::LoadSlotList(SlotList))	// 세이브 슬롯 목록을 불러옴
 	{
 		for (int i = 0; i < MAX_SAVE_SLOTS; i++)
 		{
-			if (SlotList[i] == "")
+			if (SlotList[i] == "")	// 비어있는 슬롯
 			{
 				LoadGame_SlotButtons[i]->SlotNameText->SetText(FText::FromString("Empty"));
 				LoadGame_SlotButtons[i]->SetIsEnabled(false);
 			}
-			else
+			else	// 유효한 슬롯
 			{
 				LoadGame_SlotButtons[i]->SlotNameText->SetText(FText::FromString(SlotList[i]));
 				LoadGame_SlotButtons[i]->Name = SlotList[i];
@@ -176,7 +177,7 @@ void UIntro::OpenLoadGameUI()
 			}
 		}
 	}
-	else
+	else	// 불러올 목록이 없음
 	{
 		for (int i = 0; i < MAX_SAVE_SLOTS; i++)
 		{
@@ -185,6 +186,7 @@ void UIntro::OpenLoadGameUI()
 		}
 	}
 
+	// 세이브 파일 정보창 초기화
 	LoadGame_InfoNameText->SetText(FText::FromString("Name : "));
 	LoadGame_InfoText->SetText(FText::FromString("Level : \nCurrent Map : "));
 
@@ -203,13 +205,13 @@ void UIntro::Exit()
 
 void UIntro::StartNewGame()
 {
-	FString Name = NewGame_CharacterNameText->GetText().ToString();
+	FString Name = NewGame_CharacterNameText->GetText().ToString();	// 입력한 이름
 
-	if (Name.IsEmpty())
+	if (Name.IsEmpty())	// 이름 칸이 비어있을 경우
 	{
 		AIntroGameMode* IntroGM = Cast<AIntroGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 		UNotify* NotifyPopup = WidgetTree->ConstructWidget<UNotify>(IntroGM->NotifyWidgetClass);
-		if (NotifyPopup)
+		if (NotifyPopup)	// 알림창 팝업
 		{
 			Cast<UCanvasPanel>(GetRootWidget())->AddChild(NotifyPopup);
 			Cast<UCanvasPanelSlot>(NotifyPopup->Slot)->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
@@ -224,8 +226,7 @@ void UIntro::StartNewGame()
 		{
 			GI->InitializeCharacterMemory(Name);
 			int alloced = GI->AllocateSlotIndex();
-			// 세이브 슬롯을 생성할 수 없는 경우
-			if (alloced < 0)
+			if (alloced < 0)	// 세이브 슬롯을 생성할 수 없는 경우
 			{
 				AIntroGameMode* IntroGM = Cast<AIntroGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 				UNotify* NotifyPopup = WidgetTree->ConstructWidget<UNotify>(IntroGM->NotifyWidgetClass);
@@ -234,12 +235,12 @@ void UIntro::StartNewGame()
 					Cast<UCanvasPanel>(GetRootWidget())->AddChild(NotifyPopup);
 					Cast<UCanvasPanelSlot>(NotifyPopup->Slot)->SetAnchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f));
 
-					if (alloced == -1)
+					if (alloced == -1)	// 이미 존재하는 이름일 경우
 					{
 						FString Notification = "Character name " + Name + " already exists";
 						NotifyPopup->SetNotification(Notification);
 					}
-					else
+					else	// 슬롯 칸이 꽉찬 경우
 					{
 						FString Notification = "Character slot is full";
 						NotifyPopup->SetNotification(Notification);
@@ -248,8 +249,8 @@ void UIntro::StartNewGame()
 			}
 			else
 			{
-				GI->SaveToFile();
-				GI->Start();
+				GI->SaveToFile();	// 기본 생성 파일 저장
+				GI->Start();	// 게임 시작
 			}
 		}
 	}
@@ -257,6 +258,7 @@ void UIntro::StartNewGame()
 
 void UIntro::GetSlotInfo(FString Name)
 {
+	// 이름에 맞는 세이브파일 로드
 	FString JsonString;
 	FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + "SaveGames/" + Name + ".json"));
 	TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(JsonString);
@@ -266,19 +268,19 @@ void UIntro::GetSlotInfo(FString Name)
 	if (JsonObject.IsValid())
 	{
 		FCharacterMemory ChMem;
-		JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), ChMem);
+		JsonLoader::LoadCharacterMemory(JsonObject->GetObjectField(TEXT("CharacterMemory")), ChMem);	// 캐릭터 메모리를 불러옴
 		
-		LoadGame_InfoNameText->SetText(FText::FromString("Name : " + Name));
+		LoadGame_InfoNameText->SetText(FText::FromString("Name : " + Name));	// 파일의 이름 표시
 
-		FString info = "Level : " + FString::FromInt(ChMem.CurrentLevel);
+		FString info = "Level : " + FString::FromInt(ChMem.CurrentLevel);	// 현재 레벨 표시
 		info += "\n";
-		info += "Current Map : " + ChMem.CurrentMap;
+		info += "Current Map : " + ChMem.CurrentMap;	// 현재 위치한 맵 표시
 		LoadGame_InfoText->SetText(FText::FromString(info));
 
 		LoadGame_SelectedName = Name;
 		LoadGame_GameStartButton->SetIsEnabled(true);
 	}
-	else
+	else	// 파일을 불러올 수 없는 경우
 	{
 		UE_LOG(LogJson, Error, TEXT("Save File %s not exist"), *Name);
 		LoadGame_InfoNameText->SetText(FText::FromString("Name : " + Name));
@@ -292,7 +294,7 @@ void UIntro::StartLoadGame()
 	auto* GI = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GI)
 	{
-		GI->LoadFromFile(LoadGame_SelectedName);
-		GI->Start();
+		GI->LoadFromFile(LoadGame_SelectedName);	// 세이브 파일을 불러옴
+		GI->Start();	// 불러온 게임을 시작
 	}
 }

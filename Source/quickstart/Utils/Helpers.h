@@ -9,10 +9,11 @@
 #define ITEM_MESH_PATH TEXT("/Game/ShootingGame/Asset/")
 #define ITEM_THUMBNAIL_PATH "/Game/ShootingGame/Image/WidgetImage/"
 
+// 에셋, 컴포넌트 관련 Helper Function 모음
 class Helpers
 {
 public:
-	// Runtime Object Loader
+	// 해당 레퍼런스의 에셋/오브젝트를 로드
 	template<typename T>
 	static FORCEINLINE T* LoadObjectFromPath(const FName& path)
 	{
@@ -23,6 +24,7 @@ public:
 		return obj;
 	}
 
+	// 컴포넌트의 위치, 회전, 크기, 어태치먼트 설정
 	template <typename T>
 	static FORCEINLINE void SetComponent(T** comp, USceneComponent* parent, FVector relLoc, FRotator relRot, FVector relScale = FVector(1.0f, 1.0f, 1.0f))
 	{
@@ -32,7 +34,7 @@ public:
 		(*comp)->SetRelativeScale3D(relScale);
 	}
 
-	// Constructor
+	// 생성자 내에서 에셋 로드
 	template <typename T>
 	static FORCEINLINE T* C_LoadObjectFromPath(const FName& path)
 	{
@@ -45,36 +47,32 @@ public:
 		}
 	}
 
-	// WidgetHelpers
-	static FORCEINLINE FButtonStyle SetButtonStyle(UTexture2D* NormalTexture, float Hover, float )
-	{
-
-	}
-
+	// 아이템 메시를 로드
 	static FORCEINLINE FString GetMeshFromName(FString name)
 	{
 		FString path = "/Game/ShootingGame/Asset/Item/StaticMesh/" + name + "." + name;
 		return path;
 	}
-
+	// 일반 썸네일 로드
 	static FORCEINLINE FString GetNormalThumbnailFromName(FString name)
 	{
 		FString normalpath = "/Game/ShootingGame/Image/WidgetImage/Normal/" + name + "_Normal." + name + "_Normal";
 		return normalpath;
 	}
-
+	// Hovered 썸네일 로드
 	static FORCEINLINE FString GetHoveredThumbnailFromName(FString name)
 	{
 		FString path = "/Game/ShootingGame/Image/WidgetImage/Hovered/" + name + "_Hovered." + name + "_Hovered";
 		return path;
 	}
-
+	// 선택 썸네일 로드
 	static FORCEINLINE FString GetSelectedThumbnailFromName(FString name)
 	{
 		FString path = "/Game/ShootingGame/Image/WidgetImage/Selected/" + name + "_Selected." + name + "_Selected";
 		return path;
 	}
 
+	// 아이템의 타입과 이름을 통해 정보를 출력
 	static FString FindInfo(UDataTable* data, ETypeTag type, FString name, int& out_code)
 	{
 		if (type == ETypeTag::Cloth || type == ETypeTag::Item)
@@ -99,6 +97,7 @@ public:
 		else return "Invaild Type";
 	}
 
+	// 헤더를 적용한 Rich Text를 출력
 	static FORCEINLINE FString GetRichText(FString str, FString header)
 	{
 		return FString("<" + header + ">" + str + "</>");
@@ -108,6 +107,7 @@ public:
 class SaveHelpers
 {
 public:
+	// 상점아이템의 정보를 저장용 구조체에 담음
 	static FORCEINLINE void SaveNPCShopItems(TArray<FShopItemForm> itemlist, TArray<FShopItemShortForm>& saver)
 	{
 		saver.Empty();
@@ -119,10 +119,4 @@ public:
 			saver.Add(shortform);
 		}
 	}
-	static void RECOMPILE()
-	{
-
-	}
 };
-/*
-*/

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Beacon.h"
 #include "Components/BrushComponent.h"
 #include "../../Utils/Helpers.h"

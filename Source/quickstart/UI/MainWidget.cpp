@@ -12,7 +12,6 @@ void UMainWidget::NativePreConstruct()
 	if (!Bounded)
 	{
 		HPBarWidget = Cast<UProgressBar>(GetWidgetFromName(TEXT("HPBar")));
-		MinimapImage = Cast<UImage>(GetWidgetFromName(TEXT("Minimap")));
 		QuickslotImage_Weapon.Add(Cast<UImage>(GetWidgetFromName("Weapon_Curr")));
 		QuickslotImage_Weapon.Add(Cast<UImage>(GetWidgetFromName("Weapon_Next")));
 		QuickslotImage_Item.Add(Cast<UImage>(GetWidgetFromName("Item_Curr")));
@@ -29,7 +28,6 @@ void UMainWidget::NativeConstruct()
 	UUserWidget::NativeConstruct();
 
 	check(HPBarWidget)
-	check(MinimapImage)
 	check(QuickslotImage_Item[0])
 	check(QuickslotImage_Item[1])
 	check(QuickslotImage_Weapon[0])
