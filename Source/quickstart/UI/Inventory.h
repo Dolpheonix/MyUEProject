@@ -15,6 +15,14 @@
 #include "Sound/SoundCue.h"
 #include "Inventory.generated.h"
 
+// 아이템 슬롯 캡쳐 시 정보 저장
+struct CapturedSlot_Info
+{
+	ETypeTag ItemType;
+	int index;
+	FString tag;
+};
+
 UCLASS()
 class QUICKSTART_API UInventory : public UUserWidget
 {

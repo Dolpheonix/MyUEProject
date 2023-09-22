@@ -5,8 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/ShapeComponent.h"
-#include "../../Utils/Structs.h"
 #include "PhysicsObject.generated.h"
+
+UENUM(BlueprintType)
+enum class EShapeCollision : uint8
+{
+	Box,
+	Sphere,
+	Capsule,
+	Convex,
+};
 
 UCLASS(hidecategories="Components")
 class QUICKSTART_API APhysicsObject : public AActor

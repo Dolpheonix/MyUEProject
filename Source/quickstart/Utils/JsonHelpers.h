@@ -9,6 +9,7 @@
 class JsonLoader
 {
 public:
+	// 문자열을 ETypeTag로 변환
 	static ETypeTag EnumifyItemType(FString TypeStr)
 	{
 		ETypeTag OutVal;
@@ -32,7 +33,7 @@ public:
 
 		return OutVal;
 	}
-
+	// 문자열을 EQuestProgress로 변환
 	static EQuestProgress EnumifyQuestProgressType(FString TypeStr)
 	{
 		if (TypeStr == "Unavailable")
@@ -61,7 +62,7 @@ public:
 			return EQuestProgress::Max;
 		}
 	}
-
+	// Json 배열을 벡터로 변환
 	static FVector LoadVector(TArray<TSharedPtr<FJsonValue>> Vec)
 	{
 		FVector OutVal;
@@ -71,7 +72,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FRotator로 변환
 	static FRotator LoadRotator(TSharedPtr<FJsonObject> Rot)
 	{
 		FRotator OutVal;
@@ -81,7 +82,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FDialogueEvent로 변환
 	static void LoadDialogueResponseEvents(TArray<TSharedPtr<FJsonValue>> Events, TArray<FDialogueEvent>& OutVal)
 	{
 		for (int i = 0; i < Events.Num(); i++)
@@ -118,7 +119,7 @@ public:
 			OutVal.Add(Eve);
 		}
 	}
-
+	// Json 오브젝트를 FDialogueResponse로 변환
 	static void LoadDialogueResponses(TArray<TSharedPtr<FJsonValue>> Responses, TArray<FDialogueResponse>& OutVal)
 	{
 		for (int i = 0; i < Responses.Num(); i++)
@@ -136,7 +137,7 @@ public:
 			OutVal.Add(Res);
 		}
 	}
-
+	// NPC의 Dialogue를 Json 파일로부터 로드
 	static void LoadNPCDialogue(TArray<AActor*>& NPCList)
 	{
 		for (int i = 0; i < NPCList.Num(); i++)
@@ -144,6 +145,7 @@ public:
 			ANPC* npc = Cast<ANPC>(NPCList[i]);
 			if (npc)
 			{
+				// 해당 NPC의 이름이 파일 제목인 json 파일을 찾음
 				FString DialogueJstr;
 				FString DialoguePath = FPaths::ProjectSavedDir() + "Core/Dialogue/" + npc->DisplayName + ".json";
 				if (FFileHelper::LoadFileToString(DialogueJstr, *DialoguePath))
@@ -153,7 +155,7 @@ public:
 					FJsonSerializer::Deserialize(JsonReader, JsonObject);
 
 					TArray<TSharedPtr<FJsonValue>> Dialogues = JsonObject->GetArrayField(TEXT("Dialogues"));
-
+					// Dialogue line을 로드
 					for (int j = 0; j < Dialogues.Num(); j++)
 					{
 						TSharedPtr<FJsonObject> Dialogue = Dialogues[j]->AsObject();
@@ -171,7 +173,7 @@ public:
 			}
 		}
 	}
-
+	// Json 오브젝트를 FItemShortForm으로 변환
 	static FItemShortForm LoadItemShortForm(TSharedPtr<FJsonObject> Item)
 	{
 		FItemShortForm OutVal;
@@ -184,7 +186,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 배열을 FItemShortForm 배열로 변환
 	static TArray<FItemShortForm> LoadItemShortForms(TArray<TSharedPtr<FJsonValue>> Items)
 	{
 		TArray<FItemShortForm> OutVal;
@@ -196,7 +198,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FReward로 변환
 	static void LoadQuestRewards(TArray<TSharedPtr<FJsonValue>> Rewards, TArray<FReward>& OutVal)
 	{
 		for (int i = 0; i < Rewards.Num(); i++)
@@ -227,7 +229,7 @@ public:
 			}
 		}
 	}
-
+	// Json 오브젝트를 FSingleQuest로 변환
 	static void LoadSubQuests(TArray<TSharedPtr<FJsonValue>> SubQuests, TArray<FSingleQuest>& OutVal)
 	{
 		for (int i = 0; i < SubQuests.Num(); i++)
@@ -237,6 +239,7 @@ public:
 			FSingleQuest SQ;
 			SQ.Name = SubQuest->GetStringField(TEXT("Name"));
 
+			// 서브퀘스트 타입에 따라 다른 Json Field를 로드
 			FString TypeStr = SubQuest->GetStringField(TEXT("Type"));
 			if (TypeStr == "Arrival")
 			{
@@ -308,7 +311,7 @@ public:
 			OutVal.Add(SQ);
 		}
 	}
-
+	// Json 오브젝트를 FQuestDIalogueEvent로 변환
 	static void LoadQuestDialogueEvents(TArray<TSharedPtr<FJsonValue>> Events, TArray<FQuestDialogueEvent>& OutVal)
 	{
 		for (int i = 0; i < Events.Num(); i++)
@@ -317,6 +320,7 @@ public:
 
 			FQuestDialogueEvent DE;
 			
+			// 이벤트 타입에 따라 다른 필드를 로드
 			FString TypeStr = Event->GetStringField(TEXT("Type"));
 			if (TypeStr == "Commit")
 			{
@@ -349,7 +353,7 @@ public:
 			OutVal.Add(DE);
 		}
 	}
-
+	// Json 오브젝트를 FQuestDialogueResponse로 변환
 	static void LoadQuestDialogueResponses(TArray<TSharedPtr<FJsonValue>> Responses, TArray<FQuestDialogueResponse>& OutVal)
 	{
 		for (int i = 0; i < Responses.Num(); i++)
@@ -365,7 +369,7 @@ public:
 			OutVal.Add(DR);
 		}
 	}
-
+	// Json 오브젝트를 FQuestDialogueTree로 변환
 	static void LoadQuestDialogues(TArray<TSharedPtr<FJsonValue>> Dialogues, FQuestDialogueTree& OutVal)
 	{
 		for (int i = 0; i < Dialogues.Num(); i++)
@@ -380,9 +384,10 @@ public:
 			OutVal.DialogueLines.Add(DL);
 		}
 	}
-
+	// Json 오브젝트를 FQuest로 변환
 	static void LoadQuests(TArray<FQuest>& OutVal)
 	{
+		// Quest.json 파일을 로드
 		FString JsonString;
 		FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + "Core/Quest.json"));
 		TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(JsonString);
@@ -391,6 +396,7 @@ public:
 
 		TArray<TSharedPtr<FJsonValue>> Quests = JsonObject->GetArrayField(TEXT("Quests"));
 
+		// FQuest로 변환 후, 배열에 추가
 		for (int i = 0; i < Quests.Num(); i++)
 		{
 			TSharedPtr<FJsonObject> Quest = Quests[i]->AsObject();
@@ -400,6 +406,7 @@ public:
 			Q.Name = Quest->GetStringField(TEXT("Name"));
 			Q.Info = Quest->GetStringField(TEXT("Explanation"));
 			
+			// EQuestType
 			FString QuestType = Quest->GetStringField(TEXT("Type"));
 			if (QuestType == "Serial")
 			{
@@ -423,6 +430,7 @@ public:
 			TArray<TSharedPtr<FJsonValue>> SubQuests = Quest->GetArrayField(TEXT("SubQuests"));
 			LoadSubQuests(SubQuests, Q.SubQuests);
 
+			// 진행도 별 Dialogue를 로드
 			TSharedPtr<FJsonObject> Dialogues = Quest->GetObjectField(TEXT("Dialogues"));
 			TArray<TSharedPtr<FJsonValue>> Dialogues_U = Dialogues->GetArrayField(TEXT("Unavailable"));
 			TArray<TSharedPtr<FJsonValue>> Dialogues_A = Dialogues->GetArrayField(TEXT("Available"));
@@ -438,9 +446,10 @@ public:
 			OutVal.Add(Q);
 		}
 	}
-
+	// Json 오브젝트를 세이브 슬롯 리스트로 변환
 	static bool LoadSlotList(TArray<FString>& OutVal)
 	{
+		// SaveSlotList.json 파일 로드
 		FString JsonString;
 		bool res = FFileHelper::LoadFileToString(JsonString, *(FPaths::ProjectSavedDir() + "Core/SaveSlotList.json"));
 		TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(JsonString);
@@ -448,7 +457,7 @@ public:
 		FJsonSerializer::Deserialize(Reader, JsonObject);
 
 		TArray<TSharedPtr<FJsonValue>> SaveSlots = JsonObject->GetArrayField(TEXT("SaveSlots"));
-
+		// String 배열로 전환
 		for (int i = 0; i < SaveSlots.Num(); i++)
 		{
 			OutVal.Add(SaveSlots[i]->AsString());
@@ -456,7 +465,7 @@ public:
 
 		return res;
 	}
-
+	// Json 오브젝트를 FSubQuestStatus로 변환
 	static TArray<FSubQuestStatus> LoadSubQuestStatus(TArray<TSharedPtr<FJsonValue>> SubQuestStatus)
 	{
 		TArray<FSubQuestStatus> OutVal;
@@ -466,12 +475,12 @@ public:
 			TSharedPtr<FJsonObject> SQS = SubQuestStatus[i]->AsObject();
 
 			FSubQuestStatus OV;
-			OV.Completed = SQS->GetBoolField(TEXT("Completed"));
+			OV.Completed = SQS->GetBoolField(TEXT("Completed"));	// 퀘스트 완료 여부
 
 			TArray<TSharedPtr<FJsonValue>> CA = SQS->GetArrayField(TEXT("CurrAmount"));
 			for (int j = 0; j < CA.Num(); j++)
 			{
-				OV.CurrAmount.Add(CA[j]->AsNumber());
+				OV.CurrAmount.Add(CA[j]->AsNumber());	// 현재 처치/획득 수
 			}
 			
 			OutVal.Add(OV);
@@ -479,7 +488,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FQuestStatus로 변환
 	static TArray<FQuestStatus> LoadQuestStatus(TArray<TSharedPtr<FJsonValue>> QuestStatus)
 	{
 		TArray<FQuestStatus> OutVal;
@@ -500,7 +509,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FShopItemShortForm으로 변환
 	static TArray<FShopItemShortForm> LoadShopItems(TArray<TSharedPtr<FJsonValue>> ShopItems)
 	{
 		TArray<FShopItemShortForm> OutVal;
@@ -518,7 +527,7 @@ public:
 		
 		return OutVal;
 	}
-
+	// Json 오브젝트를 FActorMemory로 변환
 	static FActorMemory LoadActorMemory(TSharedPtr<FJsonObject> ActorMemory)
 	{
 		FActorMemory OutVal;
@@ -529,7 +538,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 배열을 FActorMemory 배열로 변환
 	static TArray<FActorMemory> LoadActorMemories(TArray<TSharedPtr<FJsonValue>> ActorMemories)
 	{
 		TArray<FActorMemory> OutVal;
@@ -542,7 +551,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 배열을 FNPCMemory 배열로 변환
 	static TArray<FNPCMemory> LoadNPCMemories(TArray<TSharedPtr<FJsonValue>> NPCMemories)
 	{
 		TArray<FNPCMemory> OutVal;
@@ -562,7 +571,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 배열을 FMapMemory 배열로 변환
 	static void LoadMapMemories(TArray<TSharedPtr<FJsonValue>> MapMemories, TArray<FMapMemory>& OutVal)
 	{
 		for (int i = 0; i < MapMemories.Num(); i++)
@@ -576,12 +585,13 @@ public:
 			OutVal.Add(OV);
 		}
 	}
-
+	// Json 오브젝트를 FWrappedItemForm 배열로 변환
 	static TArray<FWrappedItemForm> LoadInventory(TSharedPtr<FJsonObject> Inventory)
 	{
 		TArray<FWrappedItemForm> OutVal;
 		OutVal.SetNum(3);
 
+		// 의상 인벤토리
 		TArray<TSharedPtr<FJsonValue>> Clothes = Inventory->GetArrayField(TEXT("Clothes"));
 		for (int i = 0; i < Clothes.Num(); i++)
 		{
@@ -591,7 +601,7 @@ public:
 			Itemform.ShortForm = LoadItemShortForm(Cloth);
 			OutVal[(uint8)ETypeTag::Cloth].ItemForms.Add(Itemform);
 		}
-
+		// 무기 인벤토리
 		TArray<TSharedPtr<FJsonValue>> Weapons = Inventory->GetArrayField(TEXT("Weapons"));
 		for (int i = 0; i < Weapons.Num(); i++)
 		{
@@ -601,7 +611,7 @@ public:
 			Itemform.ShortForm = LoadItemShortForm(Weapon);
 			OutVal[(uint8)ETypeTag::Weapon].ItemForms.Add(Itemform);
 		}
-
+		// 아이템 인벤토리
 		TArray<TSharedPtr<FJsonValue>> Items = Inventory->GetArrayField(TEXT("Items"));
 		for (int i = 0; i < Items.Num(); i++)
 		{
@@ -614,7 +624,7 @@ public:
 
 		return OutVal;
 	}
-
+	// Json 오브젝트를 퀵슬롯 배열로 변환
 	static TArray<int> LoadQuickslot(TSharedPtr<FJsonObject> Quickslot)
 	{
 		TArray<int> OutVal;
@@ -625,8 +635,7 @@ public:
 
 		return OutVal;
 	}
-
-	// 캐릭터 메모리 불러오기
+	// Json 오브젝트를 FCharacterMemory로 변환
 	static void LoadCharacterMemory(TSharedPtr<FJsonObject> CharacterMemory, FCharacterMemory& OutVal)
 	{
 		OutVal.DisplayName = CharacterMemory->GetStringField(TEXT("DisplayName")); // 이름
@@ -643,9 +652,11 @@ public:
 	}
 };
 
+// 구조체를 Json 오브젝트/파일로 변환
 class JsonSaver
 {
 public:
+	// Json 오브젝트를 해당 경로의 파일에 저장
 	static bool SaveObjectToJson(TSharedPtr<FJsonObject> Obj, FString FilePath)
 	{
 		FString FileStr;
@@ -654,7 +665,7 @@ public:
 		FJsonSerializer::Serialize(Obj.ToSharedRef(), Writer);
 		return FFileHelper::SaveStringToFile(*FileStr, *FilePath);
 	}
-
+	// ETypeTag를 Json 오브젝트로 변환
 	static FString StringifyItemType(ETypeTag Type)
 	{
 		if (Type == ETypeTag::Cloth) return "Cloth";
@@ -663,7 +674,7 @@ public:
 
 		return "None";
 	}
-
+	// EQuestProgress를 Json 오브젝트로 변환
 	static FString StringifyQuestProgress(EQuestProgress Type)
 	{
 		if (Type == EQuestProgress::Unavailable) return "Unavailable";
@@ -674,7 +685,7 @@ public:
 
 		return "None";
 	}
-
+	// 벡터를 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveVector(FVector Vector)
 	{
 		TArray<TSharedPtr<FJsonValue>> JsonVector;
@@ -687,7 +698,7 @@ public:
 
 		return JsonVector;
 	}
-
+	// FRotator를 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveRotator(FRotator Rotator)
 	{
 		TSharedPtr<FJsonObject> JsonRotator = MakeShareable(new FJsonObject());
@@ -697,7 +708,7 @@ public:
 
 		return JsonRotator;
 	}
-
+	// FItemShortForm을 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveItemShortForm(FItemShortForm ItemShortForm)
 	{
 		TSharedPtr<FJsonObject> ItemShortFormObj = MakeShareable(new FJsonObject());
@@ -710,7 +721,7 @@ public:
 
 		return ItemShortFormObj;
 	}
-
+	// FItemShortForm 배열을 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveItemShortForms(TArray<FItemShortForm> ItemShortForms)
 	{
 		TArray<TSharedPtr<FJsonValue>> OutVals;
@@ -722,11 +733,12 @@ public:
 
 		return OutVals;
 	}
-
+	// FWrappedItemForm 배열을 Json 오브젝트로 변환 (플레이어의 인벤토리)
 	static TSharedPtr<FJsonObject> SaveInventory(TArray<FWrappedItemForm> Inventory)
 	{
 		TSharedPtr<FJsonObject> JsonInventory = MakeShareable(new FJsonObject());
 		
+		// 의상 인벤토리
 		TArray<TSharedPtr<FJsonValue>> JsonClothes;
 		for (int i = 0; i < Inventory[(uint8)ETypeTag::Cloth].ItemForms.Num(); i++)
 		{
@@ -735,7 +747,7 @@ public:
 			JsonClothes.Add(MakeShareable(new FJsonValueObject(SaveItemShortForm(Cloth))));
 		}
 		JsonInventory->SetArrayField(TEXT("Clothes"), JsonClothes);
-
+		// 무기 인벤토리
 		TArray<TSharedPtr<FJsonValue>> JsonWeapons;
 		for (int i = 0; i < Inventory[(uint8)ETypeTag::Weapon].ItemForms.Num(); i++)
 		{
@@ -744,7 +756,7 @@ public:
 			JsonWeapons.Add(MakeShareable(new FJsonValueObject(SaveItemShortForm(Weapon))));
 		}
 		JsonInventory->SetArrayField(TEXT("Weapons"), JsonWeapons);
-
+		// 아이템 인벤토리
 		TArray<TSharedPtr<FJsonValue>> JsonItems;
 		for (int i = 0; i < Inventory[(uint8)ETypeTag::Item].ItemForms.Num(); i++)
 		{
@@ -756,7 +768,7 @@ public:
 		
 		return JsonInventory;
 	}
-
+	// FWrappedItemForm 배열을 Json 오브젝트로 변환 (NPC의 상점 인벤토리)
 	static TArray<TSharedPtr<FJsonValue>> SaveShopItems(TArray<FShopItemShortForm> ShopItems)
 	{
 		TArray<TSharedPtr<FJsonValue>> ShopItemsMem;
@@ -773,7 +785,7 @@ public:
 
 		return ShopItemsMem;
 	}
-
+	// 퀵슬롯 배열을 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveQuickSlot(TArray<int> Quickslot)
 	{
 		TSharedPtr<FJsonObject> QuickslotObj = MakeShareable(new FJsonObject());
@@ -784,8 +796,7 @@ public:
 
 		return QuickslotObj;
 	}
-
-	// 캐릭터 메모리를 저장
+	// FCharacterMemory를 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveCharacterMemory(FCharacterMemory CharacterMemory)
 	{
 		TSharedPtr<FJsonObject> ChMemObj = MakeShareable(new FJsonObject());
@@ -804,7 +815,7 @@ public:
 		
 		return ChMemObj;
 	}
-
+	// FActorMemory를 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveActorMemory(FActorMemory ActorMemory)
 	{
 		TSharedPtr<FJsonObject> ActorMemObj = MakeShareable(new FJsonObject());
@@ -816,7 +827,7 @@ public:
 
 		return ActorMemObj;
 	}
-
+	// FNPCMemory 배열을 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveNPCMemories(TArray<FNPCMemory> NPCMemory)
 	{
 		TArray<TSharedPtr<FJsonValue>> NPCMemories;
@@ -836,7 +847,7 @@ public:
 
 		return NPCMemories;
 	}
-
+	// FActorMemory 배열을 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveActorMemories(TArray<FActorMemory> ActorMemory)
 	{
 		TArray<TSharedPtr<FJsonValue>> ActorMemories;
@@ -848,7 +859,7 @@ public:
 
 		return ActorMemories;
 	}
-
+	// FMapMemory를 Json 오브젝트로 변환
 	static TSharedPtr<FJsonObject> SaveMapMemory(FMapMemory MapMemory)
 	{
 		TSharedPtr<FJsonObject> MapMemObj = MakeShareable(new FJsonObject());
@@ -859,7 +870,7 @@ public:
 
 		return MapMemObj;
 	}
-
+	// FSubQuestStatus 배열을 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveSubQuestStatuses(TArray<FSubQuestStatus> SubQuestStatus)
 	{
 		TArray<TSharedPtr<FJsonValue>> SQSS;
@@ -869,7 +880,7 @@ public:
 
 			SQS->SetBoolField(TEXT("Completed"), SubQuestStatus[i].Completed);
 			TArray<TSharedPtr<FJsonValue>> Amount;
-			for (int j = 0; j < SubQuestStatus[i].CurrAmount.Num(); j++)
+			for (int j = 0; j < SubQuestStatus[i].CurrAmount.Num(); j++)	// 처치/획득 수
 			{
 				Amount.Add(MakeShareable(new FJsonValueNumber(SubQuestStatus[i].CurrAmount[j])));
 			}
@@ -880,7 +891,7 @@ public:
 
 		return SQSS;
 	}
-
+	// FQuestStatus 배열을 Json 배열로 변환
 	static TArray<TSharedPtr<FJsonValue>> SaveQuestStatuses(TArray<FQuestStatus> QuestStatus)
 	{
 		TArray<TSharedPtr<FJsonValue>> QSS;
@@ -899,7 +910,7 @@ public:
 
 		return QSS;
 	}
-
+	// 스트링 배열을 SaveSlotList.json에 저장
 	static bool SaveSlotList(TArray<FString> SlotList)
 	{
 		FString FilePath = *(FPaths::ProjectSavedDir() + "Core/SaveSlotList.json");

@@ -1,3 +1,4 @@
+// 자주 쓰이는 구조체 모음
 #pragma once
 
 #include "CoreMinimal.h"
@@ -5,6 +6,7 @@
 #include "Engine/DataTable.h"
 #include "Structs.generated.h"
 
+// 아이템 타입
 UENUM(BlueprintType)
 enum class ETypeTag : uint8
 {
@@ -13,6 +15,7 @@ enum class ETypeTag : uint8
 	Cloth,
 };
 
+// 아이템 정보를 담는 구조체. 에디터 내에서 수정, 게임 저장/로드 시 사용
 USTRUCT(Atomic, BlueprintType)
 struct FItemShortForm
 {
@@ -35,7 +38,7 @@ struct FItemShortForm
 	FItemShortForm(ETypeTag type, FString name) : TypeTag(type), NameTag(name), InfoTag(""), Code(0), Num(1), bIsSellable(true) {}
 };
 
-
+// 아이템 정보와 썸네일 이미지를 가지고 있어, 게임 플레이 중 직접 사용하는 아이템 구조체
 USTRUCT(Atomic, BlueprintType)
 struct FItemForm
 {
@@ -58,7 +61,7 @@ struct FItemForm
 	FItemForm(FItemShortForm sf) : MeshComponent(nullptr), Thumbnail_N(nullptr), Thumbnail_H(nullptr), Thumbnail_S(nullptr), ShortForm(sf) {}
 };
 
-
+// TArray는 2차원 배열이 불가능해서 한번 둘러싸는 형태로 만든 구조체
 USTRUCT(BlueprintType)
 struct FWrappedItemForm
 {
@@ -67,30 +70,4 @@ struct FWrappedItemForm
 public:
 	UPROPERTY(BlueprintReadOnly)
 		TArray<FItemForm> ItemForms;
-};
-
-struct CapturedSlot_Info
-{
-	ETypeTag ItemType;
-	int index;
-	FString tag;
-};
-
-UENUM(BlueprintType)
-enum class EShapeCollision : uint8
-{
-	Box,
-	Sphere,
-	Capsule,
-	Convex,
-};
-
-struct AnimationAssetPhases
-{
-public:
-	static constexpr float Fist = 1.0f;
-	static constexpr float Fire = 1.1f;
-	static constexpr float Wield[4] = { 1.0f, 2.0f, 3.0f, 4.8f };
-	static constexpr float Interact = 0.8f;
-	static constexpr float Jump = 0.9f;
 };

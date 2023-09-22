@@ -41,6 +41,17 @@ enum class ECustomActionMode : uint8
 	MAX,		
 };
 
+// Main Character의 애니메이션 재생 시간
+struct AnimationAssetPhases
+{
+public:
+	static constexpr float Fist = 1.0f;
+	static constexpr float Fire = 1.1f;
+	static constexpr float Wield[4] = { 1.0f, 2.0f, 3.0f, 4.8f };
+	static constexpr float Interact = 0.8f;
+	static constexpr float Jump = 0.9f;
+};
+
 // 캐릭터가 사다리를 탈 때 전달받을 사다리의 정보
 USTRUCT(Atomic, BlueprintType)
 struct FLadderInfo

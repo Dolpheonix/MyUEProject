@@ -7,7 +7,6 @@ AThrowable::AThrowable()
 	// Collision Component
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	CollisionComponent->SetCollisionProfileName(TEXT("Projectile"));
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AThrowable::OnHit); // component에 hit event가 발생했을 때, OnHit function을 호출하도록 binding
 	CollisionComponent->InitSphereRadius(13.0f);
 	RootComponent = CollisionComponent;
 
