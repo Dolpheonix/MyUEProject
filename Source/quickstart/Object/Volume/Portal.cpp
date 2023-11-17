@@ -25,6 +25,7 @@ APortal::APortal()
 	Volume->OnComponentBeginOverlap.AddDynamic(this, &APortal::OnOverlapped_Teleport);
 }
 
+#if WITH_EDITOR
 void APortal::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -75,6 +76,7 @@ void APortal::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent
 		FXComponent->SetTemplate(PortalFX);
 	}
 }
+#endif
 
 void APortal::OnOverlapped_Teleport(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

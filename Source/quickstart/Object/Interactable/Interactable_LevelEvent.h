@@ -15,8 +15,9 @@ class QUICKSTART_API AInteractable_LevelEvent : public AInteractable
 	
 public:
 	AInteractable_LevelEvent();
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& e) override;
-
+#endif
 public:
 	// 레벨 이벤트
 	UPROPERTY(BlueprintAssignable, Category = "Event")

@@ -26,7 +26,6 @@ void ABeacon::RegisterQuest(FSingleQuest* quest)
 	FXComponent->SetTemplate(quest->FXTemplate);
 	Volume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Volume->SetCollisionProfileName("Volume");
-	Volume->UpdateCollisionProfile();
 }
 
 void ABeacon::OnOverlapped_Arrival(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

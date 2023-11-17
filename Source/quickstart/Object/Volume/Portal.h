@@ -20,8 +20,9 @@ public:
 	APortal();
 
 public:	
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
+#endif
 	UFUNCTION()
 	void OnOverlapped_Teleport(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	// Pair 프로퍼티 변경 시, 이를 반대편 포탈에 적용

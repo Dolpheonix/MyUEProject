@@ -58,7 +58,7 @@ void AChain::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
+#if WITH_EDITOR
 void AChain::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -84,6 +84,7 @@ void AChain::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 		UpdateBind(false);
 	}
 }
+#endif
 
 void AChain::UpdateSegments()
 {

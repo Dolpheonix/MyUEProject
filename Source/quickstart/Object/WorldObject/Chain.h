@@ -25,8 +25,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	// Called when Property Changed in Editor
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
+#endif
 	void UpdateSegments();
 	void UpdateBind(bool isLeft);
 	void AdjustSegments();

@@ -25,8 +25,9 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	// 에디터에서 Array 프로퍼티가 변경되었을 경우
+#if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e) override;
-
+#endif
 	virtual void OnHurt() override;
 	virtual void OnDead() override;
 

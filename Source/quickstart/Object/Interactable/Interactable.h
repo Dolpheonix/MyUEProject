@@ -21,8 +21,9 @@ protected:
 	virtual void BeginPlay() override;
 public:	
 	virtual void Tick(float DeltaTime) override;
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
+#endif
 protected:
 	AMainCharacter* Player;
 	// 상호작용 가능 범위의 중심점

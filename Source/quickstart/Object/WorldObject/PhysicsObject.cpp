@@ -22,7 +22,7 @@ APhysicsObject::APhysicsObject()
 
 	UpdateCollisionSetting();
 }
-
+#if WITH_EDITOR
 void APhysicsObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	auto propName = PropertyChangedEvent.MemberProperty->GetFName();
@@ -39,7 +39,7 @@ void APhysicsObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
-
+#endif
 // Called when the game starts or when spawned
 void APhysicsObject::BeginPlay()
 {

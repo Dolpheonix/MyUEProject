@@ -77,7 +77,7 @@ void AInteractable::Tick(float DeltaTime)
 		bInteractable = false;
 	}
 }
-
+#if WITH_EDITOR
 void AInteractable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -129,3 +129,4 @@ void AInteractable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 		InteractionRangeArrow_R->MarkRenderStateDirty();
 	}
 }
+#endif

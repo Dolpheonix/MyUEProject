@@ -43,7 +43,7 @@ void ACollectableItem::Tick(float DeltaTime)
 
 	MeshComponent->AddRelativeRotation(FRotator(0.0f, 0.5f, 0.0f));	// 틱마다 회전
 }
-
+#if WITH_EDITOR
 void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -111,7 +111,7 @@ void ACollectableItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 		}
 	}
 }
-
+#endif
 void ACollectableItem::Interact()
 {
 	Player->Register(ItemInfo);	// 플레이어에 아이템을 추가

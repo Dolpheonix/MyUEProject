@@ -19,8 +19,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Interact() override;
 	virtual void Tick(float DeltaTime) override;
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
+#endif
 public:
 	// Mesh Component
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mesh")

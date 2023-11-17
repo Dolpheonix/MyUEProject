@@ -87,7 +87,7 @@ void ANPC::Tick(float DeltaTime)
 		bInteractable = false;
 	}
 }
-
+#if WITH_EDITOR
 void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
 {
 	Super::PostEditChangeChainProperty(e);
@@ -142,7 +142,7 @@ void ANPC::PostEditChangeChainProperty(struct FPropertyChangedChainEvent& e)
 		}
 	}
 }
-
+#endif
 void ANPC::OnHurt()
 {
 
